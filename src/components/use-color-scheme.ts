@@ -1,20 +1,15 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useTheme } from "next-themes";
 
 export type ColorScheme = "light" | "dark";
 
+/**
+ * Resolved color scheme from next-themes (follows the manual Light/Dark/System
+ * choice, not the OS media query). Defaults to "light" during SSR + first
+ * render, matching the app's default theme.
+ */
 export function useColorScheme(): ColorScheme {
-  const [scheme, setScheme] = useState<ColorScheme>("light");
-
-  useEffect(() => {
-    if (typeof window === "undefined" || !window.matchMedia) return;
-    const mql = window.matchMedia("(prefers-color-scheme: dark)");
-    const apply = () => setScheme(mql.matches ? "dark" : "light");
-    apply();
-    mql.addEventListener("change", apply);
-    return () => mql.removeEventListener("change", apply);
-  }, []);
-
-  return scheme;
+  const { resolvedTheme } = useTheme();
+  return resolvedTheme === "dark" ? "dark" : "light";
 }

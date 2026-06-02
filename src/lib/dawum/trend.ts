@@ -82,3 +82,30 @@ export function buildBundestagTrend(
 
   return { points, series, range: { from: first, to: last } };
 }
+
+/**
+ * Smooth each party series with a trailing simple moving average over the last
+ * `window` samples that actually reported that party. Reduces the zig-zag from
+ * differing institute house effects while keeping the same x positions, so the
+ * chart stays aligned with the raw survey dates. Points are cloned; the input
+ * is not mutated.
+ */
+export function smoothTrendData(data: TrendData, window = 5): TrendData {
+  if (window <= 1 || data.points.length === 0) return data;
+
+  const smoothed: TrendPoint[] = data.points.map((p) => ({ ...p }));
+
+  for (const s of data.series) {
+    const recent: number[] = [];
+    for (let i = 0; i < data.points.length; i++) {
+      const value = data.points[i][s.shortcut];
+      if (typeof value !== "number") continue;
+      recent.push(value);
+      if (recent.length > window) recent.shift();
+      const avg = recent.reduce((acc, n) => acc + n, 0) / recent.length;
+      smoothed[i][s.shortcut] = Math.round(avg * 100) / 100;
+    }
+  }
+
+  return { ...data, points: smoothed };
+}

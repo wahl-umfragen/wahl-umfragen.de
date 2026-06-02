@@ -28,9 +28,17 @@ const TOOLTIP_FORMAT = new Intl.DateTimeFormat("de-DE", {
 
 export interface TrendChartProps {
   data: TrendData;
+  /** Cap on charted series to keep the legend readable. */
+  maxSeries?: number;
+  /** Render markers at each survey point (off looks cleaner when smoothed). */
+  showDots?: boolean;
 }
 
-export function TrendChart({ data }: TrendChartProps) {
+export function TrendChart({
+  data,
+  maxSeries = 8,
+  showDots = true,
+}: TrendChartProps) {
   const scheme = useColorScheme();
   if (data.points.length === 0) {
     return (
@@ -43,15 +51,17 @@ export function TrendChart({ data }: TrendChartProps) {
     );
   }
 
+  const series = data.series.slice(0, maxSeries);
+
   return (
     <div
       data-testid="trend-chart"
-      className="h-72 w-full rounded-lg border border-zinc-200 bg-white p-2 dark:border-zinc-800 dark:bg-zinc-900 sm:h-96"
+      className="h-80 w-full rounded-lg border border-zinc-200 bg-white p-2 dark:border-zinc-800 dark:bg-zinc-900 sm:h-[26rem]"
     >
       <ResponsiveContainer width="100%" height="100%">
         <LineChart
           data={data.points}
-          margin={{ top: 8, right: 16, bottom: 8, left: 0 }}
+          margin={{ top: 8, right: 20, bottom: 8, left: 0 }}
         >
           <CartesianGrid
             strokeDasharray="3 3"
@@ -66,8 +76,10 @@ export function TrendChart({ data }: TrendChartProps) {
             tickFormatter={(v: number) => X_FORMAT.format(new Date(v))}
             stroke="currentColor"
             tick={{ fontSize: 12 }}
-            minTickGap={48}
-            tickMargin={8}
+            minTickGap={56}
+            tickMargin={10}
+            height={28}
+            interval="preserveStartEnd"
           />
           <YAxis
             tickFormatter={(v: number) => `${v}%`}
@@ -76,8 +88,14 @@ export function TrendChart({ data }: TrendChartProps) {
             width={40}
           />
           <Tooltip content={(props) => <TrendTooltip {...props} />} />
-          <Legend wrapperStyle={{ fontSize: 12 }} />
-          {data.series.map((s) => (
+          <Legend
+            verticalAlign="bottom"
+            height={36}
+            iconType="plainline"
+            iconSize={16}
+            wrapperStyle={{ fontSize: 12, paddingTop: 4 }}
+          />
+          {series.map((s) => (
             <Line
               key={s.shortcut}
               type="monotone"
@@ -85,7 +103,7 @@ export function TrendChart({ data }: TrendChartProps) {
               name={s.shortcut}
               stroke={partyColor(s.shortcut, { scheme })}
               strokeWidth={2}
-              dot={{ r: 2 }}
+              dot={showDots ? { r: 2 } : false}
               activeDot={{ r: 4 }}
               connectNulls
               isAnimationActive={false}

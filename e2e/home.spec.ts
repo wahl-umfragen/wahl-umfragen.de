@@ -59,17 +59,28 @@ test.describe("home page", () => {
   });
 });
 
-test.describe("trend page", () => {
-  test("renders the 90-day trend chart after hydration", async ({ page }) => {
+test.describe("auswertung page", () => {
+  test("renders the dashboard charts after hydration", async ({ page }) => {
     await page.goto("/trend");
 
     await expect(
-      page.getByRole("heading", { name: "Trend (90 Tage)", level: 2 }),
+      page.getByRole("heading", { name: "Auswertung", level: 2 }),
     ).toBeVisible();
 
-    const chart = page.getByTestId("trend-chart");
+    // Current-standing bar chart always renders when any data exists.
+    const standing = page.getByTestId("standing-chart");
     const empty = page.getByTestId("trend-empty");
-    await expect(chart.or(empty)).toBeVisible({ timeout: 15_000 });
+    await expect(standing.or(empty).first()).toBeVisible({ timeout: 15_000 });
+  });
+
+  test("toggles trend smoothing", async ({ page }) => {
+    await page.goto("/trend");
+
+    const toggle = page.getByTestId("smooth-toggle");
+    await expect(toggle).toBeVisible({ timeout: 15_000 });
+    await expect(toggle).toBeChecked();
+    await toggle.uncheck();
+    await expect(toggle).not.toBeChecked();
   });
 });
 

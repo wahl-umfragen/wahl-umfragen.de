@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { SAMPLE_DB } from "./fixtures";
 import { selectBundestagSurveys } from "./normalize";
-import { buildBundestagTrend } from "./trend";
+import { buildBundestagTrend, smoothTrendData } from "./trend";
 
 describe("buildBundestagTrend", () => {
   it("returns empty trend when no surveys are given", () => {
@@ -49,5 +49,29 @@ describe("buildBundestagTrend", () => {
     });
     const inst = trend.points.map((p) => p.instituteName);
     expect(inst).toEqual(["Forsa", "Infratest dimap", "Forsa"]);
+  });
+});
+
+describe("smoothTrendData", () => {
+  it("applies a trailing moving average without mutating the input", () => {
+    const surveys = selectBundestagSurveys(SAMPLE_DB);
+    const trend = buildBundestagTrend(surveys, {
+      windowDays: 365,
+      minAppearances: 1,
+    });
+    // Points ascending: #102 (CDU 22), #101 (CDU 24), #100 (CDU 23).
+    const raw = trend.points.map((p) => p["CDU/CSU"]);
+    expect(raw).toEqual([22, 24, 23]);
+
+    const smoothed = smoothTrendData(trend, 2);
+    expect(smoothed.points.map((p) => p["CDU/CSU"])).toEqual([22, 23, 23.5]);
+    // Original untouched.
+    expect(trend.points.map((p) => p["CDU/CSU"])).toEqual([22, 24, 23]);
+  });
+
+  it("returns the same data for window <= 1", () => {
+    const surveys = selectBundestagSurveys(SAMPLE_DB);
+    const trend = buildBundestagTrend(surveys, { minAppearances: 1 });
+    expect(smoothTrendData(trend, 1)).toBe(trend);
   });
 });
