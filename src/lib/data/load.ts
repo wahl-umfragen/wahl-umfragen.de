@@ -1,4 +1,5 @@
 import { desc, eq, isNotNull } from "drizzle-orm";
+import { unstable_cache } from "next/cache";
 import { db } from "@/db/client";
 import * as schema from "@/db/schema";
 import {
@@ -6,6 +7,7 @@ import {
   type NormalizedPartyResult,
   type NormalizedSurvey,
 } from "@/lib/dawum/types";
+import { SURVEYS_TAG } from "./tags";
 
 export interface BundestagData {
   /** All Bundestag surveys in the DB, newest first. */
@@ -22,8 +24,18 @@ export interface BundestagData {
  *
  * Produces the exact same `NormalizedSurvey[]` shape the live path used, so all
  * downstream selectors and components are unchanged.
+ *
+ * Wrapped in `unstable_cache` (tag `surveys`, no time expiry): the heavy query
+ * runs once and is reused across all requests until the ingest worker triggers
+ * `revalidateTag('surveys')`. That's what makes the pages cheap at scale.
  */
-export async function loadBundestagData(): Promise<BundestagData> {
+export const loadBundestagData = unstable_cache(
+  loadBundestagDataUncached,
+  ["bundestag-data"],
+  { tags: [SURVEYS_TAG], revalidate: false },
+);
+
+async function loadBundestagDataUncached(): Promise<BundestagData> {
   const surveyRows = await db
     .select({
       id: schema.surveys.id,

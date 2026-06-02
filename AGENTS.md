@@ -21,9 +21,17 @@ Aggregator for Bundestag polling data from dawum.de (ODbL).
    `loadBundestagData()` in `src/lib/data/load.ts`, which reads accumulated
    surveys from Postgres and returns the `NormalizedSurvey[]` view model. Phase 2
    is **done**: the frontend reads the DB, not dawum live. There is **no live
-   fallback** — an empty DB renders an empty UI. Page routes are
-   `dynamic = "force-dynamic"` (they hit the DB at request time), so the app
-   needs a reachable, migrated DB at **build and runtime**.
+   fallback** — an empty DB renders an empty UI. The app needs a reachable,
+   migrated DB at **build and runtime**.
+
+**Caching (the classic ISR model, *not* `cacheComponents`).** `loadBundestagData`
+is wrapped in `unstable_cache` with the `surveys` tag (`src/lib/data/tags.ts`)
+and no time expiry, so pages render statically and are reused across all
+requests — cheap at scale. Freshness comes from **on-demand invalidation**: the
+ingest worker POSTs `app/api/revalidate` (shared `REVALIDATE_SECRET`) after a
+real ingest, which calls `revalidateTag('surveys')`. Any new DB-backed read
+must go through a cached, `surveys`-tagged loader so this invalidation reaches
+it. Don't make page routes `force-dynamic` — that defeats the caching.
 
 `src/lib/dawum/client.ts` (the live `api.dawum.de` fetch) is now used **only by
 the ingest path**, never by the frontend. The pure view-model selectors in
