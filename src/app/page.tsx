@@ -1,65 +1,115 @@
-import Image from "next/image";
+import { Suspense } from "react";
+import {
+  fetchDawumDatabase,
+  latestPerInstitute,
+  selectBundestagSurveys,
+  type NormalizedSurvey,
+} from "@/lib/dawum";
 
-export default function Home() {
+export const revalidate = 900;
+
+export default function Page() {
   return (
-    <div className="flex flex-col flex-1 items-center justify-center bg-zinc-50 font-sans dark:bg-black">
-      <main className="flex flex-1 w-full max-w-3xl flex-col items-center justify-between py-32 px-16 bg-white dark:bg-black sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={100}
-          height={20}
-          priority
-        />
-        <div className="flex flex-col items-center gap-6 text-center sm:items-start sm:text-left">
-          <h1 className="max-w-xs text-3xl font-semibold leading-10 tracking-tight text-black dark:text-zinc-50">
-            To get started, edit the page.tsx file.
-          </h1>
-          <p className="max-w-md text-lg leading-8 text-zinc-600 dark:text-zinc-400">
-            Looking for a starting point or more instructions? Head over to{" "}
-            <a
-              href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Templates
-            </a>{" "}
-            or the{" "}
-            <a
-              href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-              className="font-medium text-zinc-950 dark:text-zinc-50"
-            >
-              Learning
-            </a>{" "}
-            center.
-          </p>
-        </div>
-        <div className="flex flex-col gap-4 text-base font-medium sm:flex-row">
-          <a
-            className="flex h-12 w-full items-center justify-center gap-2 rounded-full bg-foreground px-5 text-background transition-colors hover:bg-[#383838] dark:hover:bg-[#ccc] md:w-[158px]"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={16}
-              height={16}
-            />
-            Deploy Now
-          </a>
-          <a
-            className="flex h-12 w-full items-center justify-center rounded-full border border-solid border-black/[.08] px-5 transition-colors hover:border-transparent hover:bg-black/[.04] dark:border-white/[.145] dark:hover:bg-[#1a1a1a] md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Documentation
-          </a>
-        </div>
-      </main>
+    <div className="mx-auto max-w-5xl px-6 py-10">
+      <header className="mb-8">
+        <h2 className="text-2xl font-semibold tracking-tight">
+          Sonntagsfrage Bundestag
+        </h2>
+        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
+          Aktuellste Umfrage je Institut.
+        </p>
+      </header>
+      <Suspense fallback={<SurveysSkeleton />}>
+        <LatestSurveys />
+      </Suspense>
     </div>
   );
+}
+
+async function LatestSurveys() {
+  const db = await fetchDawumDatabase();
+  const latest = latestPerInstitute(selectBundestagSurveys(db));
+
+  if (latest.length === 0) {
+    return (
+      <p
+        data-testid="empty-state"
+        className="text-sm text-zinc-600 dark:text-zinc-400"
+      >
+        Keine Umfragen verfügbar.
+      </p>
+    );
+  }
+
+  return (
+    <ul
+      data-testid="survey-list"
+      className="grid grid-cols-1 gap-4 sm:grid-cols-2"
+    >
+      {latest.map((s) => (
+        <SurveyCard key={s.id} survey={s} />
+      ))}
+    </ul>
+  );
+}
+
+function SurveyCard({ survey }: { survey: NormalizedSurvey }) {
+  return (
+    <li
+      data-testid="survey-card"
+      data-institute={survey.institute.name}
+      className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900"
+    >
+      <div className="flex items-baseline justify-between">
+        <h3 className="text-base font-semibold">{survey.institute.name}</h3>
+        <time className="text-xs text-zinc-500" dateTime={survey.date}>
+          {formatDate(survey.date)}
+        </time>
+      </div>
+      <ol className="mt-3 space-y-1">
+        {survey.results.map((r) => (
+          <li
+            key={r.partyId}
+            className="flex items-center justify-between text-sm"
+          >
+            <span>{r.shortcut}</span>
+            <span className="font-mono tabular-nums">
+              {r.percent.toFixed(1)}%
+            </span>
+          </li>
+        ))}
+      </ol>
+      {survey.surveyedPersons ? (
+        <p className="mt-3 text-xs text-zinc-500">
+          n = {survey.surveyedPersons}
+        </p>
+      ) : null}
+    </li>
+  );
+}
+
+function SurveysSkeleton() {
+  return (
+    <div
+      data-testid="surveys-skeleton"
+      className="grid grid-cols-1 gap-4 sm:grid-cols-2"
+    >
+      {Array.from({ length: 6 }).map((_, i) => (
+        <div
+          key={i}
+          className="h-40 animate-pulse rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900"
+        />
+      ))}
+    </div>
+  );
+}
+
+function formatDate(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleDateString("de-DE", {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+  });
 }
