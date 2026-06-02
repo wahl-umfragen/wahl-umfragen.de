@@ -89,21 +89,28 @@
     "currentTitle": "Aktueller Stand",
     "currentHint": "Durchschnitt der jüngsten Umfrage je Institut",
     "trendTitle": "Trend",
+    "trendHint": "Klick auf einen Punkt öffnet die Umfrage im Archiv.",
     "window90": "90 Tage",
     "window1y": "1 Jahr",
     "windowAll": "Gesamt",
     "smooth": "Geglättet",
+    "partiesLabel": "Parteien:",
+    "partiesAll": "Alle",
     "seatsTitle": "Sitzverteilung",
     "seatsHint": "Hochrechnung mit 5%-Hürde (Hare/Niemeyer)",
     "comparisonTitle": "Institutsvergleich",
-    "comparisonHint": "Gleiche Parteien je Institut – zeigt House-Effects"
+    "comparisonHint": "Gleiche Parteien je Institut – zeigt House-Effects",
+    "recentTitle": "Letzte Umfragen",
+    "recentViewAll": "Gesamtes Archiv →"
   },
   "charts": {
     "trendEmpty": "Keine Umfragen im gewählten Zeitraum.",
     "average": "Schnitt",
     "institutes": "Institute",
     "seats": "Sitze",
-    "seatsSummary": "{total} Sitze · Mehrheit ab {majority}"
+    "seatsSummary": "{total} Sitze · Mehrheit ab {majority}",
+    "fullscreen": "Vollbild",
+    "exitFullscreen": "Vollbild verlassen"
   },
   "coalition": {
     "basis": "Grundlage: {label}",

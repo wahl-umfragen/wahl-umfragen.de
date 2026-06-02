@@ -1,5 +1,6 @@
 "use client";
 
+import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 import {
   CartesianGrid,
@@ -11,6 +12,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import type { MouseHandlerDataParam } from "recharts/types/synchronisation/types";
 import type { TooltipContentProps } from "recharts/types/component/Tooltip";
 import { t } from "@/i18n";
 import { partyColor } from "@/lib/dawum/colors";
@@ -34,14 +36,18 @@ export interface TrendChartProps {
   maxSeries?: number;
   /** Render markers at each survey point (off looks cleaner when smoothed). */
   showDots?: boolean;
+  /** Party shortcuts to hide; lets the dashboard filter the charted lines. */
+  hiddenParties?: ReadonlySet<string>;
 }
 
 export function TrendChart({
   data,
   maxSeries = 8,
   showDots = true,
+  hiddenParties,
 }: TrendChartProps) {
   const scheme = useColorScheme();
+  const router = useRouter();
 
   // Explicit, evenly spaced ticks. Several institutes often publish on the same
   // day, so letting recharts derive ticks from the data yields duplicate
@@ -69,12 +75,26 @@ export function TrendChart({
     );
   }
 
-  const series = data.series.slice(0, maxSeries);
+  const series = data.series
+    .slice(0, maxSeries)
+    .filter((s) => !hiddenParties?.has(s.shortcut));
+
+  // Clicking a point (or anywhere near one) opens that survey in the archive.
+  // recharts hands us the active datum's index into the chart's data array
+  // (a string at runtime despite the numeric typing, so coerce it).
+  function handleClick(state: MouseHandlerDataParam) {
+    const raw = state?.activeIndex;
+    if (raw === null || raw === undefined || raw === "") return;
+    const index = Number(raw);
+    if (!Number.isInteger(index)) return;
+    const point = data.points[index];
+    if (point?.surveyId) router.push(`/archiv/${point.surveyId}`);
+  }
 
   return (
     <div
       data-testid="trend-chart"
-      className="h-80 w-full rounded-lg border border-zinc-200 bg-white p-2 dark:border-zinc-800 dark:bg-zinc-900 sm:h-[26rem]"
+      className="h-80 w-full cursor-pointer rounded-lg border border-zinc-200 bg-white p-2 dark:border-zinc-800 dark:bg-zinc-900 sm:h-[26rem]"
     >
       <ResponsiveContainer
         width="100%"
@@ -84,6 +104,7 @@ export function TrendChart({
         <LineChart
           data={data.points}
           margin={{ top: 8, right: 20, bottom: 8, left: 0 }}
+          onClick={handleClick}
         >
           <CartesianGrid
             strokeDasharray="3 3"

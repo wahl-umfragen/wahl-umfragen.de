@@ -2,6 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { t, type TranslationKey } from "@/i18n";
+import { partyColorVar } from "@/lib/dawum/colors";
 import type {
   InstituteComparison,
   PartyAverage,
@@ -13,12 +14,16 @@ import {
   type TrendWindowKey,
   type TrendWindows,
 } from "@/lib/dawum/trend";
+import { Fullscreenable } from "./fullscreenable";
 import {
   CurrentStandingChart,
   InstituteComparisonChart,
   SeatDistributionChart,
 } from "./poll-charts";
 import { TrendChart } from "./trend-chart";
+
+/** Lines beyond this many crowd the legend; also the filterable party set. */
+const MAX_TREND_SERIES = 8;
 
 export interface PollDashboardProps {
   average: PartyAverage[];
@@ -41,10 +46,29 @@ export function PollDashboard({
 }: PollDashboardProps) {
   const [smoothed, setSmoothed] = useState(true);
   const [windowKey, setWindowKey] = useState<TrendWindowKey>("90");
+  const [hiddenParties, setHiddenParties] = useState<ReadonlySet<string>>(
+    () => new Set(),
+  );
   const trendData = useMemo(() => {
     const base = trends[windowKey];
     return smoothed ? smoothTrendData(base, 5) : base;
   }, [smoothed, trends, windowKey]);
+
+  // Parties offered in the filter = the lines the chart would draw for the
+  // selected window, in the same order.
+  const filterableParties = useMemo(
+    () => trendData.series.slice(0, MAX_TREND_SERIES),
+    [trendData],
+  );
+
+  function toggleParty(shortcut: string) {
+    setHiddenParties((prev) => {
+      const next = new Set(prev);
+      if (next.has(shortcut)) next.delete(shortcut);
+      else next.add(shortcut);
+      return next;
+    });
+  }
 
   return (
     <div className="space-y-10">
@@ -52,11 +76,14 @@ export function PollDashboard({
         title={t("dashboard.currentTitle")}
         hint={t("dashboard.currentHint")}
       >
-        <CurrentStandingChart data={average} />
+        <Fullscreenable>
+          <CurrentStandingChart data={average} />
+        </Fullscreenable>
       </Section>
 
       <Section
         title={t("dashboard.trendTitle")}
+        hint={t("dashboard.trendHint")}
         action={
           <div className="flex items-center gap-3">
             <div
@@ -92,21 +119,76 @@ export function PollDashboard({
           </div>
         }
       >
-        <TrendChart data={trendData} showDots={!smoothed} />
+        {filterableParties.length > 0 ? (
+          <div
+            data-testid="trend-party-filter"
+            className="mb-3 flex flex-wrap items-center gap-1.5"
+          >
+            <span className="mr-1 text-xs font-medium normal-case tracking-normal text-zinc-500">
+              {t("dashboard.partiesLabel")}
+            </span>
+            {filterableParties.map((s) => {
+              const active = !hiddenParties.has(s.shortcut);
+              return (
+                <button
+                  key={s.shortcut}
+                  type="button"
+                  onClick={() => toggleParty(s.shortcut)}
+                  aria-pressed={active}
+                  className={`flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs font-medium transition-colors ${
+                    active
+                      ? "border-zinc-300 text-zinc-900 dark:border-zinc-600 dark:text-zinc-100"
+                      : "border-zinc-200 text-zinc-400 line-through dark:border-zinc-800 dark:text-zinc-600"
+                  }`}
+                >
+                  <span
+                    aria-hidden="true"
+                    className="inline-block h-2 w-2 rounded-full"
+                    style={{
+                      backgroundColor: partyColorVar(s.shortcut),
+                      opacity: active ? 1 : 0.4,
+                    }}
+                  />
+                  {s.shortcut}
+                </button>
+              );
+            })}
+            {hiddenParties.size > 0 ? (
+              <button
+                type="button"
+                onClick={() => setHiddenParties(new Set())}
+                className="ml-1 rounded-full px-2 py-0.5 text-xs font-medium text-zinc-500 underline hover:text-zinc-900 dark:hover:text-zinc-100"
+              >
+                {t("dashboard.partiesAll")}
+              </button>
+            ) : null}
+          </div>
+        ) : null}
+        <Fullscreenable>
+          <TrendChart
+            data={trendData}
+            showDots={!smoothed}
+            hiddenParties={hiddenParties}
+          />
+        </Fullscreenable>
       </Section>
 
       <Section
         title={t("dashboard.seatsTitle")}
         hint={t("dashboard.seatsHint")}
       >
-        <SeatDistributionChart data={seats} />
+        <Fullscreenable>
+          <SeatDistributionChart data={seats} />
+        </Fullscreenable>
       </Section>
 
       <Section
         title={t("dashboard.comparisonTitle")}
         hint={t("dashboard.comparisonHint")}
       >
-        <InstituteComparisonChart data={comparison} />
+        <Fullscreenable>
+          <InstituteComparisonChart data={comparison} />
+        </Fullscreenable>
       </Section>
     </div>
   );

@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { PollDashboardClient } from "@/components/poll-dashboard-client";
+import { RecentSurveys } from "@/components/recent-surveys";
 import { t } from "@/i18n";
 import { loadBundestagData } from "@/lib/data";
 import {
@@ -59,6 +60,9 @@ async function Dashboard() {
         seats={seatDistribution(average)}
         comparison={instituteComparison(latest)}
       />
+      <div className="mt-10">
+        <RecentSurveys surveys={bundestag} />
+      </div>
     </>
   );
 }
