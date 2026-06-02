@@ -11,6 +11,8 @@ const eslintConfig = defineConfig([
     ".next/**",
     "out/**",
     "build/**",
+    // Compiled ingest bundle — build artifact, not source.
+    "dist/**",
     "next-env.d.ts",
   ]),
 ]);

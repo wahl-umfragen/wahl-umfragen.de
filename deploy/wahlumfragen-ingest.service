@@ -1,0 +1,37 @@
+# One-shot unit that runs a single dawum ingest into Postgres.
+# Triggered by wahlumfragen-ingest.timer — do NOT enable this unit directly;
+# enable the .timer instead.
+#
+# Adjust the three placeholders for your server before installing:
+#   User=             a non-root system user that owns the deploy dir
+#   WorkingDirectory= absolute path to the checked-out repo
+#   ExecStart=        absolute path to node (run `which node` on the server)
+#
+# DATABASE_URL is read from the repo's .env via EnvironmentFile (the same file
+# dotenv loads). It must point at the server's Postgres, e.g.
+#   DATABASE_URL=postgresql://wahlumfragen:...@localhost:5432/wahlumfragen
+
+[Unit]
+Description=wahlumfragen dawum ingest (one-shot)
+# Postgres runs as a docker container on the same host; wait for the network
+# and the docker daemon. Drop the docker.service line if Postgres is native.
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=wahlumfragen
+WorkingDirectory=/opt/wahlumfragen
+EnvironmentFile=/opt/wahlumfragen/.env
+ExecStart=/usr/bin/node dist/ingest.cjs
+
+# Don't let a slow dawum response hang forever.
+TimeoutStartSec=300
+
+# Light hardening — safe for a read-the-web/write-the-DB job.
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+# The job only needs to write nothing on disk; if you later add file output,
+# add a ReadWritePaths= line for that directory.
