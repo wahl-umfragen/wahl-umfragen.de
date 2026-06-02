@@ -19,6 +19,7 @@
   "footer": {
     "dataPrefix": "Daten:",
     "license": "unter der",
+    "noWarranty": "Wir erheben keine eigenen Umfragen. Alle Angaben ohne Gewähr.",
     "impressum": "Impressum",
     "datenschutz": "Datenschutz"
   },
@@ -84,6 +85,18 @@
     "tasker": "Auftraggeber",
     "surveyed": "Befragte",
     "metaTitle": "{institute}, {date} – Wahlumfragen"
+  },
+  "institute": {
+    "back": "← Zur Startseite",
+    "surveysCount": "Umfragen",
+    "period": "Zeitraum",
+    "latest": "Letzte Umfrage",
+    "trendTitle": "Verlauf",
+    "trendHint": "Nur Umfragen dieses Instituts. Klick auf einen Punkt öffnet die Umfrage.",
+    "listTitle": "Umfragen",
+    "viewAllInArchive": "Im Archiv ansehen →",
+    "metaTitle": "{institute} – Wahlumfragen",
+    "notEnoughData": "Für dieses Institut liegen keine Umfragen vor."
   },
   "dashboard": {
     "currentTitle": "Aktueller Stand",

@@ -83,6 +83,40 @@ Telefon: [PLATZHALTER: optional]`}
 
         <section>
           <h3 className="text-base font-semibold text-foreground">
+            Datenquelle und Haftungsausschluss
+          </h3>
+          <p className="mt-2">
+            Die auf dieser Website dargestellten Umfrageergebnisse werden nicht
+            von uns erhoben. Wir führen selbst keine Meinungsumfragen durch.
+            Sämtliche Umfragedaten werden über die offene Datenbank von{" "}
+            <a
+              href="https://dawum.de/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline"
+            >
+              dawum.de
+            </a>{" "}
+            bezogen, die ihrerseits die veröffentlichten Ergebnisse der
+            jeweiligen Meinungsforschungsinstitute und deren Auftraggeber
+            zusammenträgt. Verantwortlich für Erhebung, Methodik und Richtigkeit
+            der einzelnen Umfragen sind allein die jeweiligen Institute.
+          </p>
+          <p className="mt-2">
+            Diese Website dient ausschließlich der aggregierten Darstellung und
+            Auswertung öffentlich verfügbarer Umfragedaten zu
+            Informationszwecken. Alle Angaben erfolgen ohne Gewähr auf
+            Richtigkeit, Vollständigkeit und Aktualität. Berechnungen wie
+            Durchschnittswerte, Trends, Sitzverteilungen oder
+            Koalitionsrechnungen sind eigene, vereinfachte Auswertungen und
+            stellen keine Wahlprognose und keine wissenschaftliche Aussage dar.
+            Eine Haftung für Entscheidungen, die auf Grundlage dieser Daten oder
+            Auswertungen getroffen werden, ist ausgeschlossen.
+          </p>
+        </section>
+
+        <section>
+          <h3 className="text-base font-semibold text-foreground">
             Urheberrecht und Daten
           </h3>
           <p className="mt-2">

@@ -80,7 +80,7 @@ export default function RootLayout({
                 >
                   ODbL
                 </a>
-                .
+                . {t("footer.noWarranty")}
               </span>
               <nav className="flex gap-4">
                 <Link href="/impressum" className="underline">
