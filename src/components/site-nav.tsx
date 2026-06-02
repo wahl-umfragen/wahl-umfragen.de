@@ -6,7 +6,7 @@ import { usePathname } from "next/navigation";
 const LINKS = [
   { href: "/", label: "Umfragen" },
   { href: "/trend", label: "Trend" },
-  { href: "/koalition", label: "Koalition" },
+  { href: "/koalition", label: "Koalitionsrechner" },
 ] as const;
 
 export function SiteNav() {
