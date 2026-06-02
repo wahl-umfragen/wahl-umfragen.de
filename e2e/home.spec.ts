@@ -33,6 +33,8 @@ test.describe("home page", () => {
 
     await expect(list.or(empty)).toBeVisible({ timeout: 15_000 });
 
+    await expect(page.getByTestId("data-freshness")).toContainText("Stand:");
+
     if (await list.isVisible()) {
       const cards = page.getByTestId("survey-card");
       await expect(cards.first()).toBeVisible();

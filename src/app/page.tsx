@@ -31,26 +31,32 @@ async function LatestSurveys() {
   const db = await fetchDawumDatabase();
   const latest = latestPerInstitute(selectBundestagSurveys(db));
 
-  if (latest.length === 0) {
-    return (
-      <p
-        data-testid="empty-state"
-        className="text-sm text-zinc-600 dark:text-zinc-400"
-      >
-        Keine Umfragen verfügbar.
-      </p>
-    );
-  }
-
   return (
-    <ul
-      data-testid="survey-list"
-      className="grid grid-cols-1 gap-4 sm:grid-cols-2"
-    >
-      {latest.map((s) => (
-        <SurveyCard key={s.id} survey={s} />
-      ))}
-    </ul>
+    <>
+      <p
+        data-testid="data-freshness"
+        className="mb-4 text-xs text-zinc-500 dark:text-zinc-400"
+      >
+        Stand: {formatDateTime(db.Database.Last_Update)}
+      </p>
+      {latest.length === 0 ? (
+        <p
+          data-testid="empty-state"
+          className="text-sm text-zinc-600 dark:text-zinc-400"
+        >
+          Keine Umfragen verfügbar.
+        </p>
+      ) : (
+        <ul
+          data-testid="survey-list"
+          className="grid grid-cols-1 gap-4 sm:grid-cols-2"
+        >
+          {latest.map((s) => (
+            <SurveyCard key={s.id} survey={s} />
+          ))}
+        </ul>
+      )}
+    </>
   );
 }
 
@@ -119,5 +125,17 @@ function formatDate(iso: string): string {
     year: "numeric",
     month: "short",
     day: "2-digit",
+  });
+}
+
+function formatDateTime(iso: string): string {
+  const d = new Date(iso);
+  if (Number.isNaN(d.getTime())) return iso;
+  return d.toLocaleString("de-DE", {
+    year: "numeric",
+    month: "short",
+    day: "2-digit",
+    hour: "2-digit",
+    minute: "2-digit",
   });
 }
