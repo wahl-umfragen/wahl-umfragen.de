@@ -1,6 +1,6 @@
 ---
 name: commit-push
-description: Commit and push all current changes using a conventional-style title (wip/feat/fix/chore/refactor/docs/test/perf/build/ci/style) with optional issue number. Invoke whenever the user asks to commit/push/"save my work"/finish up — AND proactively at natural seams during a session when a coherent unit of work has just been verified working (see "Autonomous invocation" below). Format the subject as `<type>: <short title> (#<issue>)` when an issue number is available, otherwise `<type>: <short title>`.
+description: 'Commit and push all current changes using a conventional-style title (wip/feat/fix/chore/refactor/docs/test/perf/build/ci/style) with optional issue number. Invoke whenever the user asks to commit/push/"save my work"/finish up — AND proactively at natural seams during a session when a coherent unit of work has just been verified working (see "Autonomous invocation" below). Format the subject as `<type>: <short title> (#<issue>)` when an issue number is available, otherwise `<type>: <short title>`.'
 ---
 
 # commit-push
