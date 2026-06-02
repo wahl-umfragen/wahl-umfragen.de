@@ -1,5 +1,6 @@
 "use client";
 
+import { useMemo } from "react";
 import {
   CartesianGrid,
   Legend,
@@ -40,6 +41,22 @@ export function TrendChart({
   showDots = true,
 }: TrendChartProps) {
   const scheme = useColorScheme();
+
+  // Explicit, evenly spaced ticks. Several institutes often publish on the same
+  // day, so letting recharts derive ticks from the data yields duplicate
+  // timestamps — and duplicate React keys. Distinct values keep keys unique.
+  const ticks = useMemo(() => {
+    const pts = data.points;
+    if (pts.length === 0) return [];
+    const first = pts[0].date;
+    const last = pts[pts.length - 1].date;
+    if (first === last) return [first];
+    const count = 6;
+    return Array.from({ length: count }, (_, i) =>
+      Math.round(first + ((last - first) * i) / (count - 1)),
+    );
+  }, [data.points]);
+
   if (data.points.length === 0) {
     return (
       <p
@@ -76,10 +93,9 @@ export function TrendChart({
             tickFormatter={(v: number) => X_FORMAT.format(new Date(v))}
             stroke="currentColor"
             tick={{ fontSize: 12 }}
-            minTickGap={56}
+            ticks={ticks}
             tickMargin={10}
             height={28}
-            interval="preserveStartEnd"
           />
           <YAxis
             tickFormatter={(v: number) => `${v}%`}
