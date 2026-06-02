@@ -1,0 +1,69 @@
+{
+  "app": {
+    "name": "Wahlumfragen",
+    "metaTitle": "Wahlumfragen Bundestag",
+    "metaDescription": "Aktuelle Sonntagsfrage zur Bundestagswahl, aggregiert aus Umfragen der großen deutschen Institute."
+  },
+  "nav": {
+    "surveys": "Umfragen",
+    "trend": "Trend",
+    "koalition": "Koalitionsrechner"
+  },
+  "theme": {
+    "label": "Farbschema",
+    "light": "Hell",
+    "system": "System",
+    "dark": "Dunkel"
+  },
+  "footer": {
+    "dataPrefix": "Daten:",
+    "license": "unter der"
+  },
+  "common": {
+    "asOf": "Stand:",
+    "noSurveys": "Keine Umfragen verfügbar.",
+    "noData": "Keine Daten verfügbar."
+  },
+  "home": {
+    "title": "Sonntagsfrage Bundestag",
+    "subtitle": "Aktuellste Umfrage je Institut. Spalten sind sortierbar."
+  },
+  "table": {
+    "institute": "Institut",
+    "date": "Datum"
+  },
+  "trendPage": {
+    "title": "Auswertung",
+    "subtitle": "Aktueller Stand, Trend, Sitzverteilung und Institutsvergleich der Sonntagsfrage."
+  },
+  "koalitionPage": {
+    "title": "Koalitionsrechner",
+    "subtitle": "Parteien auf Basis der aktuellsten Umfrage zu einer Koalition kombinieren."
+  },
+  "dashboard": {
+    "currentTitle": "Aktueller Stand",
+    "currentHint": "Durchschnitt der jüngsten Umfrage je Institut",
+    "trendTitle": "Trend (90 Tage)",
+    "smooth": "Geglättet",
+    "seatsTitle": "Sitzverteilung",
+    "seatsHint": "Hochrechnung mit 5%-Hürde (Hare/Niemeyer)",
+    "comparisonTitle": "Institutsvergleich",
+    "comparisonHint": "Gleiche Parteien je Institut – zeigt House-Effects"
+  },
+  "charts": {
+    "trendEmpty": "Keine Umfragen im gewählten Zeitraum.",
+    "average": "Schnitt",
+    "institutes": "Institute",
+    "seats": "Sitze",
+    "seatsSummary": "{total} Sitze · Mehrheit ab {majority}"
+  },
+  "coalition": {
+    "basis": "Grundlage: {label}",
+    "sum": "Summe:",
+    "shareInBundestag": "Anteil im Bundestag:",
+    "noSelection": "keine Auswahl",
+    "majority": "Mehrheit",
+    "noMajority": "keine Mehrheit",
+    "excluded": "Unter 5%-Hürde, zählt nicht: {parties}"
+  }
+}

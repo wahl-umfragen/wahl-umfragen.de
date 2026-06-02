@@ -14,6 +14,7 @@ import {
   XAxis,
   YAxis,
 } from "recharts";
+import { t } from "@/i18n";
 import { partyColor } from "@/lib/dawum/colors";
 import type {
   InstituteComparison,
@@ -74,8 +75,8 @@ export function CurrentStandingChart({ data }: { data: PartyAverage[] }) {
                 <ChartTooltip
                   title={p.name}
                   rows={[
-                    { label: "Schnitt", value: `${fmt1(p.percent)}%` },
-                    { label: "Institute", value: String(p.institutes) },
+                    { label: t("charts.average"), value: `${fmt1(p.percent)}%` },
+                    { label: t("charts.institutes"), value: String(p.institutes) },
                   ]}
                 />
               );
@@ -139,8 +140,8 @@ export function SeatDistributionChart({ data }: { data: SeatDistribution }) {
                   <ChartTooltip
                     title={e.name}
                     rows={[
-                      { label: "Sitze", value: String(e.seats) },
-                      { label: "Schnitt", value: `${fmt1(e.percent)}%` },
+                      { label: t("charts.seats"), value: String(e.seats) },
+                      { label: t("charts.average"), value: `${fmt1(e.percent)}%` },
                     ]}
                   />
                 );
@@ -150,7 +151,10 @@ export function SeatDistributionChart({ data }: { data: SeatDistribution }) {
         </ResponsiveContainer>
       </div>
       <p className="-mt-4 text-center text-xs text-zinc-500 dark:text-zinc-400">
-        {data.totalSeats} Sitze · Mehrheit ab {data.majority}
+        {t("charts.seatsSummary", {
+          total: data.totalSeats,
+          majority: data.majority,
+        })}
       </p>
       <ul className="mt-2 flex flex-wrap justify-center gap-x-4 gap-y-1 text-sm">
         {data.entries.map((e) => (
@@ -276,7 +280,7 @@ function ChartTooltip({
 function Empty() {
   return (
     <p className="text-sm text-zinc-600 dark:text-zinc-400">
-      Keine Daten verfügbar.
+      {t("common.noData")}
     </p>
   );
 }

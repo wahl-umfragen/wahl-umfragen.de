@@ -2,6 +2,7 @@
 
 import { useSyncExternalStore } from "react";
 import { useTheme } from "next-themes";
+import { t } from "@/i18n";
 
 const noop = () => () => {};
 
@@ -15,9 +16,9 @@ function useMounted(): boolean {
 }
 
 const OPTIONS = [
-  { value: "light", label: "Hell", icon: SunIcon },
-  { value: "system", label: "System", icon: SystemIcon },
-  { value: "dark", label: "Dunkel", icon: MoonIcon },
+  { value: "light", label: t("theme.light"), icon: SunIcon },
+  { value: "system", label: t("theme.system"), icon: SystemIcon },
+  { value: "dark", label: t("theme.dark"), icon: MoonIcon },
 ] as const;
 
 export function ThemeToggle() {
@@ -29,7 +30,7 @@ export function ThemeToggle() {
     <div
       data-testid="theme-toggle"
       role="radiogroup"
-      aria-label="Farbschema"
+      aria-label={t("theme.label")}
       className="inline-flex items-center rounded-md border border-zinc-300 p-0.5 dark:border-zinc-700"
     >
       {OPTIONS.map(({ value, label, icon: Icon }) => {

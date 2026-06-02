@@ -1,21 +1,19 @@
 import { Suspense } from "react";
 import { InstituteTable } from "@/components/institute-table";
+import { t } from "@/i18n";
 import { loadBundestagData } from "@/lib/data";
 import { latestPerInstitute } from "@/lib/dawum";
 import { formatDateTime } from "@/lib/format";
-
-// Reads from Postgres at request time (Phase 2); never prerender at build.
-export const dynamic = "force-dynamic";
 
 export default function Page() {
   return (
     <div className="mx-auto max-w-6xl px-6 py-10">
       <header className="mb-8">
         <h2 className="text-2xl font-semibold tracking-tight">
-          Sonntagsfrage Bundestag
+          {t("home.title")}
         </h2>
         <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-          Aktuellste Umfrage je Institut. Spalten sind sortierbar.
+          {t("home.subtitle")}
         </p>
       </header>
       <Suspense fallback={<TableSkeleton />}>
@@ -35,14 +33,14 @@ async function Surveys() {
         data-testid="data-freshness"
         className="mb-4 text-xs text-zinc-500 dark:text-zinc-400"
       >
-        Stand: {lastUpdate ? formatDateTime(lastUpdate) : "—"}
+        {t("common.asOf")} {lastUpdate ? formatDateTime(lastUpdate) : "—"}
       </p>
       {latest.length === 0 ? (
         <p
           data-testid="empty-state"
           className="text-sm text-zinc-600 dark:text-zinc-400"
         >
-          Keine Umfragen verfügbar.
+          {t("common.noSurveys")}
         </p>
       ) : (
         <InstituteTable surveys={latest} />

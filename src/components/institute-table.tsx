@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { t } from "@/i18n";
 import { partyColorVar } from "@/lib/dawum/colors";
 import type { NormalizedSurvey } from "@/lib/dawum/types";
 
@@ -84,7 +85,8 @@ export function InstituteTable({ surveys }: { surveys: NormalizedSurvey[] }) {
                 onClick={() => toggleSort("institute")}
                 className="py-2 pr-3 text-left"
               >
-                Institut{indicator("institute")}
+                {t("table.institute")}
+                {indicator("institute")}
               </SortButton>
             </th>
             <th aria-sort={ariaSort("date")}>
@@ -93,7 +95,8 @@ export function InstituteTable({ surveys }: { surveys: NormalizedSurvey[] }) {
                 onClick={() => toggleSort("date")}
                 className="py-2 pr-3 text-left"
               >
-                Datum{indicator("date")}
+                {t("table.date")}
+                {indicator("date")}
               </SortButton>
             </th>
             {parties.map((shortcut) => {

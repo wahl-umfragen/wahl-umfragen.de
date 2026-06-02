@@ -12,6 +12,7 @@ import {
   YAxis,
 } from "recharts";
 import type { TooltipContentProps } from "recharts/types/component/Tooltip";
+import { t } from "@/i18n";
 import { partyColor } from "@/lib/dawum/colors";
 import type { TrendData, TrendPoint } from "@/lib/dawum/trend";
 import { useColorScheme } from "./use-color-scheme";
@@ -63,7 +64,7 @@ export function TrendChart({
         data-testid="trend-empty"
         className="text-sm text-zinc-600 dark:text-zinc-400"
       >
-        Keine Umfragen im gewählten Zeitraum.
+        {t("charts.trendEmpty")}
       </p>
     );
   }

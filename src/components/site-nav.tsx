@@ -2,11 +2,12 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { t } from "@/i18n";
 
 const LINKS = [
-  { href: "/", label: "Umfragen" },
-  { href: "/trend", label: "Trend" },
-  { href: "/koalition", label: "Koalitionsrechner" },
+  { href: "/", label: t("nav.surveys") },
+  { href: "/trend", label: t("nav.trend") },
+  { href: "/koalition", label: t("nav.koalition") },
 ] as const;
 
 export function SiteNav() {

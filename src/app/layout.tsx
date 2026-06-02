@@ -4,6 +4,7 @@ import { Logo } from "@/components/logo";
 import { SiteNav } from "@/components/site-nav";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
+import { t } from "@/i18n";
 import "./globals.css";
 
 const geistSans = Geist({
@@ -22,9 +23,8 @@ const serif = Source_Serif_4({
 });
 
 export const metadata: Metadata = {
-  title: "Wahlumfragen Bundestag",
-  description:
-    "Aktuelle Sonntagsfrage zur Bundestagswahl, aggregiert aus Umfragen der großen deutschen Institute.",
+  title: t("app.metaTitle"),
+  description: t("app.metaDescription"),
 };
 
 export default function RootLayout({
@@ -44,7 +44,7 @@ export default function RootLayout({
             <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-4">
               <h1 className="flex items-center gap-2.5 text-lg font-semibold tracking-tight">
                 <Logo className="h-7 w-7 shrink-0 text-foreground" />
-                Wahlumfragen
+                {t("app.name")}
               </h1>
               <div className="flex items-center gap-3">
                 <SiteNav />
@@ -58,7 +58,7 @@ export default function RootLayout({
             className="border-t border-zinc-200 dark:border-zinc-800"
           >
             <div className="mx-auto max-w-6xl px-6 py-4 text-xs text-zinc-600 dark:text-zinc-400">
-              Daten:{" "}
+              {t("footer.dataPrefix")}{" "}
               <a
                 href="https://dawum.de/"
                 target="_blank"
@@ -67,7 +67,7 @@ export default function RootLayout({
               >
                 dawum.de
               </a>{" "}
-              unter der{" "}
+              {t("footer.license")}{" "}
               <a
                 href="https://opendatacommons.org/licenses/odbl/1-0/"
                 target="_blank"

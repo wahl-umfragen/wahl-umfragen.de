@@ -1,3 +1,5 @@
+import { t } from "@/i18n";
+
 /** Brand mark: a stylised Sonntagsfrage bar chart in the party palette.
  * The tile uses `currentColor` so it inverts with the theme (dark ink on
  * the light background, light tile in dark mode); the bars keep their fixed
@@ -9,7 +11,7 @@ export function Logo({ className }: { className?: string }) {
       fill="none"
       xmlns="http://www.w3.org/2000/svg"
       role="img"
-      aria-label="Wahlumfragen"
+      aria-label={t("app.name")}
       className={className}
     >
       <rect width="32" height="32" rx="6" fill="currentColor" />

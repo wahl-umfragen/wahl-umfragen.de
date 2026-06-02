@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { PollDashboardClient } from "@/components/poll-dashboard-client";
+import { t } from "@/i18n";
 import { loadBundestagData } from "@/lib/data";
 import {
   buildBundestagTrend,
@@ -10,17 +11,15 @@ import {
 } from "@/lib/dawum";
 import { formatDateTime } from "@/lib/format";
 
-// Reads from Postgres at request time (Phase 2); never prerender at build.
-export const dynamic = "force-dynamic";
-
 export default function TrendPage() {
   return (
     <div className="mx-auto max-w-6xl px-6 py-10">
       <header className="mb-8">
-        <h2 className="text-2xl font-semibold tracking-tight">Auswertung</h2>
+        <h2 className="text-2xl font-semibold tracking-tight">
+          {t("trendPage.title")}
+        </h2>
         <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-          Aktueller Stand, Trend, Sitzverteilung und Institutsvergleich der
-          Sonntagsfrage.
+          {t("trendPage.subtitle")}
         </p>
       </header>
       <Suspense fallback={<DashboardSkeleton />}>
@@ -41,7 +40,7 @@ async function Dashboard() {
         data-testid="data-freshness"
         className="mb-6 text-xs text-zinc-500 dark:text-zinc-400"
       >
-        Stand: {lastUpdate ? formatDateTime(lastUpdate) : "—"}
+        {t("common.asOf")} {lastUpdate ? formatDateTime(lastUpdate) : "—"}
       </p>
       <PollDashboardClient
         average={average}

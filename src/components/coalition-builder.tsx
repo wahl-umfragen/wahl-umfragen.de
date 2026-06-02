@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { t } from "@/i18n";
 import { coalitionMath, type CoalitionInputParty } from "@/lib/dawum/coalition";
 import { partyColorVar } from "@/lib/dawum/colors";
 
@@ -33,7 +34,7 @@ export function CoalitionBuilder({ parties, surveyLabel }: CoalitionBuilderProps
       className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900"
     >
       <p className="mb-3 text-xs text-zinc-500 dark:text-zinc-400">
-        Grundlage: {surveyLabel}
+        {t("coalition.basis", { label: surveyLabel })}
       </p>
       <ul className="flex flex-wrap gap-2">
         {eligible.map((p) => {
@@ -76,7 +77,7 @@ export function CoalitionBuilder({ parties, surveyLabel }: CoalitionBuilderProps
 
       <div className="mt-4 flex flex-wrap items-baseline gap-x-6 gap-y-2 text-sm">
         <div>
-          <span className="text-zinc-500">Summe: </span>
+          <span className="text-zinc-500">{t("coalition.sum")} </span>
           <span
             data-testid="coalition-sum"
             className="font-mono tabular-nums font-semibold"
@@ -85,7 +86,9 @@ export function CoalitionBuilder({ parties, surveyLabel }: CoalitionBuilderProps
           </span>
         </div>
         <div>
-          <span className="text-zinc-500">Anteil im Bundestag: </span>
+          <span className="text-zinc-500">
+            {t("coalition.shareInBundestag")}{" "}
+          </span>
           <span
             data-testid="coalition-share"
             className="font-mono tabular-nums font-semibold"
@@ -98,7 +101,9 @@ export function CoalitionBuilder({ parties, surveyLabel }: CoalitionBuilderProps
 
       {result.excludedBelowThreshold.length > 0 ? (
         <p className="mt-2 text-xs text-amber-600 dark:text-amber-400">
-          Unter 5%-Hürde, zählt nicht: {result.excludedBelowThreshold.join(", ")}
+          {t("coalition.excluded", {
+            parties: result.excludedBelowThreshold.join(", "),
+          })}
         </p>
       ) : null}
     </div>
@@ -130,7 +135,7 @@ function MajorityBadge({
         data-testid="coalition-status"
         className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
       >
-        keine Auswahl
+        {t("coalition.noSelection")}
       </span>
     );
   }
@@ -140,7 +145,7 @@ function MajorityBadge({
         data-testid="coalition-status"
         className="rounded-full bg-emerald-100 px-2 py-0.5 text-xs font-medium text-emerald-700 dark:bg-emerald-900/40 dark:text-emerald-300"
       >
-        Mehrheit
+        {t("coalition.majority")}
       </span>
     );
   }
@@ -149,7 +154,7 @@ function MajorityBadge({
       data-testid="coalition-status"
       className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
     >
-      keine Mehrheit
+      {t("coalition.noMajority")}
     </span>
   );
 }

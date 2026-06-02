@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import { t } from "@/i18n";
 import type {
   InstituteComparison,
   PartyAverage,
@@ -35,12 +36,15 @@ export function PollDashboard({
 
   return (
     <div className="space-y-10">
-      <Section title="Aktueller Stand" hint="Durchschnitt der jüngsten Umfrage je Institut">
+      <Section
+        title={t("dashboard.currentTitle")}
+        hint={t("dashboard.currentHint")}
+      >
         <CurrentStandingChart data={average} />
       </Section>
 
       <Section
-        title="Trend (90 Tage)"
+        title={t("dashboard.trendTitle")}
         action={
           <label className="flex items-center gap-2 text-xs font-normal normal-case tracking-normal text-zinc-600 dark:text-zinc-400">
             <input
@@ -50,18 +54,24 @@ export function PollDashboard({
               onChange={(e) => setSmoothed(e.target.checked)}
               className="h-3.5 w-3.5 accent-zinc-700 dark:accent-zinc-300"
             />
-            Geglättet
+            {t("dashboard.smooth")}
           </label>
         }
       >
         <TrendChart data={trendData} showDots={!smoothed} />
       </Section>
 
-      <Section title="Sitzverteilung" hint="Hochrechnung mit 5%-Hürde (Hare/Niemeyer)">
+      <Section
+        title={t("dashboard.seatsTitle")}
+        hint={t("dashboard.seatsHint")}
+      >
         <SeatDistributionChart data={seats} />
       </Section>
 
-      <Section title="Institutsvergleich" hint="Gleiche Parteien je Institut – zeigt House-Effects">
+      <Section
+        title={t("dashboard.comparisonTitle")}
+        hint={t("dashboard.comparisonHint")}
+      >
         <InstituteComparisonChart data={comparison} />
       </Section>
     </div>
