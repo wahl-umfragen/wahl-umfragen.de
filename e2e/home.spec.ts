@@ -116,3 +116,37 @@ test.describe("koalition page", () => {
     );
   });
 });
+
+test.describe("archive page", () => {
+  test("lists surveys and paginates", async ({ page }) => {
+    await page.goto("/archiv");
+
+    const table = page.getByTestId("archive-table");
+    const empty = page.getByTestId("empty-state");
+    await expect(table.or(empty).first()).toBeVisible({ timeout: 15_000 });
+    // DB-backed: with an empty DB there is nothing to browse.
+    test.skip(await empty.first().isVisible(), "no survey data in DB");
+
+    // First page renders rows and a page indicator.
+    const rows = page.getByTestId("archive-row");
+    await expect(rows.first()).toBeVisible();
+    const indicator = page.getByTestId("archive-page");
+    await expect(indicator).toContainText("Seite 1");
+
+    // Paging forward advances the indicator (when there's more than one page).
+    const next = page.getByRole("button", { name: "Weiter" });
+    if (await next.isEnabled()) {
+      await next.click();
+      await expect(indicator).toContainText("Seite 2");
+    }
+
+    // Filtering by an institute narrows the result count.
+    const before = await page.getByTestId("archive-count").textContent();
+    await page
+      .getByTestId("archive-institute")
+      .selectOption({ index: 1 });
+    await expect(page.getByTestId("archive-count")).not.toHaveText(
+      before ?? "",
+    );
+  });
+});

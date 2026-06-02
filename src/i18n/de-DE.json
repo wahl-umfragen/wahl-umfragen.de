@@ -7,7 +7,8 @@
   "nav": {
     "surveys": "Umfragen",
     "trend": "Trend",
-    "koalition": "Koalitionsrechner"
+    "koalition": "Koalitionsrechner",
+    "archive": "Archiv"
   },
   "theme": {
     "label": "Farbschema",
@@ -39,6 +40,23 @@
   "koalitionPage": {
     "title": "Koalitionsrechner",
     "subtitle": "Parteien auf Basis der aktuellsten Umfrage zu einer Koalition kombinieren."
+  },
+  "archivePage": {
+    "title": "Archiv",
+    "subtitle": "Alle Bundestags-Umfragen seit 2017. Filtern, sortieren, durchblättern."
+  },
+  "archive": {
+    "institute": "Institut",
+    "allInstitutes": "Alle Institute",
+    "dateFrom": "von",
+    "dateTo": "bis",
+    "reset": "Zurücksetzen",
+    "results": "{count} Umfragen",
+    "noMatch": "Keine Umfragen für diese Filter.",
+    "n": "Befragte",
+    "prev": "Zurück",
+    "next": "Weiter",
+    "page": "Seite {page} / {pages}"
   },
   "dashboard": {
     "currentTitle": "Aktueller Stand",
