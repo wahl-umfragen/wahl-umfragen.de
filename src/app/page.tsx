@@ -1,20 +1,19 @@
 import { Suspense } from "react";
 import { CoalitionBuilder } from "@/components/coalition-builder";
+import { InstituteTable } from "@/components/institute-table";
 import { TrendChartClient } from "@/components/trend-chart-client";
 import {
   buildBundestagTrend,
   fetchDawumDatabase,
   latestPerInstitute,
-  partyColorVar,
   selectBundestagSurveys,
-  type NormalizedSurvey,
 } from "@/lib/dawum";
 
 export const revalidate = 900;
 
 export default function Page() {
   return (
-    <div className="mx-auto max-w-5xl px-6 py-10">
+    <div className="mx-auto max-w-6xl px-6 py-10">
       <header className="mb-8">
         <h2 className="text-2xl font-semibold tracking-tight">
           Sonntagsfrage Bundestag
@@ -80,59 +79,10 @@ async function LatestSurveys() {
             Keine Umfragen verfügbar.
           </p>
         ) : (
-          <ul
-            data-testid="survey-list"
-            className="grid grid-cols-1 gap-4 sm:grid-cols-2"
-          >
-            {latest.map((s) => (
-              <SurveyCard key={s.id} survey={s} />
-            ))}
-          </ul>
+          <InstituteTable surveys={latest} />
         )}
       </section>
     </>
-  );
-}
-
-function SurveyCard({ survey }: { survey: NormalizedSurvey }) {
-  return (
-    <li
-      data-testid="survey-card"
-      data-institute={survey.institute.name}
-      className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900"
-    >
-      <div className="flex items-baseline justify-between">
-        <h3 className="text-base font-semibold">{survey.institute.name}</h3>
-        <time className="text-xs text-zinc-500" dateTime={survey.date}>
-          {formatDate(survey.date)}
-        </time>
-      </div>
-      <ol className="mt-3 space-y-1.5">
-        {survey.results.map((r) => (
-          <li
-            key={r.partyId}
-            className="flex items-center justify-between gap-3 text-sm"
-          >
-            <span className="flex items-center gap-2">
-              <span
-                aria-hidden="true"
-                className="inline-block h-2.5 w-2.5 rounded-full"
-                style={{ backgroundColor: partyColorVar(r.shortcut) }}
-              />
-              {r.shortcut}
-            </span>
-            <span className="font-mono tabular-nums">
-              {r.percent.toFixed(1)}%
-            </span>
-          </li>
-        ))}
-      </ol>
-      {survey.surveyedPersons ? (
-        <p className="mt-3 text-xs text-zinc-500">
-          n = {survey.surveyedPersons}
-        </p>
-      ) : null}
-    </li>
   );
 }
 
