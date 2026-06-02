@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import {
   fetchDawumDatabase,
   latestPerInstitute,
+  partyColor,
   selectBundestagSurveys,
   type NormalizedSurvey,
 } from "@/lib/dawum";
@@ -66,13 +67,20 @@ function SurveyCard({ survey }: { survey: NormalizedSurvey }) {
           {formatDate(survey.date)}
         </time>
       </div>
-      <ol className="mt-3 space-y-1">
+      <ol className="mt-3 space-y-1.5">
         {survey.results.map((r) => (
           <li
             key={r.partyId}
-            className="flex items-center justify-between text-sm"
+            className="flex items-center justify-between gap-3 text-sm"
           >
-            <span>{r.shortcut}</span>
+            <span className="flex items-center gap-2">
+              <span
+                aria-hidden="true"
+                className="inline-block h-2.5 w-2.5 rounded-full"
+                style={{ backgroundColor: partyColor(r.shortcut) }}
+              />
+              {r.shortcut}
+            </span>
             <span className="font-mono tabular-nums">
               {r.percent.toFixed(1)}%
             </span>
