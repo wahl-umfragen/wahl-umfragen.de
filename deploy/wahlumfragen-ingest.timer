@@ -1,18 +1,19 @@
 # Schedules the dawum ingest. Enable THIS unit (not the .service):
 #   sudo systemctl enable --now wahlumfragen-ingest.timer
 #
-# dawum's API window is ~90 days, so once a day is plenty to never miss a
-# survey. Bump to e.g. `OnCalendar=*-*-* 04,16:00:00` for twice daily.
+# Fires hourly. Each run first checks dawum's last_update.txt and skips the
+# heavy full ingest when nothing changed (see runIngest's guard), so polling
+# this often stays cheap and polite to dawum.
 
 [Unit]
-Description=Run wahlumfragen dawum ingest daily
+Description=Run wahlumfragen dawum ingest hourly
 
 [Timer]
-OnCalendar=*-*-* 04:30:00
+OnCalendar=hourly
 # Catch up a missed run after the server was off at the scheduled time.
 Persistent=true
-# Spread load / be polite to dawum — fire up to 5 min after the mark.
-RandomizedDelaySec=300
+# Spread load / be polite to dawum — fire up to 2 min after the mark.
+RandomizedDelaySec=120
 Unit=wahlumfragen-ingest.service
 
 [Install]

@@ -8,6 +8,13 @@
       "when": 1780405047405,
       "tag": "0000_init",
       "breakpoints": true
+    },
+    {
+      "idx": 1,
+      "version": "7",
+      "when": 1780427173215,
+      "tag": "0001_shocking_eternity",
+      "breakpoints": true
     }
   ]
 }

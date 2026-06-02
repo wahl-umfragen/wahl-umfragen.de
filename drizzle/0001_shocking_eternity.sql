@@ -1,0 +1,1 @@
+ALTER TABLE "ingest_runs" ADD COLUMN "dawum_last_update" timestamp with time zone;

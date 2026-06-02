@@ -31,8 +31,14 @@ compose Postgres so we start gathering history.
 - Schema lives in `src/db/schema.ts` — single source of truth
 - Migrations in `drizzle/` — committed, generated via `npm run db:generate`
 - Connection in `src/db/client.ts` — `DATABASE_URL` from `.env`
-- `ingest_runs` table is the audit log: every `runIngest()` call writes
-  start/end timestamps + counts. Query it to see ingest history.
+- `ingest_runs` table is the audit log: each `runIngest()` that actually
+  ingests writes start/end timestamps + counts + the dawum `last_update` it
+  saw. Query it to see ingest history. Note: `runIngest()` is **guarded** — it
+  fetches dawum's cheap `last_update.txt` first and, unless called with
+  `{ force: true }`, skips the full fetch+upsert (and writes **no** row) when
+  that value hasn't advanced past the newest stored `dawum_last_update`. So a
+  skipped run leaves no DB trace — its heartbeat is the worker log (journald),
+  not `ingest_runs`. This lets the worker poll hourly cheaply.
 
 ## Test layout
 

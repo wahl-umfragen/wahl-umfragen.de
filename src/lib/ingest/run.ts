@@ -1,7 +1,10 @@
-import { eq, sql } from "drizzle-orm";
+import { desc, eq, isNotNull, sql } from "drizzle-orm";
 import { db as defaultDb, type Db } from "@/db/client";
 import * as schema from "@/db/schema";
-import { fetchDawumDatabaseRaw } from "@/lib/dawum/client";
+import {
+  fetchDawumDatabaseRaw,
+  fetchDawumLastUpdateRaw,
+} from "@/lib/dawum/client";
 import { transformDawumToRows } from "./transform";
 
 const CHUNK_SIZE = 1000;
@@ -15,7 +18,12 @@ function chunked<T>(rows: T[]): T[][] {
 }
 
 export interface IngestResult {
-  runId: string;
+  /** null when the run was skipped (no change since the last ingest). */
+  runId: string | null;
+  /** true when dawum reported no change and the full ingest was skipped. */
+  skipped: boolean;
+  /** dawum's last_update value seen on this run (ISO), if it was reachable. */
+  dawumLastUpdate: string | null;
   surveysSeen: number;
   surveysNew: number;
   surveysUpdated: number;
@@ -24,10 +32,35 @@ export interface IngestResult {
 
 export async function runIngest(
   database: Db = defaultDb,
+  opts: { force?: boolean } = {},
 ): Promise<IngestResult> {
-  const runId = crypto.randomUUID();
   const startedAt = Date.now();
 
+  // Cheap guard: only do the heavy full fetch + upsert when dawum's data has
+  // actually changed since our newest successful ingest. Lets the worker poll
+  // frequently (hourly) while staying polite to dawum.
+  const lastUpdate = await fetchDawumLastUpdateRaw();
+  if (!opts.force) {
+    const [prev] = await database
+      .select({ dawumLastUpdate: schema.ingestRuns.dawumLastUpdate })
+      .from(schema.ingestRuns)
+      .where(isNotNull(schema.ingestRuns.dawumLastUpdate))
+      .orderBy(desc(schema.ingestRuns.dawumLastUpdate))
+      .limit(1);
+    if (prev?.dawumLastUpdate && lastUpdate <= prev.dawumLastUpdate) {
+      return {
+        runId: null,
+        skipped: true,
+        dawumLastUpdate: lastUpdate.toISOString(),
+        surveysSeen: 0,
+        surveysNew: 0,
+        surveysUpdated: 0,
+        durationMs: Date.now() - startedAt,
+      };
+    }
+  }
+
+  const runId = crypto.randomUUID();
   await database.insert(schema.ingestRuns).values({ id: runId });
 
   try {
@@ -137,6 +170,7 @@ export async function runIngest(
       .update(schema.ingestRuns)
       .set({
         completedAt: new Date(),
+        dawumLastUpdate: lastUpdate,
         surveysSeen: rows.surveys.length,
         surveysNew,
         surveysUpdated,
@@ -145,6 +179,8 @@ export async function runIngest(
 
     return {
       runId,
+      skipped: false,
+      dawumLastUpdate: lastUpdate.toISOString(),
       surveysSeen: rows.surveys.length,
       surveysNew,
       surveysUpdated,

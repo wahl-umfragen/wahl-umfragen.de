@@ -86,6 +86,10 @@ export const ingestRuns = pgTable("ingest_runs", {
     .notNull()
     .defaultNow(),
   completedAt: timestamp("completed_at", { withTimezone: true }),
+  // dawum's last_update.txt value at the time of this ingest. The worker
+  // compares the live value against the newest stored one and skips the full
+  // ingest when nothing changed (see runIngest's guard).
+  dawumLastUpdate: timestamp("dawum_last_update", { withTimezone: true }),
   surveysSeen: integer("surveys_seen").notNull().default(0),
   surveysNew: integer("surveys_new").notNull().default(0),
   surveysUpdated: integer("surveys_updated").notNull().default(0),

@@ -26,6 +26,15 @@ node dist/ingest.cjs   # == npm run ingest:prod
 
 `dist/` is git-ignored — it's a build artifact, rebuilt on each deploy.
 
+## Cadence & the change guard
+
+The timer fires **hourly** (`OnCalendar=hourly`). Each run first fetches
+dawum's cheap `last_update.txt`; if it hasn't advanced since the last ingest,
+the run **skips** the full fetch+upsert in ~200ms and writes no `ingest_runs`
+row (its trace is the journald log line, not the DB). So hourly polling is
+cheap and polite to dawum — the heavy work only happens when dawum actually
+published something. Pass `--force` to ingest regardless of the guard.
+
 ## One-time server setup
 
 Assumes the repo is checked out at `/opt/wahlumfragen`, owned by a system user
@@ -45,8 +54,8 @@ npm ci
 npm run db:migrate
 npm run build:ingest
 
-# 4. Smoke-test one run by hand
-npm run ingest:prod
+# 4. Smoke-test one run by hand (--force bypasses the change guard)
+node dist/ingest.cjs --force
 #  -> [ingest] ok  seen=...  new=...  updated=...  <ms>  run=<uuid>
 ```
 
