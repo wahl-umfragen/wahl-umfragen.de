@@ -163,4 +163,17 @@ test.describe("archive page", () => {
       before ?? "",
     );
   });
+
+  test("opens a survey detail page", async ({ page }) => {
+    await page.goto("/archiv");
+
+    const table = page.getByTestId("archive-table");
+    const empty = page.getByTestId("empty-state");
+    await expect(table.or(empty).first()).toBeVisible({ timeout: 15_000 });
+    test.skip(await empty.first().isVisible(), "no survey data in DB");
+
+    await page.getByTestId("archive-row").first().getByRole("link").click();
+    await expect(page).toHaveURL(/\/archiv\/.+/);
+    await expect(page.getByTestId("survey-results")).toBeVisible();
+  });
 });

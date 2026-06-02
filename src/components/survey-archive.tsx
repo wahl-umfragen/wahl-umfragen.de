@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { t } from "@/i18n";
 import { partyColorVar } from "@/lib/dawum/colors";
@@ -263,7 +264,12 @@ export function SurveyArchive({ surveys }: { surveys: NormalizedSurvey[] }) {
                         scope="row"
                         className="sticky left-0 bg-background py-2 pr-3 text-left font-medium"
                       >
-                        {survey.institute.name}
+                        <Link
+                          href={`/archiv/${survey.id}`}
+                          className="hover:underline"
+                        >
+                          {survey.institute.name}
+                        </Link>
                       </th>
                       <td className="whitespace-nowrap py-2 pr-3 text-zinc-500 dark:text-zinc-400">
                         {formatDate(survey.date)}

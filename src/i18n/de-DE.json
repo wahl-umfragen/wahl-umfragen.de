@@ -56,7 +56,18 @@
     "n": "Befragte",
     "prev": "Zurück",
     "next": "Weiter",
-    "page": "Seite {page} / {pages}"
+    "page": "Seite {page} / {pages}",
+    "details": "Details"
+  },
+  "detail": {
+    "back": "← Zurück zum Archiv",
+    "results": "Ergebnisse",
+    "date": "Datum",
+    "period": "Feldzeit",
+    "method": "Methode",
+    "tasker": "Auftraggeber",
+    "surveyed": "Befragte",
+    "metaTitle": "{institute}, {date} – Wahlumfragen"
   },
   "dashboard": {
     "currentTitle": "Aktueller Stand",
