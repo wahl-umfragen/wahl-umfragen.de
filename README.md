@@ -1,36 +1,68 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# wahlumfragen
 
-## Getting Started
+Aggregierte Sonntagsfrage zur Bundestagswahl, basierend auf der freien
+[dawum.de](https://dawum.de/)-API (ODbL).
 
-First, run the development server:
+## Stack
+
+- Next.js 16 (App Router, Tailwind v4)
+- Drizzle ORM + Postgres 16 (lokal via docker compose)
+- Recharts für den Trend
+- Vitest (Unit) + Playwright (E2E)
+- GitHub Actions CI
+
+## Setup
 
 ```bash
+# 1. install
+npm install
+
+# 2. lokale postgres
+cp .env.example .env
+npm run db:up
+npm run db:migrate
+
+# 3. einmalig daten ziehen
+npm run ingest
+
+# 4. app starten
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Daten-Flow
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+Aktuell liest die Next-App die dawum-API direkt mit 15 min Revalidate-Cache
+(`src/lib/dawum/client.ts`). Parallel dazu schreibt das Ingest-Script in eine
+lokale Postgres (`scripts/ingest.ts`), damit wir Snapshots akkumulieren,
+bevor die Frontend-Reads später auf die DB migrieren.
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+`runIngest()`:
 
-## Learn More
+- holt die volle dawum-DB einmalig
+- upserted Dimensionen + Surveys + Results in einer Transaktion (gechunkt,
+  damit pg's 65k-Param-Limit nicht greift)
+- setzt `first_seen_at` beim ersten Auftauchen einer Survey-ID und
+  `last_seen_at = now()` bei jedem weiteren Lauf
+- protokolliert pro Lauf eine Zeile in `ingest_runs` (seen/new/updated)
 
-To learn more about Next.js, take a look at the following resources:
+## Häufige Commands
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+| Command                | Was es macht                                |
+|------------------------|---------------------------------------------|
+| `npm run dev`          | Next.js dev server auf :3000                |
+| `npm run build`        | Production build                            |
+| `npm run lint`         | ESLint                                      |
+| `npm run typecheck`    | `tsc --noEmit`                              |
+| `npm test`             | Vitest (unit)                               |
+| `npm run test:e2e`     | Playwright (e2e)                            |
+| `npm run db:up`        | Postgres in docker compose hochfahren       |
+| `npm run db:down`      | Postgres + Volume runterfahren              |
+| `npm run db:generate`  | Migration aus Schema-Diff erzeugen          |
+| `npm run db:migrate`   | Pending migrations anwenden                 |
+| `npm run db:studio`    | Drizzle Studio (Web-UI für die DB)          |
+| `npm run ingest`       | Einmaliger Ingest-Lauf gegen dawum.de       |
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## Lizenz / Quellen
 
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+Daten von [dawum.de](https://dawum.de/) unter
+[ODC-ODbL](https://opendatacommons.org/licenses/odbl/1-0/).
