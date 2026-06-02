@@ -1,5 +1,7 @@
 import { Suspense } from "react";
+import { TrendChartClient } from "@/components/trend-chart-client";
 import {
+  buildBundestagTrend,
   fetchDawumDatabase,
   latestPerInstitute,
   partyColor,
@@ -17,7 +19,7 @@ export default function Page() {
           Sonntagsfrage Bundestag
         </h2>
         <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-          Aktuellste Umfrage je Institut.
+          Trend der letzten 90 Tage und aktuellste Umfrage je Institut.
         </p>
       </header>
       <Suspense fallback={<SurveysSkeleton />}>
@@ -29,7 +31,9 @@ export default function Page() {
 
 async function LatestSurveys() {
   const db = await fetchDawumDatabase();
-  const latest = latestPerInstitute(selectBundestagSurveys(db));
+  const bundestag = selectBundestagSurveys(db);
+  const latest = latestPerInstitute(bundestag);
+  const trend = buildBundestagTrend(bundestag, { windowDays: 90 });
 
   return (
     <>
@@ -39,23 +43,36 @@ async function LatestSurveys() {
       >
         Stand: {formatDateTime(db.Database.Last_Update)}
       </p>
-      {latest.length === 0 ? (
-        <p
-          data-testid="empty-state"
-          className="text-sm text-zinc-600 dark:text-zinc-400"
-        >
-          Keine Umfragen verfügbar.
-        </p>
-      ) : (
-        <ul
-          data-testid="survey-list"
-          className="grid grid-cols-1 gap-4 sm:grid-cols-2"
-        >
-          {latest.map((s) => (
-            <SurveyCard key={s.id} survey={s} />
-          ))}
-        </ul>
-      )}
+
+      <section className="mb-10">
+        <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+          Trend (90 Tage)
+        </h3>
+        <TrendChartClient data={trend} />
+      </section>
+
+      <section>
+        <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+          Aktuellste Umfrage je Institut
+        </h3>
+        {latest.length === 0 ? (
+          <p
+            data-testid="empty-state"
+            className="text-sm text-zinc-600 dark:text-zinc-400"
+          >
+            Keine Umfragen verfügbar.
+          </p>
+        ) : (
+          <ul
+            data-testid="survey-list"
+            className="grid grid-cols-1 gap-4 sm:grid-cols-2"
+          >
+            {latest.map((s) => (
+              <SurveyCard key={s.id} survey={s} />
+            ))}
+          </ul>
+        )}
+      </section>
     </>
   );
 }

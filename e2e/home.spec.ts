@@ -41,4 +41,12 @@ test.describe("home page", () => {
       expect(await cards.count()).toBeGreaterThan(0);
     }
   });
+
+  test("renders the 90-day trend chart after hydration", async ({ page }) => {
+    await page.goto("/");
+
+    const chart = page.getByTestId("trend-chart");
+    const empty = page.getByTestId("trend-empty");
+    await expect(chart.or(empty)).toBeVisible({ timeout: 15_000 });
+  });
 });
