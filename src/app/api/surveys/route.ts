@@ -3,30 +3,92 @@ import { loadBundestagData } from "@/lib/data";
 
 /**
  * Public data endpoint for all Bundestag surveys.
- *   GET /api/surveys            → JSON { lastUpdate, count, surveys }
- *   GET /api/surveys?format=csv → CSV, one row per party result (long format)
+ *   GET /api/surveys                    → JSON { lastUpdate, count, total, surveys }
+ *   GET /api/surveys?format=csv         → CSV, one row per party result (long format)
+ *   GET /api/surveys?limit=100&offset=0 → page through the dataset (newest first)
  *
  * Reads the cached loader, so it returns current data without hitting the DB
  * per request. dawum data is ODbL — attribute accordingly when reusing.
+ *
+ * Hardening: serializing the full dataset (esp. CSV) is the most expensive
+ * thing the origin does per uncached request, so it's a natural flood target.
+ * Mitigations: (1) `limit`/`offset` let clients page instead of always pulling
+ * everything, with a hard `MAX_LIMIT` cap; (2) `s-maxage`/`stale-while-revalidate`
+ * let Cloudflare serve from the edge and refresh in the background, so a burst
+ * of identical requests collapses to ~one origin hit per 5 min. Pair this with
+ * the edge Cache Rule + rate limit in `deploy/SECURITY.md`.
  */
+
+/** Hard ceiling on an explicit `limit`, so a client can't request a huge page. */
+const MAX_LIMIT = 1000;
+
 export async function GET(req: NextRequest) {
   const { bundestag, lastUpdate } = await loadBundestagData();
-  const format = req.nextUrl.searchParams.get("format");
+  const params = req.nextUrl.searchParams;
+  const format = params.get("format");
+
+  const { limit, offset, error } = parsePaging(params);
+  if (error) return Response.json({ error }, { status: 400 });
+
+  const total = bundestag.length;
+  // When no limit is given we keep returning the full dataset (the public
+  // export use case); a given limit is clamped to [1, MAX_LIMIT].
+  const page =
+    limit === undefined ? bundestag : bundestag.slice(offset, offset + limit);
+
+  const headers = {
+    // Cache at the browser (max-age) and the edge (s-maxage), and let the edge
+    // serve stale while it revalidates so bursts don't pile onto the origin.
+    "cache-control": "public, max-age=300, s-maxage=300, stale-while-revalidate=60",
+  };
 
   if (format === "csv") {
-    return new Response(toCsv(bundestag), {
+    return new Response(toCsv(page), {
       headers: {
+        ...headers,
         "content-type": "text/csv; charset=utf-8",
         "content-disposition": 'attachment; filename="wahlumfragen.csv"',
-        "cache-control": "public, max-age=300",
       },
     });
   }
 
   return Response.json(
-    { lastUpdate, count: bundestag.length, surveys: bundestag },
-    { headers: { "cache-control": "public, max-age=300" } },
+    { lastUpdate, total, count: page.length, surveys: page },
+    { headers },
   );
+}
+
+/**
+ * Parse and validate `limit`/`offset`. `limit` absent → undefined (full set).
+ * Returns an `error` string for malformed input so the handler can 400.
+ */
+function parsePaging(params: URLSearchParams): {
+  limit: number | undefined;
+  offset: number;
+  error?: string;
+} {
+  const rawLimit = params.get("limit");
+  const rawOffset = params.get("offset");
+
+  let limit: number | undefined;
+  if (rawLimit !== null) {
+    const n = Number(rawLimit);
+    if (!Number.isInteger(n) || n < 1) {
+      return { limit: undefined, offset: 0, error: "limit must be a positive integer" };
+    }
+    limit = Math.min(n, MAX_LIMIT);
+  }
+
+  let offset = 0;
+  if (rawOffset !== null) {
+    const n = Number(rawOffset);
+    if (!Number.isInteger(n) || n < 0) {
+      return { limit, offset: 0, error: "offset must be a non-negative integer" };
+    }
+    offset = n;
+  }
+
+  return { limit, offset };
 }
 
 const CSV_HEADER = [
