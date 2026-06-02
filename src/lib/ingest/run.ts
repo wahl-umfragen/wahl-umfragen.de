@@ -1,0 +1,163 @@
+import { eq, sql } from "drizzle-orm";
+import { db as defaultDb, type Db } from "@/db/client";
+import * as schema from "@/db/schema";
+import { fetchDawumDatabaseRaw } from "@/lib/dawum/client";
+import { transformDawumToRows } from "./transform";
+
+const CHUNK_SIZE = 1000;
+
+function chunked<T>(rows: T[]): T[][] {
+  const out: T[][] = [];
+  for (let i = 0; i < rows.length; i += CHUNK_SIZE) {
+    out.push(rows.slice(i, i + CHUNK_SIZE));
+  }
+  return out;
+}
+
+export interface IngestResult {
+  runId: string;
+  surveysSeen: number;
+  surveysNew: number;
+  surveysUpdated: number;
+  durationMs: number;
+}
+
+export async function runIngest(
+  database: Db = defaultDb,
+): Promise<IngestResult> {
+  const runId = crypto.randomUUID();
+  const startedAt = Date.now();
+
+  await database.insert(schema.ingestRuns).values({ id: runId });
+
+  try {
+    const data = await fetchDawumDatabaseRaw();
+    const rows = transformDawumToRows(data);
+
+    const existing = await database
+      .select({ id: schema.surveys.id })
+      .from(schema.surveys);
+    const existingIds = new Set(existing.map((r) => r.id));
+
+    let surveysNew = 0;
+    let surveysUpdated = 0;
+    for (const s of rows.surveys) {
+      if (existingIds.has(s.id)) surveysUpdated++;
+      else surveysNew++;
+    }
+
+    await database.transaction(async (tx) => {
+      for (const chunk of chunked(rows.parliaments)) {
+        await tx
+          .insert(schema.parliaments)
+          .values(chunk)
+          .onConflictDoUpdate({
+            target: schema.parliaments.id,
+            set: {
+              shortcut: sql`excluded.shortcut`,
+              name: sql`excluded.name`,
+              election: sql`excluded.election`,
+            },
+          });
+      }
+      for (const chunk of chunked(rows.institutes)) {
+        await tx
+          .insert(schema.institutes)
+          .values(chunk)
+          .onConflictDoUpdate({
+            target: schema.institutes.id,
+            set: { name: sql`excluded.name` },
+          });
+      }
+      for (const chunk of chunked(rows.taskers)) {
+        await tx
+          .insert(schema.taskers)
+          .values(chunk)
+          .onConflictDoUpdate({
+            target: schema.taskers.id,
+            set: { name: sql`excluded.name` },
+          });
+      }
+      for (const chunk of chunked(rows.methods)) {
+        await tx
+          .insert(schema.methods)
+          .values(chunk)
+          .onConflictDoUpdate({
+            target: schema.methods.id,
+            set: { name: sql`excluded.name` },
+          });
+      }
+      for (const chunk of chunked(rows.parties)) {
+        await tx
+          .insert(schema.parties)
+          .values(chunk)
+          .onConflictDoUpdate({
+            target: schema.parties.id,
+            set: {
+              shortcut: sql`excluded.shortcut`,
+              name: sql`excluded.name`,
+            },
+          });
+      }
+      for (const chunk of chunked(rows.surveys)) {
+        await tx
+          .insert(schema.surveys)
+          .values(chunk)
+          .onConflictDoUpdate({
+            target: schema.surveys.id,
+            set: {
+              date: sql`excluded.date`,
+              parliamentId: sql`excluded.parliament_id`,
+              instituteId: sql`excluded.institute_id`,
+              taskerId: sql`excluded.tasker_id`,
+              methodId: sql`excluded.method_id`,
+              surveyedPersons: sql`excluded.surveyed_persons`,
+              periodStart: sql`excluded.period_start`,
+              periodEnd: sql`excluded.period_end`,
+              lastSeenAt: sql`now()`,
+            },
+          });
+      }
+      for (const chunk of chunked(rows.surveyResults)) {
+        await tx
+          .insert(schema.surveyResults)
+          .values(chunk)
+          .onConflictDoUpdate({
+            target: [
+              schema.surveyResults.surveyId,
+              schema.surveyResults.partyId,
+            ],
+            set: { percent: sql`excluded.percent` },
+          });
+      }
+    });
+
+    const durationMs = Date.now() - startedAt;
+    await database
+      .update(schema.ingestRuns)
+      .set({
+        completedAt: new Date(),
+        surveysSeen: rows.surveys.length,
+        surveysNew,
+        surveysUpdated,
+      })
+      .where(eq(schema.ingestRuns.id, runId));
+
+    return {
+      runId,
+      surveysSeen: rows.surveys.length,
+      surveysNew,
+      surveysUpdated,
+      durationMs,
+    };
+  } catch (err) {
+    await database
+      .update(schema.ingestRuns)
+      .set({
+        completedAt: new Date(),
+        error: err instanceof Error ? err.message : String(err),
+      })
+      .where(eq(schema.ingestRuns.id, runId));
+    throw err;
+  }
+}
