@@ -75,7 +75,11 @@ export function TrendChart({
       data-testid="trend-chart"
       className="h-80 w-full rounded-lg border border-zinc-200 bg-white p-2 dark:border-zinc-800 dark:bg-zinc-900 sm:h-[26rem]"
     >
-      <ResponsiveContainer width="100%" height="100%">
+      <ResponsiveContainer
+        width="100%"
+        height="100%"
+        initialDimension={{ width: 600, height: 360 }}
+      >
         <LineChart
           data={data.points}
           margin={{ top: 8, right: 20, bottom: 8, left: 0 }}

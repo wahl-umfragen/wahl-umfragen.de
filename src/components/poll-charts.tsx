@@ -40,7 +40,11 @@ export function CurrentStandingChart({ data }: { data: PartyAverage[] }) {
       className={CARD}
       style={{ height: Math.max(200, data.length * 36 + 24) }}
     >
-      <ResponsiveContainer width="100%" height="100%">
+      <ResponsiveContainer
+        width="100%"
+        height="100%"
+        initialDimension={{ width: 600, height: 280 }}
+      >
         <BarChart
           layout="vertical"
           data={data}
@@ -104,7 +108,11 @@ export function SeatDistributionChart({ data }: { data: SeatDistribution }) {
   return (
     <div data-testid="seat-chart" className={CARD}>
       <div className="h-64 w-full">
-        <ResponsiveContainer width="100%" height="100%">
+        <ResponsiveContainer
+          width="100%"
+          height="100%"
+          initialDimension={{ width: 600, height: 256 }}
+        >
           <PieChart>
             <Pie
               data={data.entries}
@@ -176,7 +184,11 @@ export function InstituteComparisonChart({
 
   return (
     <div data-testid="comparison-chart" className={`${CARD} h-96`}>
-      <ResponsiveContainer width="100%" height="100%">
+      <ResponsiveContainer
+        width="100%"
+        height="100%"
+        initialDimension={{ width: 600, height: 384 }}
+      >
         <BarChart data={data.rows} margin={{ top: 8, right: 16, bottom: 48, left: 0 }}>
           <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.4} vertical={false} />
           <XAxis
