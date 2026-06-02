@@ -77,7 +77,7 @@ export function InstituteTable({ surveys }: { surveys: NormalizedSurvey[] }) {
           <tr className="border-b-2 border-zinc-300 dark:border-zinc-700">
             <th
               aria-sort={ariaSort("institute")}
-              className="sticky left-0 border-r border-zinc-200 bg-background dark:border-zinc-800"
+              className="sticky left-0 bg-background"
             >
               <SortButton
                 active={sameKey("institute", sortKey)}
@@ -138,7 +138,7 @@ export function InstituteTable({ surveys }: { surveys: NormalizedSurvey[] }) {
               >
                 <th
                   scope="row"
-                  className="sticky left-0 border-r border-zinc-200 bg-background py-2 pr-3 text-left font-medium dark:border-zinc-800"
+                  className="sticky left-0 bg-background py-2 pr-3 text-left font-medium"
                 >
                   {survey.institute.name}
                 </th>
