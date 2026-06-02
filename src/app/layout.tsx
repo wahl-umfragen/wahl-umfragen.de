@@ -1,5 +1,8 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Geist, Geist_Mono, Source_Serif_4 } from "next/font/google";
+import { Analytics } from "@/components/analytics";
+import { CookieBanner } from "@/components/cookie-banner";
 import { Logo } from "@/components/logo";
 import { SiteNav } from "@/components/site-nav";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -57,28 +60,40 @@ export default function RootLayout({
             data-testid="site-footer"
             className="border-t border-zinc-200 dark:border-zinc-800"
           >
-            <div className="mx-auto max-w-6xl px-6 py-4 text-xs text-zinc-600 dark:text-zinc-400">
-              {t("footer.dataPrefix")}{" "}
-              <a
-                href="https://dawum.de/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline"
-              >
-                dawum.de
-              </a>{" "}
-              {t("footer.license")}{" "}
-              <a
-                href="https://opendatacommons.org/licenses/odbl/1-0/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="underline"
-              >
-                ODbL
-              </a>
-              .
+            <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-4 text-xs text-zinc-600 dark:text-zinc-400">
+              <span>
+                {t("footer.dataPrefix")}{" "}
+                <a
+                  href="https://dawum.de/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline"
+                >
+                  dawum.de
+                </a>{" "}
+                {t("footer.license")}{" "}
+                <a
+                  href="https://opendatacommons.org/licenses/odbl/1-0/"
+                  target="_blank"
+                  rel="noopener noreferrer"
+                  className="underline"
+                >
+                  ODbL
+                </a>
+                .
+              </span>
+              <nav className="flex gap-4">
+                <Link href="/impressum" className="underline">
+                  {t("footer.impressum")}
+                </Link>
+                <Link href="/datenschutz" className="underline">
+                  {t("footer.datenschutz")}
+                </Link>
+              </nav>
             </div>
           </footer>
+          <CookieBanner />
+          <Analytics />
         </ThemeProvider>
       </body>
     </html>

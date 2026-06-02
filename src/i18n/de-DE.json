@@ -18,7 +18,22 @@
   },
   "footer": {
     "dataPrefix": "Daten:",
-    "license": "unter der"
+    "license": "unter der",
+    "impressum": "Impressum",
+    "datenschutz": "Datenschutz"
+  },
+  "cookie": {
+    "text": "Diese Seite nutzt datensparsame, cookielose Reichweitenmessung (Plausible) – ohne Cookies und ohne personenbezogene Daten.",
+    "more": "Mehr im Datenschutz",
+    "accept": "Verstanden"
+  },
+  "impressumPage": {
+    "title": "Impressum",
+    "metaTitle": "Impressum – Wahlumfragen"
+  },
+  "datenschutzPage": {
+    "title": "Datenschutzerklärung",
+    "metaTitle": "Datenschutz – Wahlumfragen"
   },
   "common": {
     "asOf": "Stand:",
