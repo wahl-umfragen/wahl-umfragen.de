@@ -177,3 +177,20 @@ test.describe("archive page", () => {
     await expect(page.getByTestId("survey-results")).toBeVisible();
   });
 });
+
+test.describe("data api", () => {
+  test("serves survey JSON", async ({ request }) => {
+    const res = await request.get("/api/surveys");
+    expect(res.ok()).toBeTruthy();
+    const body = await res.json();
+    expect(typeof body.count).toBe("number");
+    expect(Array.isArray(body.surveys)).toBe(true);
+  });
+
+  test("serves a CSV download", async ({ request }) => {
+    const res = await request.get("/api/surveys?format=csv");
+    expect(res.ok()).toBeTruthy();
+    expect(res.headers()["content-type"]).toContain("text/csv");
+    expect(await res.text()).toContain("survey_id,date");
+  });
+});

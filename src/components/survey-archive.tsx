@@ -170,12 +170,27 @@ export function SurveyArchive({ surveys }: { surveys: NormalizedSurvey[] }) {
         >
           {t("archive.reset")}
         </button>
-        <span
-          data-testid="archive-count"
-          className="ml-auto text-xs text-zinc-500"
-        >
-          {t("archive.results", { count: sorted.length })}
-        </span>
+        <div className="ml-auto flex items-center gap-3 text-xs text-zinc-500">
+          <span>
+            {t("archive.export")}:{" "}
+            <a
+              href="/api/surveys"
+              className="underline hover:text-zinc-900 dark:hover:text-zinc-100"
+            >
+              JSON
+            </a>
+            {" · "}
+            <a
+              href="/api/surveys?format=csv"
+              className="underline hover:text-zinc-900 dark:hover:text-zinc-100"
+            >
+              CSV
+            </a>
+          </span>
+          <span data-testid="archive-count">
+            {t("archive.results", { count: sorted.length })}
+          </span>
+        </div>
       </div>
 
       {sorted.length === 0 ? (

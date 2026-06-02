@@ -57,7 +57,8 @@
     "prev": "Zurück",
     "next": "Weiter",
     "page": "Seite {page} / {pages}",
-    "details": "Details"
+    "details": "Details",
+    "export": "Export"
   },
   "detail": {
     "back": "← Zurück zum Archiv",
