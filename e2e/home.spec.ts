@@ -49,4 +49,25 @@ test.describe("home page", () => {
     const empty = page.getByTestId("trend-empty");
     await expect(chart.or(empty)).toBeVisible({ timeout: 15_000 });
   });
+
+  test("coalition builder toggles a party and updates the sum", async ({
+    page,
+  }) => {
+    await page.goto("/");
+
+    const builder = page.getByTestId("coalition-builder");
+    await expect(builder).toBeVisible({ timeout: 15_000 });
+
+    await expect(page.getByTestId("coalition-status")).toContainText(
+      "keine Auswahl",
+    );
+
+    const firstParty = builder.locator("label").first();
+    await firstParty.click();
+
+    await expect(page.getByTestId("coalition-sum")).not.toContainText("0.0%");
+    await expect(page.getByTestId("coalition-status")).not.toContainText(
+      "keine Auswahl",
+    );
+  });
 });

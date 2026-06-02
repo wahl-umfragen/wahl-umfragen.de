@@ -3,3 +3,4 @@ export * from "./client";
 export * from "./normalize";
 export * from "./colors";
 export * from "./trend";
+export * from "./coalition";

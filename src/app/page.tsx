@@ -1,4 +1,5 @@
 import { Suspense } from "react";
+import { CoalitionBuilder } from "@/components/coalition-builder";
 import { TrendChartClient } from "@/components/trend-chart-client";
 import {
   buildBundestagTrend,
@@ -34,6 +35,7 @@ async function LatestSurveys() {
   const bundestag = selectBundestagSurveys(db);
   const latest = latestPerInstitute(bundestag);
   const trend = buildBundestagTrend(bundestag, { windowDays: 90 });
+  const mostRecent = bundestag[0];
 
   return (
     <>
@@ -50,6 +52,21 @@ async function LatestSurveys() {
         </h3>
         <TrendChartClient data={trend} />
       </section>
+
+      {mostRecent ? (
+        <section className="mb-10">
+          <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
+            Koalitionsrechner
+          </h3>
+          <CoalitionBuilder
+            parties={mostRecent.results.map((r) => ({
+              shortcut: r.shortcut,
+              percent: r.percent,
+            }))}
+            surveyLabel={`${mostRecent.institute.name}, ${formatDate(mostRecent.date)}`}
+          />
+        </section>
+      ) : null}
 
       <section>
         <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
