@@ -8,22 +8,26 @@ This version has breaking changes — APIs, conventions, and file structure may 
 
 Aggregator for Bundestag polling data from dawum.de (ODbL).
 
-## Two data paths — know which one you're touching
+## Data flow — know which path you're touching
 
-There are **two** ways data flows through this codebase. They serve different purposes:
+1. **Ingest path (writes)** — `scripts/ingest.ts` → `src/lib/ingest/run.ts`
+   fetches dawum via `src/lib/dawum/client.ts`, transforms the JSON into row
+   shapes (`src/lib/ingest/transform.ts`), and upserts into Postgres. This
+   accumulates **historical snapshots** so we keep data after dawum's ~90-day
+   window. Runs hourly via the systemd timer in `deploy/`, guarded by dawum's
+   `last_update` (see the `ingest_runs` note below).
 
-1. **Live read path** — `src/lib/dawum/client.ts` hits `api.dawum.de` directly
-   from the Next server with `fetch(... { next: { revalidate: 900 } })`. The
-   home page currently uses this. It's stateless and works without a DB.
+2. **DB read path (frontend)** — every page route loads via
+   `loadBundestagData()` in `src/lib/data/load.ts`, which reads accumulated
+   surveys from Postgres and returns the `NormalizedSurvey[]` view model. Phase 2
+   is **done**: the frontend reads the DB, not dawum live. There is **no live
+   fallback** — an empty DB renders an empty UI. Page routes are
+   `dynamic = "force-dynamic"` (they hit the DB at request time), so the app
+   needs a reachable, migrated DB at **build and runtime**.
 
-2. **Ingest path** — `scripts/ingest.ts` → `src/lib/ingest/run.ts` calls the
-   same dawum client, transforms the JSON into row shapes
-   (`src/lib/ingest/transform.ts`), and upserts into Postgres. This is what
-   accumulates **historical snapshots** so we keep data after dawum's window.
-
-Frontend reads have **not yet been migrated** to the DB. Phase 2 will do that
-once we have a hosted Postgres. For now: ingest runs against the local docker
-compose Postgres so we start gathering history.
+`src/lib/dawum/client.ts` (the live `api.dawum.de` fetch) is now used **only by
+the ingest path**, never by the frontend. The pure view-model selectors in
+`src/lib/dawum/` (normalize/aggregate/trend/coalition) are shared by both.
 
 ## Data layer
 
@@ -53,9 +57,11 @@ compose Postgres so we start gathering history.
   generated migration file.
 - New ingest logic: keep the transform pure (no DB) so it's unit-testable.
   Side effects belong in `run.ts`.
-- New frontend read of poll data: until phase 2, **use the dawum client**,
-  not the DB. We'll do one focused migration when prod DB exists, not a
-  drip-feed.
+- New frontend read of poll data: read from the DB via `@/lib/data`
+  (`loadBundestagData`), **not** the live dawum client (that's ingest-only).
+  Keep new page routes `dynamic = "force-dynamic"` since they query Postgres at
+  request time. Reuse the pure selectors in `@/lib/dawum` on the resulting
+  `NormalizedSurvey[]`.
 - Postgres parameter limit (~65k): every `tx.insert(...).values([...])` over
   thousands of rows must chunk. See `chunked()` in `src/lib/ingest/run.ts`
   for the existing pattern.

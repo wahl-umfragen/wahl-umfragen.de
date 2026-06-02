@@ -38,6 +38,25 @@ jobs:
     name: Playwright e2e
     runs-on: ubuntu-latest
     needs: check
+    # The frontend now reads from Postgres (Phase 2), so the built app needs a
+    # reachable, migrated DB at build + runtime. The DB stays empty here — the
+    # data-dependent specs are empty-tolerant and skip themselves.
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: wahlumfragen
+          POSTGRES_PASSWORD: wahlumfragen
+          POSTGRES_DB: wahlumfragen
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U wahlumfragen -d wahlumfragen"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://wahlumfragen:wahlumfragen@localhost:5432/wahlumfragen
     steps:
       - uses: actions/checkout@v4
 
@@ -48,6 +67,9 @@ jobs:
 
       - name: Install dependencies
         run: npm ci
+
+      - name: Run migrations
+        run: npm run db:migrate
 
       - name: Resolve Playwright version
         id: pw

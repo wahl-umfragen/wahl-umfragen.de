@@ -1,9 +1,10 @@
 import { Suspense } from "react";
 import { CoalitionBuilder } from "@/components/coalition-builder";
-import { loadBundestagData } from "@/lib/dawum";
+import { loadBundestagData } from "@/lib/data";
 import { formatDate, formatDateTime } from "@/lib/format";
 
-export const revalidate = 900;
+// Reads from Postgres at request time (Phase 2); never prerender at build.
+export const dynamic = "force-dynamic";
 
 export default function KoalitionPage() {
   return (
@@ -45,7 +46,7 @@ async function Koalition() {
         data-testid="data-freshness"
         className="mb-4 text-xs text-zinc-500 dark:text-zinc-400"
       >
-        Stand: {formatDateTime(lastUpdate)}
+        Stand: {lastUpdate ? formatDateTime(lastUpdate) : "—"}
       </p>
       <CoalitionBuilder
         parties={mostRecent.results.map((r) => ({

@@ -1,16 +1,17 @@
 import { Suspense } from "react";
 import { PollDashboardClient } from "@/components/poll-dashboard-client";
+import { loadBundestagData } from "@/lib/data";
 import {
   buildBundestagTrend,
   currentAverage,
   instituteComparison,
   latestPerInstitute,
-  loadBundestagData,
   seatDistribution,
 } from "@/lib/dawum";
 import { formatDateTime } from "@/lib/format";
 
-export const revalidate = 900;
+// Reads from Postgres at request time (Phase 2); never prerender at build.
+export const dynamic = "force-dynamic";
 
 export default function TrendPage() {
   return (
@@ -40,7 +41,7 @@ async function Dashboard() {
         data-testid="data-freshness"
         className="mb-6 text-xs text-zinc-500 dark:text-zinc-400"
       >
-        Stand: {formatDateTime(lastUpdate)}
+        Stand: {lastUpdate ? formatDateTime(lastUpdate) : "—"}
       </p>
       <PollDashboardClient
         average={average}

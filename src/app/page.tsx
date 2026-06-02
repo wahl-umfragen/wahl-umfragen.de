@@ -1,9 +1,11 @@
 import { Suspense } from "react";
 import { InstituteTable } from "@/components/institute-table";
-import { latestPerInstitute, loadBundestagData } from "@/lib/dawum";
+import { loadBundestagData } from "@/lib/data";
+import { latestPerInstitute } from "@/lib/dawum";
 import { formatDateTime } from "@/lib/format";
 
-export const revalidate = 900;
+// Reads from Postgres at request time (Phase 2); never prerender at build.
+export const dynamic = "force-dynamic";
 
 export default function Page() {
   return (
@@ -33,7 +35,7 @@ async function Surveys() {
         data-testid="data-freshness"
         className="mb-4 text-xs text-zinc-500 dark:text-zinc-400"
       >
-        Stand: {formatDateTime(lastUpdate)}
+        Stand: {lastUpdate ? formatDateTime(lastUpdate) : "—"}
       </p>
       {latest.length === 0 ? (
         <p
