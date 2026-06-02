@@ -74,10 +74,10 @@ export function InstituteTable({ surveys }: { surveys: NormalizedSurvey[] }) {
     <div className="overflow-x-auto">
       <table data-testid="survey-list" className="w-full border-collapse text-sm">
         <thead>
-          <tr className="border-b border-zinc-200 dark:border-zinc-800">
+          <tr className="border-b-2 border-zinc-300 dark:border-zinc-700">
             <th
               aria-sort={ariaSort("institute")}
-              className="sticky left-0 bg-white dark:bg-zinc-950"
+              className="sticky left-0 border-r border-zinc-200 bg-background dark:border-zinc-800"
             >
               <SortButton
                 active={sameKey("institute", sortKey)}
@@ -138,11 +138,11 @@ export function InstituteTable({ surveys }: { surveys: NormalizedSurvey[] }) {
               >
                 <th
                   scope="row"
-                  className="sticky left-0 bg-white py-2 pr-3 text-left font-medium dark:bg-zinc-950"
+                  className="sticky left-0 border-r border-zinc-200 bg-background py-2 pr-3 text-left font-medium dark:border-zinc-800"
                 >
                   {survey.institute.name}
                 </th>
-                <td className="whitespace-nowrap py-2 pr-3 text-zinc-500">
+                <td className="whitespace-nowrap py-2 pr-3 text-zinc-500 dark:text-zinc-400">
                   {formatDate(survey.date)}
                 </td>
                 {parties.map((shortcut) => {
@@ -150,7 +150,7 @@ export function InstituteTable({ surveys }: { surveys: NormalizedSurvey[] }) {
                   return (
                     <td
                       key={shortcut}
-                      className="py-2 px-2 text-right font-mono tabular-nums"
+                      className="py-2 px-2 text-right font-mono tabular-nums tracking-tight"
                     >
                       {percent === undefined ? (
                         <span className="text-zinc-300 dark:text-zinc-700">–</span>
