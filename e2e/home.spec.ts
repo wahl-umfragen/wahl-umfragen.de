@@ -1,7 +1,7 @@
 import { expect, test } from "@playwright/test";
 
 test.describe("home page", () => {
-  test("renders header, sonntagsfrage section, and ODbL attribution", async ({
+  test("renders header, nav, sonntagsfrage section, and ODbL attribution", async ({
     page,
   }) => {
     await page.goto("/");
@@ -14,6 +14,11 @@ test.describe("home page", () => {
       page.getByRole("heading", { name: "Sonntagsfrage Bundestag", level: 2 }),
     ).toBeVisible();
 
+    const nav = page.getByTestId("site-nav");
+    await expect(nav.getByRole("link", { name: "Umfragen" })).toBeVisible();
+    await expect(nav.getByRole("link", { name: "Trend" })).toBeVisible();
+    await expect(nav.getByRole("link", { name: "Koalition" })).toBeVisible();
+
     const footer = page.getByTestId("site-footer");
     await expect(footer).toBeVisible();
     await expect(footer.getByRole("link", { name: "dawum.de" })).toHaveAttribute(
@@ -23,7 +28,7 @@ test.describe("home page", () => {
     await expect(footer.getByRole("link", { name: "ODbL" })).toBeVisible();
   });
 
-  test("renders either survey cards or an empty state (no crash)", async ({
+  test("renders the institute table or an empty state (no crash)", async ({
     page,
   }) => {
     await page.goto("/");
@@ -36,24 +41,43 @@ test.describe("home page", () => {
     await expect(page.getByTestId("data-freshness")).toContainText("Stand:");
 
     if (await list.isVisible()) {
-      const cards = page.getByTestId("survey-card");
-      await expect(cards.first()).toBeVisible();
-      expect(await cards.count()).toBeGreaterThan(0);
+      const rows = page.getByTestId("survey-card");
+      await expect(rows.first()).toBeVisible();
+      expect(await rows.count()).toBeGreaterThan(0);
     }
   });
 
-  test("renders the 90-day trend chart after hydration", async ({ page }) => {
+  test("sorts the table when a column header is clicked", async ({ page }) => {
     await page.goto("/");
+
+    const list = page.getByTestId("survey-list");
+    await expect(list).toBeVisible({ timeout: 15_000 });
+
+    const instituteHeader = page.getByRole("button", { name: /^Institut/ });
+    await instituteHeader.click();
+    await expect(instituteHeader).toContainText(/↑|↓/);
+  });
+});
+
+test.describe("trend page", () => {
+  test("renders the 90-day trend chart after hydration", async ({ page }) => {
+    await page.goto("/trend");
+
+    await expect(
+      page.getByRole("heading", { name: "Trend (90 Tage)", level: 2 }),
+    ).toBeVisible();
 
     const chart = page.getByTestId("trend-chart");
     const empty = page.getByTestId("trend-empty");
     await expect(chart.or(empty)).toBeVisible({ timeout: 15_000 });
   });
+});
 
+test.describe("koalition page", () => {
   test("coalition builder toggles a party and updates the sum", async ({
     page,
   }) => {
-    await page.goto("/");
+    await page.goto("/koalition");
 
     const builder = page.getByTestId("coalition-builder");
     await expect(builder).toBeVisible({ timeout: 15_000 });

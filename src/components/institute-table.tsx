@@ -65,12 +65,20 @@ export function InstituteTable({ surveys }: { surveys: NormalizedSurvey[] }) {
     return sortDir === "asc" ? " ↑" : " ↓";
   }
 
+  function ariaSort(key: SortKey): "ascending" | "descending" | "none" {
+    if (!sameKey(key, sortKey)) return "none";
+    return sortDir === "asc" ? "ascending" : "descending";
+  }
+
   return (
     <div className="overflow-x-auto">
       <table data-testid="survey-list" className="w-full border-collapse text-sm">
         <thead>
           <tr className="border-b border-zinc-200 dark:border-zinc-800">
-            <th className="sticky left-0 bg-white dark:bg-zinc-950">
+            <th
+              aria-sort={ariaSort("institute")}
+              className="sticky left-0 bg-white dark:bg-zinc-950"
+            >
               <SortButton
                 active={sameKey("institute", sortKey)}
                 onClick={() => toggleSort("institute")}
@@ -79,7 +87,7 @@ export function InstituteTable({ surveys }: { surveys: NormalizedSurvey[] }) {
                 Institut{indicator("institute")}
               </SortButton>
             </th>
-            <th>
+            <th aria-sort={ariaSort("date")}>
               <SortButton
                 active={sameKey("date", sortKey)}
                 onClick={() => toggleSort("date")}
@@ -91,7 +99,11 @@ export function InstituteTable({ surveys }: { surveys: NormalizedSurvey[] }) {
             {parties.map((shortcut) => {
               const key: SortKey = { party: shortcut };
               return (
-                <th key={shortcut} className="whitespace-nowrap">
+                <th
+                  key={shortcut}
+                  aria-sort={ariaSort(key)}
+                  className="whitespace-nowrap"
+                >
                   <SortButton
                     active={sameKey(key, sortKey)}
                     onClick={() => toggleSort(key)}
@@ -172,7 +184,6 @@ function SortButton({
     <button
       type="button"
       onClick={onClick}
-      aria-sort={active ? "other" : undefined}
       className={`flex items-center gap-1 font-semibold tabular-nums hover:text-zinc-900 dark:hover:text-zinc-100 ${
         active ? "text-zinc-900 dark:text-zinc-100" : "text-zinc-500"
       } ${className}`}

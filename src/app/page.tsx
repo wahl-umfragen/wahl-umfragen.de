@@ -1,13 +1,7 @@
 import { Suspense } from "react";
-import { CoalitionBuilder } from "@/components/coalition-builder";
 import { InstituteTable } from "@/components/institute-table";
-import { TrendChartClient } from "@/components/trend-chart-client";
-import {
-  buildBundestagTrend,
-  fetchDawumDatabase,
-  latestPerInstitute,
-  selectBundestagSurveys,
-} from "@/lib/dawum";
+import { latestPerInstitute, loadBundestagData } from "@/lib/dawum";
+import { formatDateTime } from "@/lib/format";
 
 export const revalidate = 900;
 
@@ -19,22 +13,19 @@ export default function Page() {
           Sonntagsfrage Bundestag
         </h2>
         <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-          Trend der letzten 90 Tage und aktuellste Umfrage je Institut.
+          Aktuellste Umfrage je Institut. Spalten sind sortierbar.
         </p>
       </header>
-      <Suspense fallback={<SurveysSkeleton />}>
-        <LatestSurveys />
+      <Suspense fallback={<TableSkeleton />}>
+        <Surveys />
       </Suspense>
     </div>
   );
 }
 
-async function LatestSurveys() {
-  const db = await fetchDawumDatabase();
-  const bundestag = selectBundestagSurveys(db);
+async function Surveys() {
+  const { bundestag, lastUpdate } = await loadBundestagData();
   const latest = latestPerInstitute(bundestag);
-  const trend = buildBundestagTrend(bundestag, { windowDays: 90 });
-  const mostRecent = bundestag[0];
 
   return (
     <>
@@ -42,84 +33,27 @@ async function LatestSurveys() {
         data-testid="data-freshness"
         className="mb-4 text-xs text-zinc-500 dark:text-zinc-400"
       >
-        Stand: {formatDateTime(db.Database.Last_Update)}
+        Stand: {formatDateTime(lastUpdate)}
       </p>
-
-      <section className="mb-10">
-        <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-          Trend (90 Tage)
-        </h3>
-        <TrendChartClient data={trend} />
-      </section>
-
-      {mostRecent ? (
-        <section className="mb-10">
-          <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-            Koalitionsrechner
-          </h3>
-          <CoalitionBuilder
-            parties={mostRecent.results.map((r) => ({
-              shortcut: r.shortcut,
-              percent: r.percent,
-            }))}
-            surveyLabel={`${mostRecent.institute.name}, ${formatDate(mostRecent.date)}`}
-          />
-        </section>
-      ) : null}
-
-      <section>
-        <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-          Aktuellste Umfrage je Institut
-        </h3>
-        {latest.length === 0 ? (
-          <p
-            data-testid="empty-state"
-            className="text-sm text-zinc-600 dark:text-zinc-400"
-          >
-            Keine Umfragen verfügbar.
-          </p>
-        ) : (
-          <InstituteTable surveys={latest} />
-        )}
-      </section>
+      {latest.length === 0 ? (
+        <p
+          data-testid="empty-state"
+          className="text-sm text-zinc-600 dark:text-zinc-400"
+        >
+          Keine Umfragen verfügbar.
+        </p>
+      ) : (
+        <InstituteTable surveys={latest} />
+      )}
     </>
   );
 }
 
-function SurveysSkeleton() {
+function TableSkeleton() {
   return (
     <div
       data-testid="surveys-skeleton"
-      className="grid grid-cols-1 gap-4 sm:grid-cols-2"
-    >
-      {Array.from({ length: 6 }).map((_, i) => (
-        <div
-          key={i}
-          className="h-40 animate-pulse rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900"
-        />
-      ))}
-    </div>
+      className="h-80 animate-pulse rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900"
+    />
   );
-}
-
-function formatDate(iso: string): string {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleDateString("de-DE", {
-    year: "numeric",
-    month: "short",
-    day: "2-digit",
-  });
-}
-
-function formatDateTime(iso: string): string {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleString("de-DE", {
-    year: "numeric",
-    month: "short",
-    day: "2-digit",
-    hour: "2-digit",
-    minute: "2-digit",
-  });
 }
