@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { coalitionMath, type CoalitionInputParty } from "@/lib/dawum/coalition";
-import { partyColor } from "@/lib/dawum/colors";
+import { partyColorVar } from "@/lib/dawum/colors";
 
 const NON_PARTISAN = new Set(["Sonstige", "Sonstige Parteien", "Andere"]);
 
@@ -49,7 +49,7 @@ export function CoalitionBuilder({ parties, surveyLabel }: CoalitionBuilderProps
                 } ${belowThreshold && !isChecked ? "opacity-60" : ""}`}
                 style={
                   isChecked
-                    ? { backgroundColor: partyColor(p.shortcut) }
+                    ? { backgroundColor: partyColorVar(p.shortcut) }
                     : undefined
                 }
               >
@@ -62,7 +62,7 @@ export function CoalitionBuilder({ parties, surveyLabel }: CoalitionBuilderProps
                 <span
                   aria-hidden="true"
                   className="inline-block h-2.5 w-2.5 rounded-full"
-                  style={{ backgroundColor: partyColor(p.shortcut) }}
+                  style={{ backgroundColor: partyColorVar(p.shortcut) }}
                 />
                 <span>{p.shortcut}</span>
                 <span className="font-mono tabular-nums">

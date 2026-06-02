@@ -13,6 +13,7 @@ import {
 import type { TooltipContentProps } from "recharts/types/component/Tooltip";
 import { partyColor } from "@/lib/dawum/colors";
 import type { TrendData, TrendPoint } from "@/lib/dawum/trend";
+import { useColorScheme } from "./use-color-scheme";
 
 const X_FORMAT = new Intl.DateTimeFormat("de-DE", {
   day: "2-digit",
@@ -30,6 +31,7 @@ export interface TrendChartProps {
 }
 
 export function TrendChart({ data }: TrendChartProps) {
+  const scheme = useColorScheme();
   if (data.points.length === 0) {
     return (
       <p
@@ -64,6 +66,8 @@ export function TrendChart({ data }: TrendChartProps) {
             tickFormatter={(v: number) => X_FORMAT.format(new Date(v))}
             stroke="currentColor"
             tick={{ fontSize: 12 }}
+            minTickGap={48}
+            tickMargin={8}
           />
           <YAxis
             tickFormatter={(v: number) => `${v}%`}
@@ -79,7 +83,7 @@ export function TrendChart({ data }: TrendChartProps) {
               type="monotone"
               dataKey={s.shortcut}
               name={s.shortcut}
-              stroke={partyColor(s.shortcut)}
+              stroke={partyColor(s.shortcut, { scheme })}
               strokeWidth={2}
               dot={{ r: 2 }}
               activeDot={{ r: 4 }}

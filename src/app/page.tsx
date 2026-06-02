@@ -5,7 +5,7 @@ import {
   buildBundestagTrend,
   fetchDawumDatabase,
   latestPerInstitute,
-  partyColor,
+  partyColorVar,
   selectBundestagSurveys,
   type NormalizedSurvey,
 } from "@/lib/dawum";
@@ -117,7 +117,7 @@ function SurveyCard({ survey }: { survey: NormalizedSurvey }) {
               <span
                 aria-hidden="true"
                 className="inline-block h-2.5 w-2.5 rounded-full"
-                style={{ backgroundColor: partyColor(r.shortcut) }}
+                style={{ backgroundColor: partyColorVar(r.shortcut) }}
               />
               {r.shortcut}
             </span>

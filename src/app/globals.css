@@ -12,10 +12,24 @@
   --font-mono: var(--font-geist-mono);
 }
 
+:root {
+  --party-cdu: #1f1f1f;
+  --party-spd: #E3000F;
+  --party-gruene: #1FA12B;
+  --party-fdp: #FFCC00;
+  --party-afd: #009EE0;
+  --party-linke: #BE3075;
+  --party-bsw: #722F75;
+  --party-fw: #FF8C00;
+  --party-tierschutz: #557A38;
+  --party-fallback: #8a8a8a;
+}
+
 @media (prefers-color-scheme: dark) {
   :root {
     --background: #0a0a0a;
     --foreground: #ededed;
+    --party-cdu: #d4d4d8;
   }
 }
 
