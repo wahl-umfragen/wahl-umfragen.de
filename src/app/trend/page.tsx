@@ -8,6 +8,9 @@ import {
   instituteComparison,
   latestPerInstitute,
   seatDistribution,
+  TREND_WINDOW_DAYS,
+  type TrendWindowKey,
+  type TrendWindows,
 } from "@/lib/dawum";
 import { formatDateTime } from "@/lib/format";
 
@@ -34,6 +37,14 @@ async function Dashboard() {
   const latest = latestPerInstitute(bundestag);
   const average = currentAverage(latest);
 
+  // Precompute one trend per selectable window; the dashboard switches between
+  // them client-side without another server round-trip.
+  const trends = Object.fromEntries(
+    (Object.entries(TREND_WINDOW_DAYS) as [TrendWindowKey, number][]).map(
+      ([key, days]) => [key, buildBundestagTrend(bundestag, { windowDays: days })],
+    ),
+  ) as TrendWindows;
+
   return (
     <>
       <p
@@ -44,7 +55,7 @@ async function Dashboard() {
       </p>
       <PollDashboardClient
         average={average}
-        trend={buildBundestagTrend(bundestag, { windowDays: 90 })}
+        trends={trends}
         seats={seatDistribution(average)}
         comparison={instituteComparison(latest)}
       />

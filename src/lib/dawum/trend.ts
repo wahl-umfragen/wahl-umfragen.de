@@ -20,6 +20,18 @@ export interface TrendData {
   range: { from: number; to: number } | null;
 }
 
+/** Selectable trend windows, in days from the newest survey. `all` uses a
+ * value large enough to cover the whole dataset (dawum starts ~2017). */
+export const TREND_WINDOW_DAYS = {
+  "90": 90,
+  "365": 365,
+  all: 100_000,
+} as const;
+
+export type TrendWindowKey = keyof typeof TREND_WINDOW_DAYS;
+
+export type TrendWindows = Record<TrendWindowKey, TrendData>;
+
 export interface BuildTrendOptions {
   /** Maximum age of a survey in days, measured from the newest survey's date. */
   windowDays?: number;

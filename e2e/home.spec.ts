@@ -89,6 +89,20 @@ test.describe("auswertung page", () => {
     await toggle.uncheck();
     await expect(toggle).not.toBeChecked();
   });
+
+  test("switches the trend window", async ({ page }) => {
+    await page.goto("/trend");
+
+    const windowCtl = page.getByTestId("trend-window");
+    const empty = page.getByTestId("trend-empty");
+    await expect(windowCtl.or(empty).first()).toBeVisible({ timeout: 15_000 });
+    test.skip(await empty.first().isVisible(), "no survey data in DB");
+
+    const all = windowCtl.getByRole("button", { name: "Gesamt" });
+    await all.click();
+    await expect(all).toHaveAttribute("aria-pressed", "true");
+    await expect(page.getByTestId("trend-chart")).toBeVisible();
+  });
 });
 
 test.describe("koalition page", () => {

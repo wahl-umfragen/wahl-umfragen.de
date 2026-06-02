@@ -61,7 +61,10 @@
   "dashboard": {
     "currentTitle": "Aktueller Stand",
     "currentHint": "Durchschnitt der jüngsten Umfrage je Institut",
-    "trendTitle": "Trend (90 Tage)",
+    "trendTitle": "Trend",
+    "window90": "90 Tage",
+    "window1y": "1 Jahr",
+    "windowAll": "Gesamt",
     "smooth": "Geglättet",
     "seatsTitle": "Sitzverteilung",
     "seatsHint": "Hochrechnung mit 5%-Hürde (Hare/Niemeyer)",
