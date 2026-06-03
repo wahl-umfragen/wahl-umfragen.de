@@ -1,8 +1,10 @@
 "use client";
 
+import Link from "next/link";
 import { useMemo, useState } from "react";
 import { t, type TranslationKey } from "@/i18n";
 import { partyColorVar } from "@/lib/dawum/colors";
+import { formatDate } from "@/lib/format";
 import type {
   InstituteComparison,
   PartyAverage,
@@ -26,11 +28,21 @@ import { TrendChart } from "./trend-chart";
 /** Lines beyond this many crowd the legend; also the filterable party set. */
 const MAX_TREND_SERIES = 8;
 
+/** One survey feeding the current-standing average (slim, client-safe shape). */
+export interface ContributingSurvey {
+  id: string;
+  instituteId: string;
+  institute: string;
+  date: string;
+}
+
 export interface PollDashboardProps {
   average: PartyAverage[];
   trends: TrendWindows;
   seats: SeatDistribution;
   comparison: InstituteComparison;
+  /** The surveys averaged into "Aktueller Stand", listed for transparency. */
+  contributingSurveys: ContributingSurvey[];
 }
 
 const WINDOW_LABELS: Record<TrendWindowKey, TranslationKey> = {
@@ -44,6 +56,7 @@ export function PollDashboard({
   trends,
   seats,
   comparison,
+  contributingSurveys,
 }: PollDashboardProps) {
   const [windowKey, setWindowKey] = useState<TrendWindowKey>("all");
   const [hiddenParties, setHiddenParties] = useState<ReadonlySet<string>>(
@@ -94,6 +107,30 @@ export function PollDashboard({
         <Fullscreenable>
           <CurrentStandingChart data={average} />
         </Fullscreenable>
+        {contributingSurveys.length > 0 ? (
+          <details data-testid="current-sources" className="mt-3 text-xs">
+            <summary className="cursor-pointer select-none font-medium text-muted hover:text-foreground">
+              {t("dashboard.currentSourcesSummary", {
+                count: contributingSurveys.length,
+              })}
+            </summary>
+            <ul className="mt-2 grid gap-x-6 gap-y-1 text-muted sm:grid-cols-2">
+              {contributingSurveys.map((s) => (
+                <li key={s.id}>
+                  <Link
+                    href={`/archiv/${s.id}`}
+                    className="hover:text-foreground hover:underline"
+                  >
+                    <span className="font-medium text-foreground/80">
+                      {s.institute}
+                    </span>{" "}
+                    · {formatDate(s.date)}
+                  </Link>
+                </li>
+              ))}
+            </ul>
+          </details>
+        ) : null}
       </Section>
 
       <Section

@@ -49,6 +49,17 @@ async function Dashboard() {
   const latest = latestPerInstitute(surveysWithinDays(bundestag, 365));
   const average = currentAverage(latest);
 
+  // Transparency: the exact surveys averaged into "Aktueller Stand", newest
+  // first. Slim shape so the client payload stays small.
+  const contributingSurveys = latest
+    .map((s) => ({
+      id: s.id,
+      instituteId: s.institute.id,
+      institute: s.institute.name,
+      date: s.date,
+    }))
+    .sort((a, b) => b.date.localeCompare(a.date));
+
   // Precompute one trend per selectable window; the dashboard switches between
   // them client-side without another server round-trip.
   const trends = Object.fromEntries(
@@ -70,6 +81,7 @@ async function Dashboard() {
         trends={trends}
         seats={seatDistribution(average)}
         comparison={instituteComparison(latest)}
+        contributingSurveys={contributingSurveys}
       />
     </>
   );

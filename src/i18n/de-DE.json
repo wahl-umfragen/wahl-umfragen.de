@@ -111,6 +111,7 @@
   "dashboard": {
     "currentTitle": "Aktueller Stand",
     "currentHint": "Durchschnitt der jüngsten Umfrage je Institut",
+    "currentSourcesSummary": "Berücksichtigte Umfragen ({count})",
     "trendTitle": "Trend",
     "trendHint": "Klick in der Legende zeigt nur eine Partei (erneut: alle). Über die Chips oben Parteien ein-/ausblenden. Klick auf einen Punkt öffnet die Umfrage im Archiv.",
     "window90": "90 Tage",
