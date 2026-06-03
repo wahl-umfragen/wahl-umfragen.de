@@ -1,5 +1,6 @@
 import type { MetadataRoute } from "next";
 import { loadBundestagData } from "@/lib/data";
+import { STATE_PARLIAMENTS } from "@/lib/parliaments";
 import { absoluteUrl } from "@/lib/seo";
 
 /**
@@ -18,6 +19,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: absoluteUrl("/archiv"), lastModified: now, changeFrequency: "hourly", priority: 0.8 },
     { url: absoluteUrl("/koalition"), lastModified: now, changeFrequency: "daily", priority: 0.7 },
     { url: absoluteUrl("/wahlen"), changeFrequency: "yearly", priority: 0.6 },
+    { url: absoluteUrl("/laender"), lastModified: now, changeFrequency: "daily", priority: 0.7 },
+    ...STATE_PARLIAMENTS.map((p) => ({
+      url: absoluteUrl(`/laender/${p.slug}`),
+      lastModified: now,
+      changeFrequency: "daily" as const,
+      priority: 0.6,
+    })),
     { url: absoluteUrl("/impressum"), changeFrequency: "yearly", priority: 0.2 },
     { url: absoluteUrl("/datenschutz"), changeFrequency: "yearly", priority: 0.2 },
   ];

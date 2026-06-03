@@ -46,6 +46,8 @@ export interface PollDashboardProps {
   houseEffects: HouseEffects;
   /** The surveys averaged into "Aktueller Stand", listed for transparency. */
   contributingSurveys: ContributingSurvey[];
+  /** Draw the official election markers on the trend (Bundestag only). */
+  showElectionMarkers?: boolean;
 }
 
 const WINDOW_LABELS: Record<TrendWindowKey, TranslationKey> = {
@@ -61,6 +63,7 @@ export function PollDashboard({
   comparison,
   houseEffects,
   contributingSurveys,
+  showElectionMarkers = true,
 }: PollDashboardProps) {
   const [windowKey, setWindowKey] = useState<TrendWindowKey>("all");
   const [hiddenParties, setHiddenParties] = useState<ReadonlySet<string>>(
@@ -213,6 +216,7 @@ export function PollDashboard({
             data={trendData}
             showDots={false}
             smoothed
+            showElectionMarkers={showElectionMarkers}
             hiddenParties={hiddenParties}
             onSoloParty={soloParty}
           />

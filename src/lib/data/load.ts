@@ -18,6 +18,13 @@ export interface BundestagData {
   lastUpdate: string | null;
 }
 
+export interface ParliamentData {
+  /** All surveys for one parliament, newest first. */
+  surveys: NormalizedSurvey[];
+  /** ISO timestamp of dawum's last update we ingested, or null if never. */
+  lastUpdate: string | null;
+}
+
 /**
  * Server-side loader shared by every page route — the **DB read path**
  * (Phase 2, see AGENTS.md). Reads accumulated history from Postgres instead of
@@ -40,79 +47,38 @@ export interface BundestagData {
  * request via React `cache()` (multiple components — e.g. a page and its
  * `generateMetadata` — share the single decode).
  */
-const loadCompressedBundestagData = unstable_cache(
-  async () => {
-    const data = await loadBundestagDataUncached();
+const loadCompressedParliamentData = unstable_cache(
+  async (parliamentId: string) => {
+    const data = await loadParliamentDataUncached(parliamentId);
     return gzipSync(Buffer.from(JSON.stringify(data))).toString("base64");
   },
-  ["bundestag-data"],
+  ["parliament-data"],
   { tags: [SURVEYS_TAG], revalidate: false },
+);
+
+/**
+ * All surveys for one parliament (by dawum id), gzip-cached under the shared
+ * `surveys` tag with the parliament id as part of the cache key. Decoded once
+ * per request via React `cache()`. This is the generic core; `loadBundestagData`
+ * is the parliament "0" special case kept for the Bundestag pages.
+ */
+export const loadParliamentData = cache(
+  async (parliamentId: string): Promise<ParliamentData> => {
+    const gz = await loadCompressedParliamentData(parliamentId);
+    return JSON.parse(
+      gunzipSync(Buffer.from(gz, "base64")).toString("utf8"),
+    ) as ParliamentData;
+  },
 );
 
 export const loadBundestagData = cache(
   async (): Promise<BundestagData> => {
-    const gz = await loadCompressedBundestagData();
-    return JSON.parse(
-      gunzipSync(Buffer.from(gz, "base64")).toString("utf8"),
-    ) as BundestagData;
+    const { surveys, lastUpdate } = await loadParliamentData(
+      BUNDESTAG_PARLIAMENT_ID,
+    );
+    return { bundestag: surveys, lastUpdate };
   },
 );
-
-async function loadBundestagDataUncached(): Promise<BundestagData> {
-  const surveyRows = await db
-    .select({
-      id: schema.surveys.id,
-      date: schema.surveys.date,
-      periodStart: schema.surveys.periodStart,
-      periodEnd: schema.surveys.periodEnd,
-      surveyedPersons: schema.surveys.surveyedPersons,
-      parliamentId: schema.surveys.parliamentId,
-      parliamentShortcut: schema.parliaments.shortcut,
-      parliamentName: schema.parliaments.name,
-      instituteId: schema.surveys.instituteId,
-      instituteName: schema.institutes.name,
-      taskerId: schema.surveys.taskerId,
-      taskerName: schema.taskers.name,
-      methodId: schema.surveys.methodId,
-      methodName: schema.methods.name,
-    })
-    .from(schema.surveys)
-    .innerJoin(
-      schema.parliaments,
-      eq(schema.surveys.parliamentId, schema.parliaments.id),
-    )
-    .innerJoin(
-      schema.institutes,
-      eq(schema.surveys.instituteId, schema.institutes.id),
-    )
-    .leftJoin(schema.taskers, eq(schema.surveys.taskerId, schema.taskers.id))
-    .leftJoin(schema.methods, eq(schema.surveys.methodId, schema.methods.id))
-    .where(eq(schema.surveys.parliamentId, BUNDESTAG_PARLIAMENT_ID))
-    .orderBy(desc(schema.surveys.date), desc(schema.surveys.id));
-
-  const lastUpdate = await loadLastUpdate();
-  if (surveyRows.length === 0) return { bundestag: [], lastUpdate };
-
-  // One query for all results of Bundestag surveys; grouped in memory.
-  const resultRows = await db
-    .select({
-      surveyId: schema.surveyResults.surveyId,
-      partyId: schema.surveyResults.partyId,
-      shortcut: schema.parties.shortcut,
-      name: schema.parties.name,
-      percent: schema.surveyResults.percent,
-    })
-    .from(schema.surveyResults)
-    .innerJoin(
-      schema.parties,
-      eq(schema.surveyResults.partyId, schema.parties.id),
-    )
-    .innerJoin(schema.surveys, eq(schema.surveyResults.surveyId, schema.surveys.id))
-    .where(eq(schema.surveys.parliamentId, BUNDESTAG_PARLIAMENT_ID));
-
-  const bundestag = mapSurveyRows(surveyRows, resultRows);
-  return { bundestag, lastUpdate };
-}
 
 /** Column selection for a survey joined with its lookup names. */
 const surveyColumns = {
@@ -207,6 +173,45 @@ const resultColumns = {
   name: schema.parties.name,
   percent: schema.surveyResults.percent,
 } as const;
+
+/** The heavy read for one parliament: all its surveys + results, mapped. */
+async function loadParliamentDataUncached(
+  parliamentId: string,
+): Promise<ParliamentData> {
+  const surveyRows = await db
+    .select(surveyColumns)
+    .from(schema.surveys)
+    .innerJoin(
+      schema.parliaments,
+      eq(schema.surveys.parliamentId, schema.parliaments.id),
+    )
+    .innerJoin(
+      schema.institutes,
+      eq(schema.surveys.instituteId, schema.institutes.id),
+    )
+    .leftJoin(schema.taskers, eq(schema.surveys.taskerId, schema.taskers.id))
+    .leftJoin(schema.methods, eq(schema.surveys.methodId, schema.methods.id))
+    .where(eq(schema.surveys.parliamentId, parliamentId))
+    .orderBy(desc(schema.surveys.date), desc(schema.surveys.id));
+
+  const lastUpdate = await loadLastUpdate();
+  if (surveyRows.length === 0) return { surveys: [], lastUpdate };
+
+  const resultRows = await db
+    .select(resultColumns)
+    .from(schema.surveyResults)
+    .innerJoin(
+      schema.parties,
+      eq(schema.surveyResults.partyId, schema.parties.id),
+    )
+    .innerJoin(
+      schema.surveys,
+      eq(schema.surveyResults.surveyId, schema.surveys.id),
+    )
+    .where(eq(schema.surveys.parliamentId, parliamentId));
+
+  return { surveys: mapSurveyRows(surveyRows, resultRows), lastUpdate };
+}
 
 /**
  * All Bundestag surveys from one institute, newest first. Targeted loader for

@@ -10,6 +10,12 @@ const PAGES = [
   { path: "/", h1: "Sonntagsfrage Bundestag", canonical: /\/?$/ },
   { path: "/archiv", h1: "Archiv", canonical: /\/archiv$/ },
   { path: "/trend", h1: "Auswertung", canonical: /\/trend$/ },
+  { path: "/laender", h1: "Landtagswahlen", canonical: /\/laender$/ },
+  {
+    path: "/laender/bayern",
+    h1: "Umfragen Bayern",
+    canonical: /\/laender\/bayern$/,
+  },
   { path: "/wahlen", h1: "Wahlergebnisse", canonical: /\/wahlen$/ },
   { path: "/koalition", h1: "Koalitionsrechner", canonical: /\/koalition$/ },
   { path: "/impressum", h1: "Impressum", canonical: /\/impressum$/ },

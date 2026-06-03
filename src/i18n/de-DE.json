@@ -7,7 +7,8 @@
     "trend": "Trend",
     "koalition": "Koalitionsrechner",
     "archive": "Archiv",
-    "elections": "Wahlen"
+    "elections": "Wahlen",
+    "laender": "Länder"
   },
   "theme": {
     "label": "Farbschema",
@@ -55,6 +56,10 @@
     "title": "Koalitionsrechner",
     "subtitle": "Parteien auf Basis des aktuellen Durchschnitts zu einer Koalition kombinieren.",
     "basisAverage": "Durchschnitt aus {institutes} Instituten · Stand {date}"
+  },
+  "laenderPage": {
+    "title": "Landtagswahlen",
+    "subtitle": "Umfragen, Wahltrend und Sitzverteilung je Bundesland."
   },
   "wahlenPage": {
     "title": "Wahlergebnisse",
