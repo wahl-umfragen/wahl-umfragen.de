@@ -76,20 +76,6 @@ test.describe("auswertung page", () => {
     await expect(standing.or(empty).first()).toBeVisible({ timeout: 15_000 });
   });
 
-  test("toggles trend smoothing", async ({ page }) => {
-    await page.goto("/trend");
-
-    const empty = page.getByTestId("trend-empty");
-    const toggle = page.getByTestId("smooth-toggle");
-    await expect(toggle.or(empty).first()).toBeVisible({ timeout: 15_000 });
-    // DB-backed: with an empty DB there is no trend to smooth.
-    test.skip(await empty.first().isVisible(), "no survey data in DB");
-
-    await expect(toggle).toBeChecked();
-    await toggle.uncheck();
-    await expect(toggle).not.toBeChecked();
-  });
-
   test("switches the trend window", async ({ page }) => {
     await page.goto("/trend");
 

@@ -103,11 +103,10 @@
     "currentTitle": "Aktueller Stand",
     "currentHint": "Durchschnitt der jüngsten Umfrage je Institut",
     "trendTitle": "Trend",
-    "trendHint": "Klick auf einen Punkt öffnet die Umfrage im Archiv.",
+    "trendHint": "Klick in der Legende zeigt nur eine Partei (erneut: alle). Über die Chips oben Parteien ein-/ausblenden. Klick auf einen Punkt öffnet die Umfrage im Archiv.",
     "window90": "90 Tage",
     "window1y": "1 Jahr",
     "windowAll": "Gesamt",
-    "smooth": "Geglättet",
     "partiesLabel": "Parteien:",
     "partiesAll": "Alle",
     "seatsTitle": "Sitzverteilung",
@@ -124,7 +123,8 @@
     "seats": "Sitze",
     "seatsSummary": "{total} Sitze · Mehrheit ab {majority}",
     "fullscreen": "Vollbild",
-    "exitFullscreen": "Vollbild verlassen"
+    "exitFullscreen": "Vollbild verlassen",
+    "legendSolo": "Klick: nur diese Partei zeigen (erneut: alle)"
   },
   "coalition": {
     "basis": "Grundlage: {label}",

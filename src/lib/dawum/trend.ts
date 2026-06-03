@@ -96,11 +96,28 @@ export function buildBundestagTrend(
 }
 
 /**
- * Smooth each party series with a trailing simple moving average over the last
- * `window` samples that actually reported that party. Reduces the zig-zag from
- * differing institute house effects while keeping the same x positions, so the
- * chart stays aligned with the raw survey dates. Points are cloned; the input
- * is not mutated.
+ * Smoothing window (in samples) per selectable trend range. The window scales
+ * with the range: the longer the period, the more survey points it holds, so a
+ * wider average smooths house-effect noise without hiding real movement. A
+ * fixed window (the old behaviour) over-smooths the dense short range and
+ * barely touches the sparse-looking long range. Values are odd so the centered
+ * average is symmetric.
+ */
+export const TREND_SMOOTHING_WINDOW: Record<TrendWindowKey, number> = {
+  "90": 5,
+  "365": 11,
+  all: 21,
+};
+
+/**
+ * Smooth each party series with a **centered** simple moving average spanning
+ * `window` samples that actually reported that party (≈ half before, half
+ * after the point). Centered rather than trailing, so the line carries **no
+ * time lag** — turning points stay aligned with when they really happened
+ * instead of being shifted later. The window shrinks at the edges where fewer
+ * neighbours exist, and is capped at the number of available samples. x
+ * positions are preserved, so the chart stays aligned with the raw survey
+ * dates. Points are cloned; the input is not mutated.
  */
 export function smoothTrendData(data: TrendData, window = 5): TrendData {
   if (window <= 1 || data.points.length === 0) return data;
@@ -108,14 +125,27 @@ export function smoothTrendData(data: TrendData, window = 5): TrendData {
   const smoothed: TrendPoint[] = data.points.map((p) => ({ ...p }));
 
   for (const s of data.series) {
-    const recent: number[] = [];
+    // Gather only the points that actually report this party, so gaps are
+    // skipped rather than counted as zero, and the average is over real samples.
+    const idx: number[] = [];
+    const vals: number[] = [];
     for (let i = 0; i < data.points.length; i++) {
       const value = data.points[i][s.shortcut];
-      if (typeof value !== "number") continue;
-      recent.push(value);
-      if (recent.length > window) recent.shift();
-      const avg = recent.reduce((acc, n) => acc + n, 0) / recent.length;
-      smoothed[i][s.shortcut] = Math.round(avg * 100) / 100;
+      if (typeof value === "number") {
+        idx.push(i);
+        vals.push(value);
+      }
+    }
+
+    const span = Math.min(window, vals.length);
+    const half = Math.floor(span / 2);
+    for (let j = 0; j < vals.length; j++) {
+      const lo = Math.max(0, j - half);
+      const hi = Math.min(vals.length - 1, j + half);
+      let sum = 0;
+      for (let k = lo; k <= hi; k++) sum += vals[k];
+      const avg = sum / (hi - lo + 1);
+      smoothed[idx[j]][s.shortcut] = Math.round(avg * 100) / 100;
     }
   }
 

@@ -4,11 +4,13 @@ import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 import {
   CartesianGrid,
-  Legend,
   Line,
   LineChart,
   ResponsiveContainer,
   Tooltip,
+  usePlotArea,
+  useXAxisScale,
+  useYAxisScale,
   XAxis,
   YAxis,
 } from "recharts";
@@ -16,7 +18,7 @@ import type { MouseHandlerDataParam } from "recharts/types/synchronisation/types
 import type { TooltipContentProps } from "recharts/types/component/Tooltip";
 import { t } from "@/i18n";
 import { partyColor } from "@/lib/dawum/colors";
-import type { TrendData, TrendPoint } from "@/lib/dawum/trend";
+import type { TrendData, TrendPoint, TrendSeries } from "@/lib/dawum/trend";
 import { useColorScheme } from "./use-color-scheme";
 
 const X_FORMAT = new Intl.DateTimeFormat("de-DE", {
@@ -30,6 +32,13 @@ const TOOLTIP_FORMAT = new Intl.DateTimeFormat("de-DE", {
   year: "numeric",
 });
 
+/** Sentinel name for the wider background "halo" line drawn under each colored
+ * line; lets the tooltip skip these duplicate entries. */
+const HALO_NAME = "__halo";
+
+/** Right margin reserved for the end-of-line party labels. */
+const LABEL_MARGIN = 60;
+
 export interface TrendChartProps {
   data: TrendData;
   /** Cap on charted series to keep the legend readable. */
@@ -38,6 +47,8 @@ export interface TrendChartProps {
   showDots?: boolean;
   /** Party shortcuts to hide; lets the dashboard filter the charted lines. */
   hiddenParties?: ReadonlySet<string>;
+  /** Click a legend entry to isolate one party (and again to restore all). */
+  onSoloParty?: (shortcut: string) => void;
 }
 
 export function TrendChart({
@@ -45,9 +56,12 @@ export function TrendChart({
   maxSeries = 8,
   showDots = true,
   hiddenParties,
+  onSoloParty,
 }: TrendChartProps) {
   const scheme = useColorScheme();
   const router = useRouter();
+
+  const haloColor = scheme === "dark" ? "#18181b" : "#ffffff";
 
   // Explicit, evenly spaced ticks. Several institutes often publish on the same
   // day, so letting recharts derive ticks from the data yields duplicate
@@ -94,65 +108,205 @@ export function TrendChart({
   return (
     <div
       data-testid="trend-chart"
-      className="h-80 w-full cursor-pointer rounded-lg border border-zinc-200 bg-white p-2 dark:border-zinc-800 dark:bg-zinc-900 sm:h-[26rem]"
+      className="flex h-80 w-full flex-col rounded-lg border border-zinc-200 bg-white p-2 dark:border-zinc-800 dark:bg-zinc-900 sm:h-[26rem]"
     >
-      <ResponsiveContainer
-        width="100%"
-        height="100%"
-        initialDimension={{ width: 600, height: 360 }}
-      >
-        <LineChart
-          data={data.points}
-          margin={{ top: 8, right: 20, bottom: 8, left: 0 }}
-          onClick={handleClick}
+      <div className="min-h-0 flex-1 cursor-pointer">
+        <ResponsiveContainer
+          width="100%"
+          height="100%"
+          initialDimension={{ width: 600, height: 360 }}
         >
-          <CartesianGrid
-            strokeDasharray="3 3"
-            strokeOpacity={0.4}
-            vertical={false}
-          />
-          <XAxis
-            type="number"
-            dataKey="date"
-            scale="time"
-            domain={["dataMin", "dataMax"]}
-            tickFormatter={(v: number) => X_FORMAT.format(new Date(v))}
-            stroke="currentColor"
-            tick={{ fontSize: 12 }}
-            ticks={ticks}
-            tickMargin={10}
-            height={28}
-          />
-          <YAxis
-            tickFormatter={(v: number) => `${v}%`}
-            stroke="currentColor"
-            tick={{ fontSize: 12 }}
-            width={40}
-          />
-          <Tooltip content={(props) => <TrendTooltip {...props} />} />
-          <Legend
-            verticalAlign="bottom"
-            height={36}
-            iconType="plainline"
-            iconSize={16}
-            wrapperStyle={{ fontSize: 12, paddingTop: 4 }}
-          />
-          {series.map((s) => (
-            <Line
-              key={s.shortcut}
-              type="monotone"
-              dataKey={s.shortcut}
-              name={s.shortcut}
-              stroke={partyColor(s.shortcut, { scheme })}
-              strokeWidth={2}
-              dot={showDots ? { r: 2 } : false}
-              activeDot={{ r: 4 }}
-              connectNulls
-              isAnimationActive={false}
+          <LineChart
+            data={data.points}
+            margin={{ top: 8, right: LABEL_MARGIN, bottom: 8, left: 0 }}
+            onClick={handleClick}
+          >
+            <CartesianGrid
+              strokeDasharray="3 3"
+              strokeOpacity={0.4}
+              vertical={false}
             />
-          ))}
-        </LineChart>
-      </ResponsiveContainer>
+            <XAxis
+              type="number"
+              dataKey="date"
+              scale="time"
+              domain={["dataMin", "dataMax"]}
+              tickFormatter={(v: number) => X_FORMAT.format(new Date(v))}
+              stroke="currentColor"
+              tick={{ fontSize: 12 }}
+              ticks={ticks}
+              tickMargin={10}
+              height={28}
+            />
+            <YAxis
+              tickFormatter={(v: number) => `${v}%`}
+              stroke="currentColor"
+              tick={{ fontSize: 12 }}
+              width={40}
+            />
+            <Tooltip content={(props) => <TrendTooltip {...props} />} />
+            {series.map((s) => (
+              <Line
+                key={`halo-${s.shortcut}`}
+                type="monotone"
+                dataKey={s.shortcut}
+                name={HALO_NAME}
+                legendType="none"
+                stroke={haloColor}
+                strokeWidth={5}
+                dot={false}
+                activeDot={false}
+                connectNulls
+                isAnimationActive={false}
+              />
+            ))}
+            {series.map((s) => (
+              <Line
+                key={s.shortcut}
+                type="monotone"
+                dataKey={s.shortcut}
+                name={s.shortcut}
+                stroke={partyColor(s.shortcut, { scheme })}
+                strokeWidth={2}
+                dot={showDots ? { r: 2 } : false}
+                activeDot={{ r: 4 }}
+                connectNulls
+                isAnimationActive={false}
+              />
+            ))}
+            <TrendEndLabels
+              points={data.points}
+              series={series}
+              scheme={scheme}
+            />
+          </LineChart>
+        </ResponsiveContainer>
+      </div>
+      <TrendLegend series={series} scheme={scheme} onSolo={onSoloParty} />
+    </div>
+  );
+}
+
+/**
+ * Direct labels at the right end of each line, so a party can be identified
+ * without matching it against the legend. Uses recharts' scale hooks (3.8+) to
+ * place each label at its line's last reported value, then nudges overlapping
+ * labels apart by a minimum vertical gap so the bunched small parties stay
+ * readable.
+ */
+function TrendEndLabels({
+  points,
+  series,
+  scheme,
+}: {
+  points: TrendPoint[];
+  series: TrendSeries[];
+  scheme: "light" | "dark";
+}) {
+  const xScale = useXAxisScale();
+  const yScale = useYAxisScale();
+  const plot = usePlotArea();
+  if (!xScale || !yScale || !plot) return null;
+
+  type Lab = { shortcut: string; color: string; y: number };
+  const labels: Lab[] = [];
+  for (const s of series) {
+    let value: number | undefined;
+    let date: number | undefined;
+    for (let i = points.length - 1; i >= 0; i--) {
+      const v = points[i][s.shortcut];
+      if (typeof v === "number") {
+        value = v;
+        date = points[i].date as number;
+        break;
+      }
+    }
+    if (value === undefined || date === undefined) continue;
+    const py = yScale(value);
+    if (py === undefined) continue;
+    labels.push({
+      shortcut: s.shortcut,
+      color: partyColor(s.shortcut, { scheme }),
+      y: py,
+    });
+  }
+
+  // Collision avoidance: sort top-to-bottom, push each label below the previous
+  // one by at least `minGap`, then pull the stack back up if it overran.
+  labels.sort((a, b) => a.y - b.y);
+  const minGap = 13;
+  const top = plot.y + 6;
+  const bottom = plot.y + plot.height - 2;
+  for (let i = 0; i < labels.length; i++) {
+    labels[i].y =
+      i === 0
+        ? Math.max(labels[i].y, top)
+        : Math.max(labels[i].y, labels[i - 1].y + minGap);
+  }
+  const overrun = labels.length ? labels[labels.length - 1].y - bottom : 0;
+  if (overrun > 0) {
+    for (let i = labels.length - 1; i >= 0; i--) {
+      const limit = bottom - (labels.length - 1 - i) * minGap;
+      labels[i].y = Math.min(labels[i].y, limit);
+    }
+  }
+
+  const labelX = plot.x + plot.width + 6;
+  return (
+    <g>
+      {labels.map((l) => (
+        <text
+          key={l.shortcut}
+          x={labelX}
+          y={l.y}
+          dy={3}
+          textAnchor="start"
+          fontSize={11}
+          fontWeight={600}
+          fill={l.color}
+        >
+          {l.shortcut}
+        </text>
+      ))}
+    </g>
+  );
+}
+
+/**
+ * Interactive legend rendered below the chart. Clicking an entry isolates that
+ * party via `onSolo` (click again to restore all).
+ */
+function TrendLegend({
+  series,
+  scheme,
+  onSolo,
+}: {
+  series: TrendSeries[];
+  scheme: "light" | "dark";
+  onSolo?: (shortcut: string) => void;
+}) {
+  if (series.length === 0) return null;
+  return (
+    <div className="mt-1 flex flex-wrap items-center justify-center gap-x-3 gap-y-1">
+      {series.map((s) => {
+        const color = partyColor(s.shortcut, { scheme });
+        return (
+          <button
+            key={s.shortcut}
+            type="button"
+            onClick={() => onSolo?.(s.shortcut)}
+            title={t("charts.legendSolo")}
+            className="flex items-center gap-1.5 text-xs font-medium"
+          >
+            <span
+              aria-hidden="true"
+              className="inline-block h-0.5 w-4 rounded"
+              style={{ backgroundColor: color }}
+            />
+            <span style={{ color }}>{s.shortcut}</span>
+          </button>
+        );
+      })}
     </div>
   );
 }
@@ -165,7 +319,8 @@ function TrendTooltip({ active, payload, label }: TooltipContentProps) {
 
   const rows = payload
     .filter(
-      (p): p is typeof p & { value: number } => typeof p.value === "number",
+      (p): p is typeof p & { value: number } =>
+        typeof p.value === "number" && p.name !== HALO_NAME,
     )
     .sort((a, b) => b.value - a.value);
 

@@ -10,6 +10,7 @@ import type {
 } from "@/lib/dawum/aggregate";
 import {
   smoothTrendData,
+  TREND_SMOOTHING_WINDOW,
   TREND_WINDOW_DAYS,
   type TrendWindowKey,
   type TrendWindows,
@@ -44,15 +45,16 @@ export function PollDashboard({
   seats,
   comparison,
 }: PollDashboardProps) {
-  const [smoothed, setSmoothed] = useState(true);
-  const [windowKey, setWindowKey] = useState<TrendWindowKey>("90");
+  const [windowKey, setWindowKey] = useState<TrendWindowKey>("all");
   const [hiddenParties, setHiddenParties] = useState<ReadonlySet<string>>(
     () => new Set(),
   );
-  const trendData = useMemo(() => {
-    const base = trends[windowKey];
-    return smoothed ? smoothTrendData(base, 5) : base;
-  }, [smoothed, trends, windowKey]);
+  // The trend is always smoothed (there is no toggle); the window scales with
+  // the selected range.
+  const trendData = useMemo(
+    () => smoothTrendData(trends[windowKey], TREND_SMOOTHING_WINDOW[windowKey]),
+    [trends, windowKey],
+  );
 
   // Parties offered in the filter = the lines the chart would draw for the
   // selected window, in the same order.
@@ -67,6 +69,19 @@ export function PollDashboard({
       if (next.has(shortcut)) next.delete(shortcut);
       else next.add(shortcut);
       return next;
+    });
+  }
+
+  // Legend click: isolate one party (hide all others); clicking the already
+  // isolated party — or one while everything else is hidden — restores all.
+  function soloParty(shortcut: string) {
+    setHiddenParties((prev) => {
+      const others = filterableParties
+        .map((s) => s.shortcut)
+        .filter((s) => s !== shortcut);
+      const alreadySoloed =
+        !prev.has(shortcut) && others.every((s) => prev.has(s));
+      return alreadySoloed ? new Set() : new Set(others);
     });
   }
 
@@ -85,37 +100,25 @@ export function PollDashboard({
         title={t("dashboard.trendTitle")}
         hint={t("dashboard.trendHint")}
         action={
-          <div className="flex items-center gap-3">
-            <div
-              data-testid="trend-window"
-              className="flex items-center gap-0.5 rounded-md border border-zinc-200 p-0.5 dark:border-zinc-800"
-            >
-              {(Object.keys(TREND_WINDOW_DAYS) as TrendWindowKey[]).map((key) => (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => setWindowKey(key)}
-                  aria-pressed={windowKey === key}
-                  className={`rounded px-2 py-0.5 text-xs font-medium normal-case tracking-normal transition-colors ${
-                    windowKey === key
-                      ? "bg-zinc-200 text-zinc-900 dark:bg-zinc-700 dark:text-zinc-100"
-                      : "text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
-                  }`}
-                >
-                  {t(WINDOW_LABELS[key])}
-                </button>
-              ))}
-            </div>
-            <label className="flex items-center gap-2 text-xs font-normal normal-case tracking-normal text-zinc-600 dark:text-zinc-400">
-              <input
-                type="checkbox"
-                data-testid="smooth-toggle"
-                checked={smoothed}
-                onChange={(e) => setSmoothed(e.target.checked)}
-                className="h-3.5 w-3.5 accent-zinc-700 dark:accent-zinc-300"
-              />
-              {t("dashboard.smooth")}
-            </label>
+          <div
+            data-testid="trend-window"
+            className="flex items-center gap-0.5 rounded-md border border-zinc-200 p-0.5 dark:border-zinc-800"
+          >
+            {(Object.keys(TREND_WINDOW_DAYS) as TrendWindowKey[]).map((key) => (
+              <button
+                key={key}
+                type="button"
+                onClick={() => setWindowKey(key)}
+                aria-pressed={windowKey === key}
+                className={`rounded px-2 py-0.5 text-xs font-medium normal-case tracking-normal transition-colors ${
+                  windowKey === key
+                    ? "bg-zinc-200 text-zinc-900 dark:bg-zinc-700 dark:text-zinc-100"
+                    : "text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+                }`}
+              >
+                {t(WINDOW_LABELS[key])}
+              </button>
+            ))}
           </div>
         }
       >
@@ -167,8 +170,9 @@ export function PollDashboard({
         <Fullscreenable>
           <TrendChart
             data={trendData}
-            showDots={!smoothed}
+            showDots={false}
             hiddenParties={hiddenParties}
+            onSoloParty={soloParty}
           />
         </Fullscreenable>
       </Section>

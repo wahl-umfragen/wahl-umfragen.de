@@ -53,7 +53,7 @@ describe("buildBundestagTrend", () => {
 });
 
 describe("smoothTrendData", () => {
-  it("applies a trailing moving average without mutating the input", () => {
+  it("applies a centered moving average without mutating the input", () => {
     const surveys = selectBundestagSurveys(SAMPLE_DB);
     const trend = buildBundestagTrend(surveys, {
       windowDays: 365,
@@ -63,8 +63,10 @@ describe("smoothTrendData", () => {
     const raw = trend.points.map((p) => p["CDU/CSU"]);
     expect(raw).toEqual([22, 24, 23]);
 
-    const smoothed = smoothTrendData(trend, 2);
-    expect(smoothed.points.map((p) => p["CDU/CSU"])).toEqual([22, 23, 23.5]);
+    // Window 3, centered (shrinks at the edges):
+    //   j0 -> avg(22,24)=23, j1 -> avg(22,24,23)=23, j2 -> avg(24,23)=23.5
+    const smoothed = smoothTrendData(trend, 3);
+    expect(smoothed.points.map((p) => p["CDU/CSU"])).toEqual([23, 23, 23.5]);
     // Original untouched.
     expect(trend.points.map((p) => p["CDU/CSU"])).toEqual([22, 24, 23]);
   });
