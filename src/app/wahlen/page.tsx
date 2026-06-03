@@ -28,7 +28,7 @@ function formatPercent(value: number): string {
 
 export default function WahlenPage() {
   const table = buildElectionTable(BUNDESTAG_ELECTIONS);
-  const source = BUNDESTAG_ELECTIONS[0]?.source;
+  const source = BUNDESTAG_ELECTIONS.at(-1)?.source;
   const hasBelowThreshold = table.rows.some((r) =>
     r.cells.some((c) => c !== null && c < THRESHOLD),
   );

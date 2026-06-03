@@ -5,6 +5,11 @@ import { JsonLd } from "@/components/json-ld";
 import { PageHeader } from "@/components/page-header";
 import { t } from "@/i18n";
 import { loadBundestagData } from "@/lib/data";
+import {
+  currentAverage,
+  latestPerInstitute,
+  surveysWithinDays,
+} from "@/lib/dawum";
 import { formatDate, formatDateTime } from "@/lib/format";
 import { SeoSection } from "@/components/seo-section";
 import { breadcrumbLd, buildMetadata, PAGE_INTRO, PAGE_META } from "@/lib/seo";
@@ -40,9 +45,14 @@ export default function KoalitionPage() {
 
 async function Koalition() {
   const { bundestag, lastUpdate } = await loadBundestagData();
-  const mostRecent = bundestag[0];
 
-  if (!mostRecent) {
+  // Build on the averaged current standing (latest poll per active institute),
+  // not a single survey — one outlier shouldn't dominate coalition arithmetic,
+  // and this matches the "Aktueller Stand" on /trend.
+  const latest = latestPerInstitute(surveysWithinDays(bundestag, 365));
+  const average = currentAverage(latest);
+
+  if (average.length === 0) {
     return (
       <p
         data-testid="empty-state"
@@ -53,6 +63,9 @@ async function Koalition() {
     );
   }
 
+  // "As of" the newest survey feeding the average.
+  const asOf = bundestag[0]?.date;
+
   return (
     <>
       <p
@@ -62,11 +75,14 @@ async function Koalition() {
         {t("common.asOf")} {lastUpdate ? formatDateTime(lastUpdate) : "—"}
       </p>
       <CoalitionBuilder
-        parties={mostRecent.results.map((r) => ({
-          shortcut: r.shortcut,
-          percent: r.percent,
+        parties={average.map((p) => ({
+          shortcut: p.shortcut,
+          percent: p.percent,
         }))}
-        surveyLabel={`${mostRecent.institute.name}, ${formatDate(mostRecent.date)}`}
+        surveyLabel={t("koalitionPage.basisAverage", {
+          institutes: latest.length,
+          date: asOf ? formatDate(asOf) : "—",
+        })}
       />
     </>
   );

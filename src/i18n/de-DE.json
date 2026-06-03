@@ -1,8 +1,6 @@
 {
   "app": {
-    "name": "Wahlumfragen",
-    "metaTitle": "Wahlumfragen Bundestag",
-    "metaDescription": "Aktuelle Sonntagsfrage zur Bundestagswahl, aggregiert aus Umfragen der großen deutschen Institute."
+    "name": "Wahlumfragen"
   },
   "nav": {
     "surveys": "Umfragen",
@@ -31,12 +29,10 @@
     "accept": "Verstanden"
   },
   "impressumPage": {
-    "title": "Impressum",
-    "metaTitle": "Impressum – Wahlumfragen"
+    "title": "Impressum"
   },
   "datenschutzPage": {
-    "title": "Datenschutzerklärung",
-    "metaTitle": "Datenschutz – Wahlumfragen"
+    "title": "Datenschutzerklärung"
   },
   "common": {
     "asOf": "Stand:",
@@ -57,7 +53,8 @@
   },
   "koalitionPage": {
     "title": "Koalitionsrechner",
-    "subtitle": "Parteien auf Basis der aktuellsten Umfrage zu einer Koalition kombinieren."
+    "subtitle": "Parteien auf Basis des aktuellen Durchschnitts zu einer Koalition kombinieren.",
+    "basisAverage": "Durchschnitt aus {institutes} Instituten · Stand {date}"
   },
   "wahlenPage": {
     "title": "Wahlergebnisse",
@@ -94,8 +91,7 @@
     "period": "Feldzeit",
     "method": "Methode",
     "tasker": "Auftraggeber",
-    "surveyed": "Befragte",
-    "metaTitle": "{institute}, {date} – Wahlumfragen"
+    "surveyed": "Befragte"
   },
   "institute": {
     "back": "← Zur Startseite",
@@ -106,7 +102,6 @@
     "trendHint": "Nur Umfragen dieses Instituts. Klick auf einen Punkt öffnet die Umfrage.",
     "listTitle": "Umfragen",
     "viewAllInArchive": "Im Archiv ansehen →",
-    "metaTitle": "{institute} – Wahlumfragen",
     "notEnoughData": "Für dieses Institut liegen keine Umfragen vor."
   },
   "dashboard": {

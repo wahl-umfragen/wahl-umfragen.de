@@ -27,21 +27,56 @@ export interface ElectionResult {
   source: { name: string; url: string };
 }
 
-const BUNDESWAHLLEITERIN = {
-  name: "Die Bundeswahlleiterin",
-  url: "https://www.bundeswahlleiterin.de/bundestagswahlen/2025/ergebnisse.html",
-} as const;
+/** Bundeswahlleiterin result page for a given election year. */
+function bundeswahlleiterin(year: number): { name: string; url: string } {
+  return {
+    name: "Die Bundeswahlleiterin",
+    url: `https://www.bundeswahlleiterin.de/bundestagswahlen/${year}/ergebnisse.html`,
+  };
+}
 
 /**
- * Certified Bundestag election results, newest last. Append the next entry
+ * Certified Bundestag election results, **oldest first** (the table and the
+ * data-consistency test rely on ascending date order). Append the next entry
  * after each federal election — the guard test in `markers.test.ts` turns CI
  * red before the next regular election (≈2029) so this can't be forgotten.
  *
- * BTW 2025 Zweitstimmen, amtliches Endergebnis (Die Bundeswahlleiterin,
- * Wahltag 2025-02-23): CDU/CSU 28.6, AfD 20.8, SPD 16.4, Grüne 11.6, Linke 8.8,
- * BSW 4.981 (knapp unter 5 %), FDP 4.3, FW 1.5.
+ * All figures are official Zweitstimmen-Endergebnisse from Die Bundeswahlleiterin,
+ * rounded to one decimal (2025 BSW kept at full precision so the sub-5 % near-miss
+ * stays visible). Parties that didn't exist at an election (e.g. BSW before 2025)
+ * are simply omitted → the table shows "–" for them.
  */
 export const BUNDESTAG_ELECTIONS: ElectionResult[] = [
+  {
+    date: "2017-09-24",
+    label: "Bundestagswahl 2017",
+    parliamentId: BUNDESTAG_PARLIAMENT_ID,
+    results: {
+      "CDU/CSU": 32.9,
+      SPD: 20.5,
+      AfD: 12.6,
+      FDP: 10.7,
+      Linke: 9.2,
+      Grüne: 8.9,
+      FW: 1.0,
+    },
+    source: bundeswahlleiterin(2017),
+  },
+  {
+    date: "2021-09-26",
+    label: "Bundestagswahl 2021",
+    parliamentId: BUNDESTAG_PARLIAMENT_ID,
+    results: {
+      SPD: 25.7,
+      "CDU/CSU": 24.1,
+      Grüne: 14.8,
+      FDP: 11.5,
+      AfD: 10.3,
+      Linke: 4.9,
+      FW: 2.4,
+    },
+    source: bundeswahlleiterin(2021),
+  },
   {
     date: "2025-02-23",
     label: "Bundestagswahl 2025",
@@ -56,6 +91,6 @@ export const BUNDESTAG_ELECTIONS: ElectionResult[] = [
       FDP: 4.3,
       FW: 1.5,
     },
-    source: BUNDESWAHLLEITERIN,
+    source: bundeswahlleiterin(2025),
   },
 ];

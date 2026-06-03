@@ -14,9 +14,13 @@ test.describe("Wahlergebnisse page", () => {
     // Static, certified data (no DB) → always present.
     const table = page.getByTestId("election-results");
     await expect(table).toBeVisible();
+    // All three certified elections appear as columns (newest first).
     await expect(table).toContainText("Bundestagswahl 2025");
+    await expect(table).toContainText("Bundestagswahl 2021");
+    await expect(table).toContainText("Bundestagswahl 2017");
     await expect(table).toContainText("CDU/CSU");
-    await expect(table).toContainText("28,6");
+    await expect(table).toContainText("28,6"); // CDU/CSU 2025
+    await expect(table).toContainText("25,7"); // SPD 2021
     // Sub-5 % result kept at full precision so the near-miss stays visible.
     await expect(table).toContainText("4,981");
     // Below-threshold footnote is shown.
