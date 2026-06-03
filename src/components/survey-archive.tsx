@@ -361,33 +361,42 @@ export function SurveyArchive({ surveys }: { surveys: NormalizedSurvey[] }) {
           </div>
 
           <div className="mt-4 flex items-center justify-between gap-3 text-sm">
-            <div className="flex items-center gap-2">
-              <PageButton
-                onClick={() => setPage(0)}
-                disabled={safePage === 0}
-                label={`« ${t("archive.first")}`}
-              />
-              <PageButton
-                onClick={() => setPage((p) => Math.max(0, p - 1))}
-                disabled={safePage === 0}
-                label={`‹ ${t("archive.prev")}`}
-              />
+            <PageButton
+              onClick={() => setPage((p) => Math.max(0, p - 1))}
+              disabled={safePage === 0}
+              label={`‹ ${t("archive.prev")}`}
+            />
+            {/* A page <select> replaces dedicated first/last buttons: it jumps to
+                any page (incl. first and last) without sitting next to prev/next,
+                so you can't overshoot by clicking one button too many times. */}
+            <div className="flex items-center gap-2 text-xs text-zinc-500">
+              <span data-testid="archive-page">
+                {t("archive.page", { page: safePage + 1, pages: pageCount })}
+              </span>
+              {pageCount > 1 ? (
+                <label className="flex items-center gap-1.5">
+                  <span className="sr-only">{t("archive.jumpTo")}</span>
+                  <select
+                    data-testid="archive-page-select"
+                    value={safePage}
+                    onChange={(e) => setPage(Number(e.target.value))}
+                    aria-label={t("archive.jumpTo")}
+                    className="rounded-md border border-zinc-300 bg-background px-1.5 py-1 text-xs dark:border-zinc-700"
+                  >
+                    {Array.from({ length: pageCount }, (_, i) => (
+                      <option key={i} value={i}>
+                        {i + 1}
+                      </option>
+                    ))}
+                  </select>
+                </label>
+              ) : null}
             </div>
-            <span data-testid="archive-page" className="text-xs text-zinc-500">
-              {t("archive.page", { page: safePage + 1, pages: pageCount })}
-            </span>
-            <div className="flex items-center gap-2">
-              <PageButton
-                onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
-                disabled={safePage >= pageCount - 1}
-                label={`${t("archive.next")} ›`}
-              />
-              <PageButton
-                onClick={() => setPage(pageCount - 1)}
-                disabled={safePage >= pageCount - 1}
-                label={`${t("archive.last")} »`}
-              />
-            </div>
+            <PageButton
+              onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
+              disabled={safePage >= pageCount - 1}
+              label={`${t("archive.next")} ›`}
+            />
           </div>
         </>
       )}
