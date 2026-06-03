@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { BackLink } from "@/components/back-link";
 import { t } from "@/i18n";
 import { partyColorVar } from "@/lib/dawum/colors";
 import type { NormalizedSurvey } from "@/lib/dawum/types";
@@ -41,12 +42,11 @@ export default async function SurveyDetailPage({
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-10">
-      <Link
-        href="/archiv"
+      <BackLink
+        fallbackHref="/archiv"
+        label={t("detail.back")}
         className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
-      >
-        {t("detail.back")}
-      </Link>
+      />
 
       <header className="mt-4 mb-8">
         <h2 className="text-2xl font-semibold tracking-tight">
