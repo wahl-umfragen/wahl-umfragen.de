@@ -1,10 +1,13 @@
 import { Suspense } from "react";
 import { InstituteTable } from "@/components/institute-table";
+import { JsonLd } from "@/components/json-ld";
 import { RecentSurveys } from "@/components/recent-surveys";
+import { FaqSection, SeoSection } from "@/components/seo-section";
 import { t } from "@/i18n";
 import { loadBundestagData } from "@/lib/data";
 import { latestPerInstitute } from "@/lib/dawum";
 import { formatDateTime } from "@/lib/format";
+import { PAGE_INTRO, websiteLd } from "@/lib/seo";
 
 export default function Page() {
   return (
@@ -20,6 +23,13 @@ export default function Page() {
       <Suspense fallback={<TableSkeleton />}>
         <Surveys />
       </Suspense>
+
+      <SeoSection title="Aktuelle Umfragen zur Bundestagswahl">
+        <p>{PAGE_INTRO.home}</p>
+      </SeoSection>
+      <FaqSection />
+
+      <JsonLd data={websiteLd()} />
     </div>
   );
 }

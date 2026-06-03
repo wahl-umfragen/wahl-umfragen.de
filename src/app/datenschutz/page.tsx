@@ -1,10 +1,12 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { t } from "@/i18n";
+import { buildMetadata, PAGE_META } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: t("datenschutzPage.metaTitle"),
-};
+export const metadata: Metadata = buildMetadata({
+  ...PAGE_META.datenschutz,
+  path: "/datenschutz",
+});
 
 /**
  * Static privacy policy (Datenschutzerklärung) per DSGVO. Single-locale German

@@ -1,3 +1,4 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { PollDashboardClient } from "@/components/poll-dashboard-client";
 import { t } from "@/i18n";
@@ -13,6 +14,13 @@ import {
   type TrendWindows,
 } from "@/lib/dawum";
 import { formatDateTime } from "@/lib/format";
+import { SeoSection } from "@/components/seo-section";
+import { buildMetadata, PAGE_INTRO, PAGE_META } from "@/lib/seo";
+
+export const metadata: Metadata = buildMetadata({
+  ...PAGE_META.trend,
+  path: "/trend",
+});
 
 export default function TrendPage() {
   return (
@@ -28,6 +36,10 @@ export default function TrendPage() {
       <Suspense fallback={<DashboardSkeleton />}>
         <Dashboard />
       </Suspense>
+
+      <SeoSection title="Über den Wahltrend">
+        <p>{PAGE_INTRO.trend}</p>
+      </SeoSection>
     </div>
   );
 }

@@ -1,9 +1,11 @@
 import type { Metadata } from "next";
 import { t } from "@/i18n";
+import { buildMetadata, PAGE_META } from "@/lib/seo";
 
-export const metadata: Metadata = {
-  title: t("impressumPage.metaTitle"),
-};
+export const metadata: Metadata = buildMetadata({
+  ...PAGE_META.impressum,
+  path: "/impressum",
+});
 
 /**
  * Static legal notice (Impressum) per § 5 DDG (Digitale-Dienste-Gesetz, the

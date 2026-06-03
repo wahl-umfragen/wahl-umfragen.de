@@ -1,8 +1,17 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
+import { JsonLd } from "@/components/json-ld";
+import { SeoSection } from "@/components/seo-section";
 import { SurveyArchive } from "@/components/survey-archive";
 import { t } from "@/i18n";
 import { loadBundestagData } from "@/lib/data";
 import { formatDateTime } from "@/lib/format";
+import { buildMetadata, datasetLd, PAGE_INTRO, PAGE_META } from "@/lib/seo";
+
+export const metadata: Metadata = buildMetadata({
+  ...PAGE_META.archiv,
+  path: "/archiv",
+});
 
 export default function ArchivPage() {
   return (
@@ -18,6 +27,10 @@ export default function ArchivPage() {
       <Suspense fallback={<ArchiveSkeleton />}>
         <Archive />
       </Suspense>
+
+      <SeoSection title="Über das Umfrage-Archiv">
+        <p>{PAGE_INTRO.archiv}</p>
+      </SeoSection>
     </div>
   );
 }
@@ -45,6 +58,9 @@ async function Archive() {
         {t("common.asOf")} {lastUpdate ? formatDateTime(lastUpdate) : "—"}
       </p>
       <SurveyArchive surveys={bundestag} />
+      <JsonLd
+        data={datasetLd({ lastUpdate, count: bundestag.length })}
+      />
     </>
   );
 }

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { JsonLd } from "@/components/json-ld";
 import { RecentSurveys } from "@/components/recent-surveys";
 import { TrendChartClient } from "@/components/trend-chart-client";
 import { t } from "@/i18n";
@@ -12,6 +13,7 @@ import {
 } from "@/lib/dawum";
 import type { NormalizedSurvey } from "@/lib/dawum/types";
 import { formatDate } from "@/lib/format";
+import { breadcrumbLd, buildMetadata } from "@/lib/seo";
 
 /** All surveys from one institute, newest first. */
 async function findInstitute(
@@ -33,7 +35,13 @@ export async function generateMetadata({
   const { id } = await params;
   const institute = await findInstitute(id);
   if (!institute) return {};
-  return { title: t("institute.metaTitle", { institute: institute.name }) };
+  const { name, surveys } = institute;
+  const sinceYear = new Date(surveys[surveys.length - 1].date).getFullYear();
+  return buildMetadata({
+    title: `Umfragen von ${name}`,
+    description: `Alle ${surveys.length} Bundestags-Umfragen des Instituts ${name} seit ${sinceYear}: Umfrageverlauf je Partei, Werte im Detail und Einordnung der Sonntagsfrage.`,
+    path: `/institut/${id}`,
+  });
 }
 
 export default async function InstituteDetailPage({
@@ -58,6 +66,12 @@ export default async function InstituteDetailPage({
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-10">
+      <JsonLd
+        data={breadcrumbLd([
+          { name: "Startseite", path: "/" },
+          { name, path: `/institut/${id}` },
+        ])}
+      />
       <Link
         href="/"
         className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"

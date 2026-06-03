@@ -1,8 +1,16 @@
+import type { Metadata } from "next";
 import { Suspense } from "react";
 import { CoalitionBuilder } from "@/components/coalition-builder";
 import { t } from "@/i18n";
 import { loadBundestagData } from "@/lib/data";
 import { formatDate, formatDateTime } from "@/lib/format";
+import { SeoSection } from "@/components/seo-section";
+import { buildMetadata, PAGE_INTRO, PAGE_META } from "@/lib/seo";
+
+export const metadata: Metadata = buildMetadata({
+  ...PAGE_META.koalition,
+  path: "/koalition",
+});
 
 export default function KoalitionPage() {
   return (
@@ -18,6 +26,10 @@ export default function KoalitionPage() {
       <Suspense fallback={<BuilderSkeleton />}>
         <Koalition />
       </Suspense>
+
+      <SeoSection title="Über den Koalitionsrechner">
+        <p>{PAGE_INTRO.koalition}</p>
+      </SeoSection>
     </div>
   );
 }

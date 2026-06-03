@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { BackLink } from "@/components/back-link";
+import { JsonLd } from "@/components/json-ld";
 import { t } from "@/i18n";
 import { partyColorVar } from "@/lib/dawum/colors";
 import type { NormalizedSurvey } from "@/lib/dawum/types";
 import { loadBundestagData } from "@/lib/data";
 import { formatDate } from "@/lib/format";
+import { breadcrumbLd, buildMetadata } from "@/lib/seo";
 
 async function findSurvey(id: string): Promise<NormalizedSurvey | undefined> {
   const { bundestag } = await loadBundestagData();
@@ -21,12 +23,16 @@ export async function generateMetadata({
   const { id } = await params;
   const survey = await findSurvey(id);
   if (!survey) return {};
-  return {
-    title: t("detail.metaTitle", {
-      institute: survey.institute.name,
-      date: formatDate(survey.date),
-    }),
-  };
+  const top = [...survey.results]
+    .sort((a, b) => b.percent - a.percent)
+    .slice(0, 4)
+    .map((r) => `${r.shortcut} ${r.percent.toFixed(1)} %`)
+    .join(", ");
+  return buildMetadata({
+    title: `${survey.institute.name}, ${formatDate(survey.date)}`,
+    description: `Sonntagsfrage zur Bundestagswahl von ${survey.institute.name} (${formatDate(survey.date)}): ${top}. Mit Werten je Partei, Feldzeit und Befragtenzahl.`,
+    path: `/archiv/${id}`,
+  });
 }
 
 export default async function SurveyDetailPage({
@@ -42,6 +48,16 @@ export default async function SurveyDetailPage({
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-10">
+      <JsonLd
+        data={breadcrumbLd([
+          { name: "Startseite", path: "/" },
+          { name: t("archivePage.title"), path: "/archiv" },
+          {
+            name: `${survey.institute.name}, ${formatDate(survey.date)}`,
+            path: `/archiv/${id}`,
+          },
+        ])}
+      />
       <BackLink
         fallbackHref="/archiv"
         label={t("detail.back")}
