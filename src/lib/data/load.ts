@@ -1,5 +1,5 @@
 import { gunzipSync, gzipSync } from "node:zlib";
-import { desc, eq, isNotNull } from "drizzle-orm";
+import { and, desc, eq, isNotNull } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 import { cache } from "react";
 import { db } from "@/db/client";
@@ -110,6 +110,58 @@ async function loadBundestagDataUncached(): Promise<BundestagData> {
     .innerJoin(schema.surveys, eq(schema.surveyResults.surveyId, schema.surveys.id))
     .where(eq(schema.surveys.parliamentId, BUNDESTAG_PARLIAMENT_ID));
 
+  const bundestag = mapSurveyRows(surveyRows, resultRows);
+  return { bundestag, lastUpdate };
+}
+
+/** Column selection for a survey joined with its lookup names. */
+const surveyColumns = {
+  id: schema.surveys.id,
+  date: schema.surveys.date,
+  periodStart: schema.surveys.periodStart,
+  periodEnd: schema.surveys.periodEnd,
+  surveyedPersons: schema.surveys.surveyedPersons,
+  parliamentId: schema.surveys.parliamentId,
+  parliamentShortcut: schema.parliaments.shortcut,
+  parliamentName: schema.parliaments.name,
+  instituteId: schema.surveys.instituteId,
+  instituteName: schema.institutes.name,
+  taskerId: schema.surveys.taskerId,
+  taskerName: schema.taskers.name,
+  methodId: schema.surveys.methodId,
+  methodName: schema.methods.name,
+} as const;
+
+type SurveyRow = {
+  id: string;
+  date: string;
+  periodStart: string | null;
+  periodEnd: string | null;
+  surveyedPersons: number | null;
+  parliamentId: string;
+  parliamentShortcut: string;
+  parliamentName: string;
+  instituteId: string;
+  instituteName: string;
+  taskerId: string | null;
+  taskerName: string | null;
+  methodId: string | null;
+  methodName: string | null;
+};
+
+type ResultRow = {
+  surveyId: string;
+  partyId: string;
+  shortcut: string;
+  name: string;
+  percent: number;
+};
+
+/** Group result rows under their survey and assemble NormalizedSurvey[]. */
+function mapSurveyRows(
+  surveyRows: SurveyRow[],
+  resultRows: ResultRow[],
+): NormalizedSurvey[] {
   const resultsBySurvey = new Map<string, NormalizedPartyResult[]>();
   for (const r of resultRows) {
     const list = resultsBySurvey.get(r.surveyId) ?? [];
@@ -122,7 +174,7 @@ async function loadBundestagDataUncached(): Promise<BundestagData> {
     resultsBySurvey.set(r.surveyId, list);
   }
 
-  const bundestag: NormalizedSurvey[] = surveyRows.map((s) => ({
+  return surveyRows.map((s) => ({
     id: s.id,
     date: s.date,
     periodStart: s.periodStart ?? undefined,
@@ -146,9 +198,99 @@ async function loadBundestagDataUncached(): Promise<BundestagData> {
       (a, b) => b.percent - a.percent,
     ),
   }));
-
-  return { bundestag, lastUpdate };
 }
+
+const resultColumns = {
+  surveyId: schema.surveyResults.surveyId,
+  partyId: schema.surveyResults.partyId,
+  shortcut: schema.parties.shortcut,
+  name: schema.parties.name,
+  percent: schema.surveyResults.percent,
+} as const;
+
+/**
+ * All Bundestag surveys from one institute, newest first. Targeted loader for
+ * `/institut/[id]` so the page reads ~one institute's rows instead of
+ * decompressing the whole history. Cached under the shared `surveys` tag (the
+ * institute id is part of the cache key), so ingest revalidation reaches it.
+ */
+export const loadSurveysByInstitute = unstable_cache(
+  async (instituteId: string): Promise<NormalizedSurvey[]> => {
+    const where = and(
+      eq(schema.surveys.parliamentId, BUNDESTAG_PARLIAMENT_ID),
+      eq(schema.surveys.instituteId, instituteId),
+    );
+    const surveyRows = await db
+      .select(surveyColumns)
+      .from(schema.surveys)
+      .innerJoin(
+        schema.parliaments,
+        eq(schema.surveys.parliamentId, schema.parliaments.id),
+      )
+      .innerJoin(
+        schema.institutes,
+        eq(schema.surveys.instituteId, schema.institutes.id),
+      )
+      .leftJoin(schema.taskers, eq(schema.surveys.taskerId, schema.taskers.id))
+      .leftJoin(schema.methods, eq(schema.surveys.methodId, schema.methods.id))
+      .where(where)
+      .orderBy(desc(schema.surveys.date), desc(schema.surveys.id));
+    if (surveyRows.length === 0) return [];
+
+    const resultRows = await db
+      .select(resultColumns)
+      .from(schema.surveyResults)
+      .innerJoin(
+        schema.parties,
+        eq(schema.surveyResults.partyId, schema.parties.id),
+      )
+      .innerJoin(
+        schema.surveys,
+        eq(schema.surveyResults.surveyId, schema.surveys.id),
+      )
+      .where(where);
+    return mapSurveyRows(surveyRows, resultRows);
+  },
+  ["surveys-by-institute"],
+  { tags: [SURVEYS_TAG], revalidate: false },
+);
+
+/**
+ * A single survey by id, or null. Targeted loader for `/archiv/[id]` so the
+ * detail page reads one row instead of the whole history.
+ */
+export const loadSurveyById = unstable_cache(
+  async (id: string): Promise<NormalizedSurvey | null> => {
+    const surveyRows = await db
+      .select(surveyColumns)
+      .from(schema.surveys)
+      .innerJoin(
+        schema.parliaments,
+        eq(schema.surveys.parliamentId, schema.parliaments.id),
+      )
+      .innerJoin(
+        schema.institutes,
+        eq(schema.surveys.instituteId, schema.institutes.id),
+      )
+      .leftJoin(schema.taskers, eq(schema.surveys.taskerId, schema.taskers.id))
+      .leftJoin(schema.methods, eq(schema.surveys.methodId, schema.methods.id))
+      .where(eq(schema.surveys.id, id))
+      .limit(1);
+    if (surveyRows.length === 0) return null;
+
+    const resultRows = await db
+      .select(resultColumns)
+      .from(schema.surveyResults)
+      .innerJoin(
+        schema.parties,
+        eq(schema.surveyResults.partyId, schema.parties.id),
+      )
+      .where(eq(schema.surveyResults.surveyId, id));
+    return mapSurveyRows(surveyRows, resultRows)[0] ?? null;
+  },
+  ["survey-by-id"],
+  { tags: [SURVEYS_TAG], revalidate: false },
+);
 
 /** Newest dawum `last_update` we have recorded, as ISO, or null. */
 async function loadLastUpdate(): Promise<string | null> {

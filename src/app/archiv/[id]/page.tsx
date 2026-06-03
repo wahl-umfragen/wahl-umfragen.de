@@ -6,13 +6,12 @@ import { JsonLd } from "@/components/json-ld";
 import { t } from "@/i18n";
 import { partyColorVar } from "@/lib/dawum/colors";
 import type { NormalizedSurvey } from "@/lib/dawum/types";
-import { loadBundestagData } from "@/lib/data";
+import { loadSurveyById } from "@/lib/data";
 import { formatDate } from "@/lib/format";
 import { breadcrumbLd, buildMetadata } from "@/lib/seo";
 
 async function findSurvey(id: string): Promise<NormalizedSurvey | undefined> {
-  const { bundestag } = await loadBundestagData();
-  return bundestag.find((s) => s.id === id);
+  return (await loadSurveyById(id)) ?? undefined;
 }
 
 export async function generateMetadata({

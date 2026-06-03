@@ -6,7 +6,7 @@ import { PageHeader } from "@/components/page-header";
 import { RecentSurveys } from "@/components/recent-surveys";
 import { TrendChartClient } from "@/components/trend-chart-client";
 import { t } from "@/i18n";
-import { loadBundestagData } from "@/lib/data";
+import { loadSurveysByInstitute } from "@/lib/data";
 import {
   buildBundestagTrend,
   smoothTrendData,
@@ -20,10 +20,7 @@ import { breadcrumbLd, buildMetadata } from "@/lib/seo";
 async function findInstitute(
   id: string,
 ): Promise<{ name: string; surveys: NormalizedSurvey[] } | undefined> {
-  const { bundestag } = await loadBundestagData();
-  const surveys = bundestag
-    .filter((s) => s.institute.id === id)
-    .sort((a, b) => b.date.localeCompare(a.date));
+  const surveys = await loadSurveysByInstitute(id);
   if (surveys.length === 0) return undefined;
   return { name: surveys[0].institute.name, surveys };
 }
