@@ -8,6 +8,7 @@ import { loadBundestagData } from "@/lib/data";
 import {
   buildBundestagTrend,
   currentAverage,
+  houseEffects,
   instituteComparison,
   latestPerInstitute,
   seatDistribution,
@@ -53,8 +54,12 @@ async function Dashboard() {
   const { bundestag, lastUpdate } = await loadBundestagData();
   // Current standing & institute comparison only count institutes that polled
   // within the last year, so ones that stopped don't skew the average.
-  const latest = latestPerInstitute(surveysWithinDays(bundestag, 365));
+  const within = surveysWithinDays(bundestag, 365);
+  const latest = latestPerInstitute(within);
   const average = currentAverage(latest);
+  // House effects need ALL of an institute's recent polls (not just the latest),
+  // so compute from the full 12-month window.
+  const houseEffectsData = houseEffects(within);
 
   // Transparency: the exact surveys averaged into "Aktueller Stand", newest
   // first. Slim shape so the client payload stays small.
@@ -88,6 +93,7 @@ async function Dashboard() {
         trends={trends}
         seats={seatDistribution(average)}
         comparison={instituteComparison(latest)}
+        houseEffects={houseEffectsData}
         contributingSurveys={contributingSurveys}
       />
     </>

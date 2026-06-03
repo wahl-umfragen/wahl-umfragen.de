@@ -1,12 +1,35 @@
 import { describe, expect, it } from "vitest";
 import {
   currentAverage,
+  houseEffects,
   instituteComparison,
   seatDistribution,
   type PartyAverage,
 } from "./aggregate";
 import { SAMPLE_DB } from "./fixtures";
 import { latestPerInstitute, selectBundestagSurveys } from "./normalize";
+import type { NormalizedSurvey } from "./types";
+
+/** Build a minimal Bundestag survey from a party→percent map. */
+function survey(
+  id: string,
+  instituteId: string,
+  instituteName: string,
+  results: Record<string, number>,
+): NormalizedSurvey {
+  return {
+    id,
+    date: "2026-01-01",
+    parliament: { id: "0", shortcut: "Bundestag", name: "Bundestag" },
+    institute: { id: instituteId, name: instituteName },
+    results: Object.entries(results).map(([shortcut, percent]) => ({
+      partyId: shortcut,
+      shortcut,
+      name: shortcut,
+      percent,
+    })),
+  };
+}
 
 function latestBundestag() {
   return latestPerInstitute(selectBundestagSurveys(SAMPLE_DB));
@@ -80,5 +103,65 @@ describe("instituteComparison", () => {
     ]);
     expect(cmp.parties).toEqual(["AfD", "CDU/CSU", "SPD", "Grüne"]);
     expect(cmp.rows[0]["AfD"]).toBe(27);
+  });
+});
+
+describe("houseEffects", () => {
+  it("measures each institute's deviation from the panel mean", () => {
+    const he = houseEffects([
+      survey("1", "A", "Alpha", { CDU: 30, SPD: 20 }),
+      survey("2", "B", "Beta", { CDU: 26, SPD: 24 }),
+    ]);
+    // panel mean: CDU (30+26)/2 = 28, SPD (20+24)/2 = 22.
+    const a = he.rows.find((r) => r.instituteId === "A")!;
+    const b = he.rows.find((r) => r.instituteId === "B")!;
+    expect(a.deviations.CDU).toBeCloseTo(2);
+    expect(a.deviations.SPD).toBeCloseTo(-2);
+    expect(b.deviations.CDU).toBeCloseTo(-2);
+    expect(b.deviations.SPD).toBeCloseTo(2);
+  });
+
+  it("deviations sum to ~0 per party when all institutes report it", () => {
+    const he = houseEffects([
+      survey("1", "A", "Alpha", { CDU: 30, SPD: 20 }),
+      survey("2", "B", "Beta", { CDU: 26, SPD: 24 }),
+      survey("3", "C", "Gamma", { CDU: 25, SPD: 25 }),
+    ]);
+    for (const party of ["CDU", "SPD"]) {
+      const sum = he.rows.reduce((acc, r) => acc + (r.deviations[party] ?? 0), 0);
+      expect(sum).toBeCloseTo(0);
+    }
+  });
+
+  it("averages an institute's multiple surveys before comparing", () => {
+    const he = houseEffects([
+      survey("1", "A", "Alpha", { CDU: 28 }),
+      survey("2", "A", "Alpha", { CDU: 32 }), // A mean = 30
+      survey("3", "B", "Beta", { CDU: 26 }),
+    ]);
+    // panel mean = (30 + 26) / 2 = 28 → A +2, B −2 (A's two polls don't double-weight).
+    const a = he.rows.find((r) => r.instituteId === "A")!;
+    expect(a.surveys).toBe(2);
+    expect(a.deviations.CDU).toBeCloseTo(2);
+    expect(he.rows.find((r) => r.instituteId === "B")!.deviations.CDU).toBeCloseTo(-2);
+  });
+
+  it("omits parties an institute didn't report and excludes non-partisan buckets", () => {
+    const he = houseEffects([
+      survey("1", "A", "Alpha", { CDU: 30, SPD: 20, Sonstige: 8 }),
+      survey("2", "B", "Beta", { CDU: 26 }), // no SPD
+    ]);
+    expect(he.parties).not.toContain("Sonstige");
+    const b = he.rows.find((r) => r.instituteId === "B")!;
+    expect(b.deviations.SPD).toBeUndefined();
+    expect(b.deviations.CDU).toBeDefined();
+  });
+
+  it("caps and orders parties by panel mean", () => {
+    const he = houseEffects(
+      [survey("1", "A", "Alpha", { CDU: 30, AfD: 25, SPD: 15, FDP: 5 })],
+      { topParties: 2 },
+    );
+    expect(he.parties).toEqual(["CDU", "AfD"]);
   });
 });

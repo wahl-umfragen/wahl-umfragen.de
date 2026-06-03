@@ -147,3 +147,108 @@ export function instituteComparison(
 
   return { rows, parties };
 }
+
+export interface HouseEffectRow {
+  institute: string;
+  instituteId: string;
+  /** How many of the institute's surveys fed these means. */
+  surveys: number;
+  /** Deviation from the panel mean per party, in points. Only parties the
+   * institute actually reported are present. */
+  deviations: Record<string, number>;
+}
+
+export interface HouseEffects {
+  /** Charted parties, strongest (by panel mean) first. */
+  parties: string[];
+  /** One row per institute, sorted by institute name. */
+  rows: HouseEffectRow[];
+}
+
+/**
+ * Quantified house effects: each institute's average deviation from the panel
+ * mean, per party. The panel mean is the mean of the **institute means** (so a
+ * prolific pollster doesn't dominate the panel), and each institute mean
+ * averages that institute's surveys in the given set. Pass surveys already
+ * windowed (e.g. `surveysWithinDays(bundestag, 365)`) — house effects are only
+ * meaningful over recent, comparable polls. Non-partisan buckets are excluded;
+ * parties are capped at the `topParties` strongest. A **positive** value means
+ * the institute reports that party **higher** than the panel on average.
+ */
+export function houseEffects(
+  surveys: NormalizedSurvey[],
+  { topParties = 6 }: { topParties?: number } = {},
+): HouseEffects {
+  // institute -> { name, survey count, per-party running sum/count }
+  const institutes = new Map<
+    string,
+    {
+      name: string;
+      surveys: number;
+      acc: Map<string, { sum: number; n: number }>;
+    }
+  >();
+  for (const s of surveys) {
+    let inst = institutes.get(s.institute.id);
+    if (!inst) {
+      inst = { name: s.institute.name, surveys: 0, acc: new Map() };
+      institutes.set(s.institute.id, inst);
+    }
+    inst.surveys += 1;
+    for (const r of s.results) {
+      const pp = inst.acc.get(r.shortcut) ?? { sum: 0, n: 0 };
+      pp.sum += r.percent;
+      pp.n += 1;
+      inst.acc.set(r.shortcut, pp);
+    }
+  }
+
+  // Institute means, and the panel mean = mean across institute means.
+  const instituteMeans = new Map<
+    string,
+    { name: string; surveys: number; means: Map<string, number> }
+  >();
+  const panel = new Map<string, { sum: number; n: number }>();
+  for (const [id, inst] of institutes) {
+    const means = new Map<string, number>();
+    for (const [shortcut, { sum, n }] of inst.acc) {
+      const mean = sum / n;
+      means.set(shortcut, mean);
+      if (!NON_PARTISAN.has(shortcut)) {
+        const p = panel.get(shortcut) ?? { sum: 0, n: 0 };
+        p.sum += mean;
+        p.n += 1;
+        panel.set(shortcut, p);
+      }
+    }
+    instituteMeans.set(id, { name: inst.name, surveys: inst.surveys, means });
+  }
+
+  const panelMean = new Map<string, number>();
+  for (const [shortcut, { sum, n }] of panel) panelMean.set(shortcut, sum / n);
+
+  const parties = [...panelMean.entries()]
+    .sort((a, b) => b[1] - a[1])
+    .slice(0, topParties)
+    .map(([shortcut]) => shortcut);
+  const partySet = new Set(parties);
+
+  const rows: HouseEffectRow[] = [...instituteMeans.entries()]
+    .map(([id, inst]) => {
+      const deviations: Record<string, number> = {};
+      for (const [shortcut, mean] of inst.means) {
+        if (partySet.has(shortcut)) {
+          deviations[shortcut] = mean - (panelMean.get(shortcut) ?? 0);
+        }
+      }
+      return {
+        institute: inst.name,
+        instituteId: id,
+        surveys: inst.surveys,
+        deviations,
+      };
+    })
+    .sort((a, b) => a.institute.localeCompare(b.institute, "de"));
+
+  return { parties, rows };
+}

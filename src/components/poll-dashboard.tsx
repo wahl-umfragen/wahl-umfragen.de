@@ -6,6 +6,7 @@ import { t, type TranslationKey } from "@/i18n";
 import { partyColorVar } from "@/lib/dawum/colors";
 import { formatDate } from "@/lib/format";
 import type {
+  HouseEffects,
   InstituteComparison,
   PartyAverage,
   SeatDistribution,
@@ -18,6 +19,7 @@ import {
   type TrendWindows,
 } from "@/lib/dawum/trend";
 import { Fullscreenable } from "./fullscreenable";
+import { HouseEffectsTable } from "./house-effects-table";
 import {
   CurrentStandingChart,
   InstituteComparisonChart,
@@ -41,6 +43,7 @@ export interface PollDashboardProps {
   trends: TrendWindows;
   seats: SeatDistribution;
   comparison: InstituteComparison;
+  houseEffects: HouseEffects;
   /** The surveys averaged into "Aktueller Stand", listed for transparency. */
   contributingSurveys: ContributingSurvey[];
 }
@@ -56,6 +59,7 @@ export function PollDashboard({
   trends,
   seats,
   comparison,
+  houseEffects,
   contributingSurveys,
 }: PollDashboardProps) {
   const [windowKey, setWindowKey] = useState<TrendWindowKey>("all");
@@ -231,6 +235,13 @@ export function PollDashboard({
         <Fullscreenable>
           <InstituteComparisonChart data={comparison} />
         </Fullscreenable>
+      </Section>
+
+      <Section
+        title={t("dashboard.houseEffectsTitle")}
+        hint={t("dashboard.houseEffectsHint")}
+      >
+        <HouseEffectsTable data={houseEffects} />
       </Section>
     </div>
   );

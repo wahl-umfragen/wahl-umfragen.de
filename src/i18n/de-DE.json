@@ -119,6 +119,8 @@
     "seatsHint": "Hochrechnung mit 5%-Hürde (Hare/Niemeyer)",
     "comparisonTitle": "Institutsvergleich",
     "comparisonHint": "Gleiche Parteien je Institut – zeigt House-Effects",
+    "houseEffectsTitle": "House Effects",
+    "houseEffectsHint": "Mittlere Abweichung jedes Instituts vom Institutsdurchschnitt (letzte 12 Monate). + = meldet höher, − = meldet niedriger.",
     "recentTitle": "Letzte Umfragen",
     "recentViewAll": "Gesamtes Archiv →"
   },
