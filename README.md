@@ -76,5 +76,13 @@ Deployment des Workers auf einem Linux-Server: siehe [`deploy/README.md`](deploy
 
 ## Lizenz / Quellen
 
-Daten von [dawum.de](https://dawum.de/) unter
-[ODC-ODbL](https://opendatacommons.org/licenses/odbl/1-0/).
+Dieses Projekt ist **dual lizenziert** — Code und Daten getrennt:
+
+- **Code:** [MIT](LICENSE) © 2026 mike96841. Frei nutzbar/forkbar; Copyright-Hinweis
+  muss erhalten bleiben.
+- **Daten:** Die Umfragedaten stammen von [dawum.de](https://dawum.de/) und stehen
+  unter der [Open Database License (ODbL) v1.0](https://opendatacommons.org/licenses/odbl/1-0/).
+  Die MIT-Lizenz gilt **nicht** für die Daten. Wer die hier aggregierten/exportierten
+  Daten (inkl. `/api/surveys` CSV/JSON-Export und der Test-Fixtures in
+  `src/lib/dawum/fixtures.ts`) weiterverwendet, muss die ODbL einhalten:
+  Attribution von dawum.de **und** Share-Alike für abgeleitete Datenbanken.
