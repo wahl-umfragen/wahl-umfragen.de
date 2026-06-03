@@ -1,5 +1,6 @@
 import { Suspense } from "react";
 import { InstituteTable } from "@/components/institute-table";
+import { RecentSurveys } from "@/components/recent-surveys";
 import { t } from "@/i18n";
 import { loadBundestagData } from "@/lib/data";
 import { latestPerInstitute } from "@/lib/dawum";
@@ -43,7 +44,12 @@ async function Surveys() {
           {t("common.noSurveys")}
         </p>
       ) : (
-        <InstituteTable surveys={latest} />
+        <>
+          <InstituteTable surveys={latest} />
+          <div className="mt-10">
+            <RecentSurveys surveys={bundestag} />
+          </div>
+        </>
       )}
     </>
   );

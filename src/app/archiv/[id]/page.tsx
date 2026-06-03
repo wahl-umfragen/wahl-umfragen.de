@@ -50,7 +50,12 @@ export default async function SurveyDetailPage({
 
       <header className="mt-4 mb-8">
         <h2 className="text-2xl font-semibold tracking-tight">
-          {survey.institute.name}
+          <Link
+            href={`/institut/${survey.institute.id}`}
+            className="hover:underline"
+          >
+            {survey.institute.name}
+          </Link>
         </h2>
         <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
           {formatDate(survey.date)}

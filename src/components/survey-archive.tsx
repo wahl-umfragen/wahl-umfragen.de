@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { t } from "@/i18n";
 import { partyColorVar } from "@/lib/dawum/colors";
@@ -46,7 +47,12 @@ export function SurveyArchive({ surveys }: { surveys: NormalizedSurvey[] }) {
       .sort((a, b) => a.name.localeCompare(b.name, "de"));
   }, [surveys]);
 
-  const [institute, setInstitute] = useState("");
+  // Deep link: /archiv?institut=<id> preselects an institute (e.g. from an
+  // institute detail page). Read once for the initial value; the dropdown owns
+  // it afterwards. Filtering stays fully client-side, so the page stays static.
+  const initialInstitute = useSearchParams().get("institut") ?? "";
+
+  const [institute, setInstitute] = useState(initialInstitute);
   const [from, setFrom] = useState("");
   const [to, setTo] = useState("");
   const [sortKey, setSortKey] = useState<SortKey>("date");
