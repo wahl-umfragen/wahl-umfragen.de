@@ -91,6 +91,8 @@ test.describe("auswertung page", () => {
     await all.click();
     await expect(all).toHaveAttribute("aria-pressed", "true");
     await expect(page.getByTestId("trend-chart")).toBeVisible();
+    // The smoothed line is disclosed as such (methodology transparency).
+    await expect(page.getByTestId("trend-smoothing-note")).toBeVisible();
   });
 });
 

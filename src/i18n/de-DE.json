@@ -136,6 +136,7 @@
     "fullscreen": "Vollbild",
     "exitFullscreen": "Vollbild verlassen",
     "legendSolo": "Klick: nur diese Partei zeigen (erneut: alle)",
+    "smoothingNote": "Geglätteter Verlauf (gleitender Durchschnitt mehrerer Umfragen) – dämpft Ausreißer, Einzelwerte im Archiv.",
     "electionMarker": "○ Amtliches Wahlergebnis",
     "electionSourcePrefix": "Quelle: ",
     "electionDetails": "Werte in der Tabelle"

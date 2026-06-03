@@ -58,6 +58,9 @@ export interface TrendChartProps {
   elections?: ElectionResult[];
   /** Toggle the official-result markers (and their caption). */
   showElectionMarkers?: boolean;
+  /** The plotted line is a moving average — show the methodology caption.
+   * Set by callers that pass smoothed data (the chart itself doesn't smooth). */
+  smoothed?: boolean;
 }
 
 export function TrendChart({
@@ -68,6 +71,7 @@ export function TrendChart({
   onSoloParty,
   elections = BUNDESTAG_ELECTIONS,
   showElectionMarkers = true,
+  smoothed = false,
 }: TrendChartProps) {
   const scheme = useColorScheme();
   const router = useRouter();
@@ -236,6 +240,14 @@ export function TrendChart({
         </ResponsiveContainer>
       </div>
       <TrendLegend series={series} scheme={scheme} onSolo={onSoloParty} />
+      {smoothed ? (
+        <p
+          data-testid="trend-smoothing-note"
+          className="mt-1 text-center text-[11px] text-muted"
+        >
+          {t("charts.smoothingNote")}
+        </p>
+      ) : null}
       {visibleElections.length > 0 ? (
         <p
           data-testid="trend-election-caption"

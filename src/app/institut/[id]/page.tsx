@@ -100,7 +100,7 @@ export default async function InstituteDetailPage({
         <p className="-mt-2 mb-3 text-xs text-muted">
           {t("institute.trendHint")}
         </p>
-        <TrendChartClient data={trend} showDots={false} />
+        <TrendChartClient data={trend} showDots={false} smoothed />
       </section>
 
       <RecentSurveys

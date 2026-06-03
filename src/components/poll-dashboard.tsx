@@ -208,6 +208,7 @@ export function PollDashboard({
           <TrendChart
             data={trendData}
             showDots={false}
+            smoothed
             hiddenParties={hiddenParties}
             onSoloParty={soloParty}
           />
