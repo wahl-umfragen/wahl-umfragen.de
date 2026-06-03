@@ -69,14 +69,14 @@ export default async function SurveyDetailPage({
           aria-hidden="true"
           className="mb-3 h-1 w-12 rounded-full bg-accent"
         />
-        <h2 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
+        <h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
           <Link
             href={`/institut/${survey.institute.id}`}
             className="hover:underline"
           >
             {survey.institute.name}
           </Link>
-        </h2>
+        </h1>
         <p className="mt-2 text-muted">{formatDate(survey.date)}</p>
       </header>
 

@@ -93,15 +93,19 @@ export default function RootLayout({
         <ThemeProvider>
           <header className="sticky top-0 z-40 border-b border-brand-hover/40 bg-brand text-brand-foreground">
             <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-3">
-              <h1 className="text-lg leading-none">
+              {/* Wordmark + home link. Intentionally NOT an <h1>: it repeats
+                  on every page, so each page's own <h1> (PageHeader) stays the
+                  unique, descriptive heading Google uses to tell views apart. */}
+              <div className="text-lg leading-none">
                 <Link
                   href="/"
+                  aria-label={t("app.name")}
                   className="flex items-center gap-2.5 font-display font-extrabold uppercase tracking-[0.06em]"
                 >
                   <Logo className="h-8 w-8 shrink-0 text-brand-foreground" />
                   {t("app.name")}
                 </Link>
-              </h1>
+              </div>
               <div className="flex items-center gap-2">
                 <SiteNav />
                 <span

@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { JsonLd } from "@/components/json-ld";
 import { PageHeader } from "@/components/page-header";
 import { PollDashboardClient } from "@/components/poll-dashboard-client";
 import { t } from "@/i18n";
@@ -17,7 +18,7 @@ import {
 } from "@/lib/dawum";
 import { formatDateTime } from "@/lib/format";
 import { SeoSection } from "@/components/seo-section";
-import { buildMetadata, PAGE_INTRO, PAGE_META } from "@/lib/seo";
+import { breadcrumbLd, buildMetadata, PAGE_INTRO, PAGE_META } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
   ...PAGE_META.trend,
@@ -27,6 +28,12 @@ export const metadata: Metadata = buildMetadata({
 export default function TrendPage() {
   return (
     <div className="mx-auto max-w-6xl px-6 py-10">
+      <JsonLd
+        data={breadcrumbLd([
+          { name: "Startseite", path: "/" },
+          { name: t("trendPage.title"), path: "/trend" },
+        ])}
+      />
       <PageHeader
         title={t("trendPage.title")}
         subtitle={t("trendPage.subtitle")}

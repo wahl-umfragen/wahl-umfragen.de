@@ -19,9 +19,9 @@ export default function ImpressumPage() {
   return (
     <div className="mx-auto max-w-3xl px-6 py-10">
       <div aria-hidden="true" className="mb-3 h-1 w-12 rounded-full bg-accent" />
-      <h2 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
+      <h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
         {t("impressumPage.title")}
-      </h2>
+      </h1>
 
       <div className="mt-8 space-y-8 text-sm leading-relaxed text-muted">
         <section>

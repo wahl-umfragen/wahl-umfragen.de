@@ -7,7 +7,13 @@ import { SurveyArchive } from "@/components/survey-archive";
 import { t } from "@/i18n";
 import { loadBundestagData } from "@/lib/data";
 import { formatDateTime } from "@/lib/format";
-import { buildMetadata, datasetLd, PAGE_INTRO, PAGE_META } from "@/lib/seo";
+import {
+  breadcrumbLd,
+  buildMetadata,
+  datasetLd,
+  PAGE_INTRO,
+  PAGE_META,
+} from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
   ...PAGE_META.archiv,
@@ -17,6 +23,12 @@ export const metadata: Metadata = buildMetadata({
 export default function ArchivPage() {
   return (
     <div className="mx-auto max-w-6xl px-6 py-10">
+      <JsonLd
+        data={breadcrumbLd([
+          { name: "Startseite", path: "/" },
+          { name: t("archivePage.title"), path: "/archiv" },
+        ])}
+      />
       <PageHeader
         title={t("archivePage.title")}
         subtitle={t("archivePage.subtitle")}

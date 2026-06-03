@@ -1,12 +1,13 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { CoalitionBuilder } from "@/components/coalition-builder";
+import { JsonLd } from "@/components/json-ld";
 import { PageHeader } from "@/components/page-header";
 import { t } from "@/i18n";
 import { loadBundestagData } from "@/lib/data";
 import { formatDate, formatDateTime } from "@/lib/format";
 import { SeoSection } from "@/components/seo-section";
-import { buildMetadata, PAGE_INTRO, PAGE_META } from "@/lib/seo";
+import { breadcrumbLd, buildMetadata, PAGE_INTRO, PAGE_META } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
   ...PAGE_META.koalition,
@@ -16,6 +17,12 @@ export const metadata: Metadata = buildMetadata({
 export default function KoalitionPage() {
   return (
     <div className="mx-auto max-w-6xl px-6 py-10">
+      <JsonLd
+        data={breadcrumbLd([
+          { name: "Startseite", path: "/" },
+          { name: t("koalitionPage.title"), path: "/koalition" },
+        ])}
+      />
       <PageHeader
         title={t("koalitionPage.title")}
         subtitle={t("koalitionPage.subtitle")}
