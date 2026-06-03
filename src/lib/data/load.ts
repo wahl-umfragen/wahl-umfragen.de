@@ -1,5 +1,7 @@
+import { gunzipSync, gzipSync } from "node:zlib";
 import { desc, eq, isNotNull } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
+import { cache } from "react";
 import { db } from "@/db/client";
 import * as schema from "@/db/schema";
 import {
@@ -28,11 +30,32 @@ export interface BundestagData {
  * Wrapped in `unstable_cache` (tag `surveys`, no time expiry): the heavy query
  * runs once and is reused across all requests until the ingest worker triggers
  * `revalidateTag('surveys')`. That's what makes the pages cheap at scale.
+ *
+ * The cached value is **gzipped** (base64 of the gzipped JSON), not the raw
+ * object. Next's data cache rejects any single entry over 2 MB, and the
+ * accumulated history outgrew that (~2.8 MB of JSON). Compression brings it to a
+ * few hundred KB — well under the cap and slow-growing — so the shared,
+ * tag-invalidated cache the whole frontend depends on keeps working instead of
+ * silently failing and re-querying Postgres on every render. We decode once per
+ * request via React `cache()` (multiple components — e.g. a page and its
+ * `generateMetadata` — share the single decode).
  */
-export const loadBundestagData = unstable_cache(
-  loadBundestagDataUncached,
+const loadCompressedBundestagData = unstable_cache(
+  async () => {
+    const data = await loadBundestagDataUncached();
+    return gzipSync(Buffer.from(JSON.stringify(data))).toString("base64");
+  },
   ["bundestag-data"],
   { tags: [SURVEYS_TAG], revalidate: false },
+);
+
+export const loadBundestagData = cache(
+  async (): Promise<BundestagData> => {
+    const gz = await loadCompressedBundestagData();
+    return JSON.parse(
+      gunzipSync(Buffer.from(gz, "base64")).toString("utf8"),
+    ) as BundestagData;
+  },
 );
 
 async function loadBundestagDataUncached(): Promise<BundestagData> {
