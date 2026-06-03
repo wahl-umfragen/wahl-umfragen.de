@@ -105,6 +105,18 @@ Telefon: [PLATZHALTER: optional]`}
             der einzelnen Umfragen sind allein die jeweiligen Institute.
           </p>
           <p className="mt-2">
+            Die zum Vergleich dargestellten amtlichen Wahlergebnisse stammen von{" "}
+            <a
+              href="https://www.bundeswahlleiterin.de/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline"
+            >
+              Die Bundeswahlleiterin
+            </a>{" "}
+            (amtliche Daten, Verwendung mit Quellenangabe).
+          </p>
+          <p className="mt-2">
             Diese Website dient ausschließlich der aggregierten Darstellung und
             Auswertung öffentlich verfügbarer Umfragedaten zu
             Informationszwecken. Alle Angaben erfolgen ohne Gewähr auf

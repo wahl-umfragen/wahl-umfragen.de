@@ -86,3 +86,7 @@ Dieses Projekt ist **dual lizenziert** — Code und Daten getrennt:
   Daten (inkl. `/api/surveys` CSV/JSON-Export und der Test-Fixtures in
   `src/lib/dawum/fixtures.ts`) weiterverwendet, muss die ODbL einhalten:
   Attribution von dawum.de **und** Share-Alike für abgeleitete Datenbanken.
+- **Amtliche Wahlergebnisse:** Die zum Vergleich im Trend-Chart dargestellten
+  amtlichen Ergebnisse (`src/lib/elections/results.ts`) stammen von
+  [Die Bundeswahlleiterin](https://www.bundeswahlleiterin.de/) — amtliche Daten,
+  Verwendung mit Quellenangabe.

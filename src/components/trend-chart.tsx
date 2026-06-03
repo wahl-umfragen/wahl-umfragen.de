@@ -6,6 +6,8 @@ import {
   CartesianGrid,
   Line,
   LineChart,
+  ReferenceDot,
+  ReferenceLine,
   ResponsiveContainer,
   Tooltip,
   usePlotArea,
@@ -19,6 +21,8 @@ import type { TooltipContentProps } from "recharts/types/component/Tooltip";
 import { t } from "@/i18n";
 import { partyColor } from "@/lib/dawum/colors";
 import type { TrendData, TrendPoint, TrendSeries } from "@/lib/dawum/trend";
+import { electionMarkers } from "@/lib/elections/markers";
+import { BUNDESTAG_ELECTIONS, type ElectionResult } from "@/lib/elections/results";
 import { useColorScheme } from "./use-color-scheme";
 
 const X_FORMAT = new Intl.DateTimeFormat("de-DE", {
@@ -49,6 +53,10 @@ export interface TrendChartProps {
   hiddenParties?: ReadonlySet<string>;
   /** Click a legend entry to isolate one party (and again to restore all). */
   onSoloParty?: (shortcut: string) => void;
+  /** Official election results, drawn as comparison markers. */
+  elections?: ElectionResult[];
+  /** Toggle the official-result markers (and their caption). */
+  showElectionMarkers?: boolean;
 }
 
 export function TrendChart({
@@ -57,6 +65,8 @@ export function TrendChart({
   showDots = true,
   hiddenParties,
   onSoloParty,
+  elections = BUNDESTAG_ELECTIONS,
+  showElectionMarkers = true,
 }: TrendChartProps) {
   const scheme = useColorScheme();
   const router = useRouter();
@@ -92,6 +102,18 @@ export function TrendChart({
   const series = data.series
     .slice(0, maxSeries)
     .filter((s) => !hiddenParties?.has(s.shortcut));
+
+  // Official-result markers. recharts discards references outside the visible
+  // x-domain, but we mirror that filter here so the caption only shows when a
+  // marker is actually on screen. The chart's x-domain is the first..last point
+  // date (XAxis domain ["dataMin","dataMax"]).
+  const firstDate = data.points[0].date as number;
+  const lastDate = data.points[data.points.length - 1].date as number;
+  const inRange = (ts: number) => ts >= firstDate && ts <= lastDate;
+  const visibleElections = showElectionMarkers
+    ? elections.filter((e) => inRange(new Date(e.date).getTime()))
+    : [];
+  const visibleMarkers = electionMarkers(visibleElections, series);
 
   // Clicking a point (or anywhere near one) opens that survey in the archive.
   // recharts hands us the active datum's index into the chart's data array
@@ -174,6 +196,36 @@ export function TrendChart({
                 isAnimationActive={false}
               />
             ))}
+            {visibleElections.map((e) => (
+              <ReferenceLine
+                key={`election-${e.date}`}
+                x={new Date(e.date).getTime()}
+                ifOverflow="discard"
+                stroke="currentColor"
+                strokeOpacity={0.35}
+                strokeDasharray="4 4"
+                label={{
+                  value: e.date.slice(0, 4),
+                  position: "insideTopLeft",
+                  fontSize: 11,
+                  fontWeight: 600,
+                  fill: "currentColor",
+                  opacity: 0.7,
+                }}
+              />
+            ))}
+            {visibleMarkers.map((m) => (
+              <ReferenceDot
+                key={`marker-${m.label}-${m.shortcut}`}
+                x={m.date}
+                y={m.percent}
+                r={4}
+                ifOverflow="discard"
+                fill={haloColor}
+                stroke={partyColor(m.shortcut, { scheme })}
+                strokeWidth={2}
+              />
+            ))}
             <TrendEndLabels
               points={data.points}
               series={series}
@@ -183,6 +235,22 @@ export function TrendChart({
         </ResponsiveContainer>
       </div>
       <TrendLegend series={series} scheme={scheme} onSolo={onSoloParty} />
+      {visibleElections.length > 0 ? (
+        <p
+          data-testid="trend-election-caption"
+          className="mt-1 text-center text-[11px] text-zinc-500 dark:text-zinc-400"
+        >
+          {t("charts.electionMarker")} · {t("charts.electionSourcePrefix")}
+          <a
+            href={visibleElections[0].source.url}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="underline"
+          >
+            {visibleElections[0].source.name}
+          </a>
+        </p>
+      ) : null}
     </div>
   );
 }

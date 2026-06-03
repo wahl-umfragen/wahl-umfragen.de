@@ -170,7 +170,18 @@ export default function DatenschutzPage() {
             >
               Open Database License (ODbL)
             </a>
-            . Es handelt sich um aggregierte, nicht personenbezogene Daten.
+            . Es handelt sich um aggregierte, nicht personenbezogene Daten. Die
+            zum Vergleich dargestellten amtlichen Wahlergebnisse stammen von{" "}
+            <a
+              href="https://www.bundeswahlleiterin.de/"
+              target="_blank"
+              rel="noopener noreferrer"
+              className="underline"
+            >
+              Die Bundeswahlleiterin
+            </a>{" "}
+            (amtliche Daten, Verwendung mit Quellenangabe); auch hierbei handelt
+            es sich um nicht personenbezogene Daten.
           </p>
         </section>
       </div>
