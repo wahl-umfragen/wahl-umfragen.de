@@ -31,7 +31,7 @@ export function ThemeToggle() {
       data-testid="theme-toggle"
       role="radiogroup"
       aria-label={t("theme.label")}
-      className="inline-flex items-center rounded-md border border-zinc-300 p-0.5 dark:border-zinc-700"
+      className="inline-flex items-center rounded-md border border-brand-foreground/20 p-0.5"
     >
       {OPTIONS.map(({ value, label, icon: Icon }) => {
         const active = mounted && theme === value;
@@ -46,8 +46,8 @@ export function ThemeToggle() {
             onClick={() => setTheme(value)}
             className={`flex h-7 w-7 items-center justify-center rounded transition-colors ${
               active
-                ? "bg-zinc-200 text-zinc-900 dark:bg-zinc-700 dark:text-zinc-100"
-                : "text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+                ? "bg-brand-foreground text-brand"
+                : "text-brand-foreground/65 hover:bg-white/10 hover:text-brand-foreground"
             }`}
           >
             <Icon />

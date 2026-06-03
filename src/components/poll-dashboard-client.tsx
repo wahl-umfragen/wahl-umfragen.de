@@ -12,7 +12,7 @@ const PollDashboardImpl = dynamic(
         {Array.from({ length: 4 }).map((_, i) => (
           <div
             key={i}
-            className="h-72 w-full animate-pulse rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900"
+            className="h-72 w-full animate-pulse rounded-xl border border-border bg-surface"
           />
         ))}
       </div>

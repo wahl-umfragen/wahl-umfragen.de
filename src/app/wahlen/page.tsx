@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { JsonLd } from "@/components/json-ld";
+import { PageHeader } from "@/components/page-header";
 import { SeoSection } from "@/components/seo-section";
 import { t } from "@/i18n";
 import { partyColorVar } from "@/lib/dawum/colors";
@@ -40,40 +41,36 @@ export default function WahlenPage() {
           { name: t("wahlenPage.title"), path: "/wahlen" },
         ])}
       />
-      <header className="mb-8">
-        <h2 className="text-2xl font-semibold tracking-tight">
-          {t("wahlenPage.title")}
-        </h2>
-        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-          {t("wahlenPage.subtitle")}
-        </p>
-      </header>
+      <PageHeader
+        title={t("wahlenPage.title")}
+        subtitle={t("wahlenPage.subtitle")}
+      />
 
       {table.rows.length === 0 ? (
         <p
           data-testid="empty-state"
-          className="text-sm text-zinc-600 dark:text-zinc-400"
+          className="text-sm text-muted"
         >
           {t("common.noData")}
         </p>
       ) : (
-        <div className="overflow-x-auto rounded-lg border border-zinc-200 dark:border-zinc-800">
+        <div className="overflow-x-auto rounded-xl border border-border bg-surface">
           <table
             data-testid="election-results"
             className="w-full text-sm"
           >
             <thead>
-              <tr className="border-b border-zinc-200 text-left dark:border-zinc-800">
-                <th className="px-4 py-3 font-semibold">
+              <tr className="border-b-2 border-border-strong bg-surface-2 text-left">
+                <th className="px-4 py-3 text-xs font-bold uppercase tracking-wide">
                   {t("wahlenPage.party")}
                 </th>
                 {table.columns.map((c) => (
                   <th
                     key={c.date}
-                    className="px-4 py-3 text-right font-semibold tabular-nums"
+                    className="px-4 py-3 text-right text-xs font-bold uppercase tracking-wide tabular-nums"
                   >
                     <span className="block">{c.label}</span>
-                    <span className="block text-xs font-normal text-zinc-500 dark:text-zinc-400">
+                    <span className="block text-xs font-normal normal-case tracking-normal text-muted">
                       {formatDate(c.date)}
                     </span>
                   </th>
@@ -84,7 +81,7 @@ export default function WahlenPage() {
               {table.rows.map((row) => (
                 <tr
                   key={row.shortcut}
-                  className="border-b border-zinc-100 last:border-0 dark:border-zinc-900"
+                  className="border-b border-border last:border-0 hover:bg-brand-soft"
                 >
                   <th
                     scope="row"
@@ -105,13 +102,11 @@ export default function WahlenPage() {
                       <td
                         key={table.columns[i]?.date ?? i}
                         className={`px-4 py-2.5 text-right font-mono tabular-nums ${
-                          below ? "text-zinc-400 dark:text-zinc-500" : ""
+                          below ? "text-muted" : ""
                         }`}
                       >
                         {cell === null ? (
-                          <span className="text-zinc-300 dark:text-zinc-700">
-                            –
-                          </span>
+                          <span className="text-border-strong">–</span>
                         ) : (
                           <>
                             {formatPercent(cell)}&nbsp;%
@@ -129,13 +124,13 @@ export default function WahlenPage() {
       )}
 
       {hasBelowThreshold ? (
-        <p className="mt-3 text-xs text-zinc-500 dark:text-zinc-400">
+        <p className="mt-3 text-xs text-muted">
           {t("wahlenPage.thresholdNote")}
         </p>
       ) : null}
 
       {source ? (
-        <p className="mt-2 text-xs text-zinc-500 dark:text-zinc-400">
+        <p className="mt-2 text-xs text-muted">
           {t("wahlenPage.sourcePrefix")}
           <a
             href={source.url}

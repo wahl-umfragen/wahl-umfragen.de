@@ -61,11 +61,15 @@ export default async function SurveyDetailPage({
       <BackLink
         fallbackHref="/archiv"
         label={t("detail.back")}
-        className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+        className="text-sm font-medium text-muted hover:text-foreground"
       />
 
       <header className="mt-4 mb-8">
-        <h2 className="text-2xl font-semibold tracking-tight">
+        <div
+          aria-hidden="true"
+          className="mb-3 h-1 w-12 rounded-full bg-accent"
+        />
+        <h2 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
           <Link
             href={`/institut/${survey.institute.id}`}
             className="hover:underline"
@@ -73,9 +77,7 @@ export default async function SurveyDetailPage({
             {survey.institute.name}
           </Link>
         </h2>
-        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-          {formatDate(survey.date)}
-        </p>
+        <p className="mt-2 text-muted">{formatDate(survey.date)}</p>
       </header>
 
       <dl
@@ -101,14 +103,12 @@ export default async function SurveyDetailPage({
         ) : null}
       </dl>
 
-      <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-        {t("detail.results")}
-      </h3>
+      <h3 className="eyebrow mb-3">{t("detail.results")}</h3>
       <ul data-testid="survey-results" className="space-y-2">
         {survey.results.map((r) => (
           <li key={r.partyId} className="flex items-center gap-3 text-sm">
             <span className="w-28 shrink-0 font-medium">{r.shortcut}</span>
-            <span className="relative h-5 flex-1 overflow-hidden rounded bg-zinc-100 dark:bg-zinc-900">
+            <span className="relative h-5 flex-1 overflow-hidden rounded bg-surface-2">
               <span
                 className="absolute inset-y-0 left-0 rounded"
                 style={{
@@ -136,8 +136,10 @@ function Meta({
 }) {
   return (
     <div>
-      <dt className="text-xs text-zinc-500">{label}</dt>
-      <dd className="mt-0.5">{children}</dd>
+      <dt className="text-xs font-semibold uppercase tracking-wide text-muted">
+        {label}
+      </dt>
+      <dd className="mt-0.5 font-medium">{children}</dd>
     </div>
   );
 }

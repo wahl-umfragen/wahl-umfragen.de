@@ -31,9 +31,9 @@ export function CoalitionBuilder({ parties, surveyLabel }: CoalitionBuilderProps
   return (
     <div
       data-testid="coalition-builder"
-      className="rounded-lg border border-zinc-200 bg-white p-4 dark:border-zinc-800 dark:bg-zinc-900"
+      className="rounded-xl border border-border bg-surface p-4"
     >
-      <p className="mb-3 text-xs text-zinc-500 dark:text-zinc-400">
+      <p className="mb-3 text-xs text-muted">
         {t("coalition.basis", { label: surveyLabel })}
       </p>
       <ul className="flex flex-wrap gap-2">
@@ -46,7 +46,7 @@ export function CoalitionBuilder({ parties, surveyLabel }: CoalitionBuilderProps
                 className={`flex cursor-pointer items-center gap-2 rounded-full border px-3 py-1 text-sm transition-colors ${
                   isChecked
                     ? "border-transparent text-white"
-                    : "border-zinc-300 dark:border-zinc-700"
+                    : "border-border-strong"
                 } ${belowThreshold && !isChecked ? "opacity-60" : ""}`}
                 style={
                   isChecked
@@ -77,7 +77,7 @@ export function CoalitionBuilder({ parties, surveyLabel }: CoalitionBuilderProps
 
       <div className="mt-4 flex flex-wrap items-baseline gap-x-6 gap-y-2 text-sm">
         <div>
-          <span className="text-zinc-500">{t("coalition.sum")} </span>
+          <span className="text-muted">{t("coalition.sum")} </span>
           <span
             data-testid="coalition-sum"
             className="font-mono tabular-nums font-semibold"
@@ -86,7 +86,7 @@ export function CoalitionBuilder({ parties, surveyLabel }: CoalitionBuilderProps
           </span>
         </div>
         <div>
-          <span className="text-zinc-500">
+          <span className="text-muted">
             {t("coalition.shareInBundestag")}{" "}
           </span>
           <span
@@ -133,7 +133,7 @@ function MajorityBadge({
     return (
       <span
         data-testid="coalition-status"
-        className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
+        className="rounded-full bg-surface-2 px-2 py-0.5 text-xs text-muted"
       >
         {t("coalition.noSelection")}
       </span>
@@ -152,7 +152,7 @@ function MajorityBadge({
   return (
     <span
       data-testid="coalition-status"
-      className="rounded-full bg-zinc-100 px-2 py-0.5 text-xs text-zinc-600 dark:bg-zinc-800 dark:text-zinc-400"
+      className="rounded-full bg-surface-2 px-2 py-0.5 text-xs text-muted"
     >
       {t("coalition.noMajority")}
     </span>

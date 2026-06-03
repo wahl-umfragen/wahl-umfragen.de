@@ -13,7 +13,7 @@ const TrendChartImpl = dynamic(
   {
     ssr: false,
     loading: () => (
-      <div className="h-80 w-full animate-pulse rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900 sm:h-[26rem]" />
+      <div className="h-80 w-full animate-pulse rounded-xl border border-border bg-surface sm:h-[26rem]" />
     ),
   },
 );

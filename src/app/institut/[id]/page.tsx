@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 import { JsonLd } from "@/components/json-ld";
+import { PageHeader } from "@/components/page-header";
 import { RecentSurveys } from "@/components/recent-surveys";
 import { TrendChartClient } from "@/components/trend-chart-client";
 import { t } from "@/i18n";
@@ -74,14 +75,12 @@ export default async function InstituteDetailPage({
       />
       <Link
         href="/"
-        className="text-sm text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+        className="text-sm font-medium text-muted hover:text-foreground"
       >
         {t("institute.back")}
       </Link>
 
-      <header className="mt-4 mb-8">
-        <h2 className="text-2xl font-semibold tracking-tight">{name}</h2>
-      </header>
+      <PageHeader title={name} className="mt-4 mb-8" />
 
       <dl
         data-testid="institute-meta"
@@ -97,10 +96,8 @@ export default async function InstituteDetailPage({
       </dl>
 
       <section className="mb-10">
-        <h3 className="mb-3 text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-          {t("institute.trendTitle")}
-        </h3>
-        <p className="-mt-2 mb-3 text-xs text-zinc-500 dark:text-zinc-400">
+        <h3 className="eyebrow mb-3">{t("institute.trendTitle")}</h3>
+        <p className="-mt-2 mb-3 text-xs text-muted">
           {t("institute.trendHint")}
         </p>
         <TrendChartClient data={trend} showDots={false} />
@@ -127,8 +124,10 @@ function Meta({
 }) {
   return (
     <div>
-      <dt className="text-xs text-zinc-500">{label}</dt>
-      <dd className="mt-0.5">{children}</dd>
+      <dt className="text-xs font-semibold uppercase tracking-wide text-muted">
+        {label}
+      </dt>
+      <dd className="mt-0.5 font-medium">{children}</dd>
     </div>
   );
 }

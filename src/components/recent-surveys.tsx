@@ -35,19 +35,17 @@ export function RecentSurveys({
   return (
     <section data-testid="recent-surveys">
       <div className="mb-3 flex items-baseline justify-between gap-3">
-        <h3 className="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-          {title}
-        </h3>
+        <h3 className="eyebrow">{title}</h3>
         {viewAllHref ? (
           <Link
             href={viewAllHref}
-            className="text-xs font-medium text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+            className="text-xs font-medium text-muted hover:text-foreground"
           >
             {viewAllLabel}
           </Link>
         ) : null}
       </div>
-      <ul className="divide-y divide-zinc-100 overflow-hidden rounded-lg border border-zinc-200 bg-white dark:divide-zinc-900 dark:border-zinc-800 dark:bg-zinc-900">
+      <ul className="divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface">
         {recent.map((s) => {
           const top = [...s.results]
             .sort((a, b) => b.percent - a.percent)
@@ -56,7 +54,7 @@ export function RecentSurveys({
             <li key={s.id}>
               <Link
                 href={`/archiv/${s.id}`}
-                className="flex items-center justify-between gap-4 px-3 py-2.5 text-sm hover:bg-zinc-50 dark:hover:bg-zinc-900/60"
+                className="flex items-center justify-between gap-4 px-3 py-2.5 text-sm hover:bg-brand-soft"
               >
                 <span className="min-w-0 truncate font-medium">
                   {showInstitute ? s.institute.name : formatDate(s.date)}
@@ -66,7 +64,7 @@ export function RecentSurveys({
                     {top.map((r) => (
                       <span
                         key={r.partyId}
-                        className="flex items-center gap-1 font-mono tabular-nums text-zinc-600 dark:text-zinc-400"
+                        className="flex items-center gap-1 font-mono tabular-nums text-muted"
                       >
                         <span
                           aria-hidden="true"
@@ -78,7 +76,7 @@ export function RecentSurveys({
                     ))}
                   </span>
                   {showInstitute ? (
-                    <span className="w-20 text-right text-zinc-500 dark:text-zinc-400">
+                    <span className="w-20 text-right text-muted">
                       {formatDate(s.date)}
                     </span>
                   ) : null}

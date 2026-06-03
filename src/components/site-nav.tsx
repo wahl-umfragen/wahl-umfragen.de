@@ -29,8 +29,8 @@ export function SiteNav() {
             aria-current={active ? "page" : undefined}
             className={`rounded-md px-3 py-1.5 font-medium transition-colors ${
               active
-                ? "bg-zinc-200 text-zinc-900 dark:bg-zinc-800 dark:text-zinc-100"
-                : "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-900 dark:text-zinc-400 dark:hover:bg-zinc-900 dark:hover:text-zinc-100"
+                ? "bg-brand-foreground text-brand"
+                : "text-brand-foreground/70 hover:bg-white/10 hover:text-brand-foreground"
             }`}
           >
             {link.label}

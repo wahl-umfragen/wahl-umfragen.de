@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
 import { CoalitionBuilder } from "@/components/coalition-builder";
+import { PageHeader } from "@/components/page-header";
 import { t } from "@/i18n";
 import { loadBundestagData } from "@/lib/data";
 import { formatDate, formatDateTime } from "@/lib/format";
@@ -15,14 +16,10 @@ export const metadata: Metadata = buildMetadata({
 export default function KoalitionPage() {
   return (
     <div className="mx-auto max-w-6xl px-6 py-10">
-      <header className="mb-8">
-        <h2 className="text-2xl font-semibold tracking-tight">
-          {t("koalitionPage.title")}
-        </h2>
-        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-          {t("koalitionPage.subtitle")}
-        </p>
-      </header>
+      <PageHeader
+        title={t("koalitionPage.title")}
+        subtitle={t("koalitionPage.subtitle")}
+      />
       <Suspense fallback={<BuilderSkeleton />}>
         <Koalition />
       </Suspense>
@@ -42,7 +39,7 @@ async function Koalition() {
     return (
       <p
         data-testid="empty-state"
-        className="text-sm text-zinc-600 dark:text-zinc-400"
+        className="text-sm text-muted"
       >
         {t("common.noSurveys")}
       </p>
@@ -53,7 +50,7 @@ async function Koalition() {
     <>
       <p
         data-testid="data-freshness"
-        className="mb-4 text-xs text-zinc-500 dark:text-zinc-400"
+        className="mb-4 text-xs text-muted"
       >
         {t("common.asOf")} {lastUpdate ? formatDateTime(lastUpdate) : "—"}
       </p>
@@ -70,6 +67,6 @@ async function Koalition() {
 
 function BuilderSkeleton() {
   return (
-    <div className="h-80 animate-pulse rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900" />
+    <div className="h-80 animate-pulse rounded-xl border border-border bg-surface" />
   );
 }

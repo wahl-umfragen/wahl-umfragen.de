@@ -5,8 +5,26 @@
 @custom-variant dark (&:where(.dark, .dark *));
 
 :root {
-  --background: #fafaf9;
-  --foreground: #1c1917;
+  /* Surfaces — warm paper, layered. */
+  --background: #f2f1ec;
+  --surface: #ffffff;
+  --surface-2: #e9e7df;
+  --foreground: #14171e;
+  --muted: #586072;
+  --border: #e2e0d6;
+  --border-strong: #c9c6b9;
+
+  /* Brand — ballot-ink navy. The civic identity colour: header/footer bands,
+     primary actions, active states. Deliberately distinct from every party
+     colour below so data never collides with chrome. */
+  --brand: #15264c;
+  --brand-hover: #20396f;
+  --brand-foreground: #f4f3ee;
+  --brand-soft: rgba(21, 38, 76, 0.07);
+
+  /* Accent — a brighter civic blue for small high-pop marks (kicker rules,
+     focus rings, inline links) that must read against either theme. */
+  --accent: #2a4a8e;
 
   --party-cdu: #1f1f1f;
   --party-spd: #e3000f;
@@ -21,28 +39,80 @@
 }
 
 .dark {
-  --background: #0c0a09;
-  --foreground: #e7e5e4;
+  --background: #090c12;
+  --surface: #11151f;
+  --surface-2: #1a1f2b;
+  --foreground: #e7e9ef;
+  --muted: #939bac;
+  --border: #232a38;
+  --border-strong: #323a4b;
+
+  --brand: #18305e;
+  --brand-hover: #27447e;
+  --brand-foreground: #eef1f8;
+  --brand-soft: rgba(120, 150, 214, 0.12);
+
+  --accent: #7596df;
+
   --party-cdu: #d4d4d8;
 }
 
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
-  --font-serif: var(--font-serif-editorial);
+  --color-surface: var(--surface);
+  --color-surface-2: var(--surface-2);
+  --color-muted: var(--muted);
+  --color-border: var(--border);
+  --color-border-strong: var(--border-strong);
+  --color-brand: var(--brand);
+  --color-brand-hover: var(--brand-hover);
+  --color-brand-foreground: var(--brand-foreground);
+  --color-brand-soft: var(--brand-soft);
+  --color-accent: var(--accent);
+
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-plex-mono);
+  --font-display: var(--font-archivo);
 }
 
 body {
   background: var(--background);
   color: var(--foreground);
-  font-family: var(--font-geist-sans), system-ui, sans-serif;
+  font-family: var(--font-inter), system-ui, sans-serif;
 }
 
-/* Editorial headings: quiet serif, tight tracking. */
+/* Civic-bold headings: a strong, slightly wide grotesque, tightly tracked. */
 h1,
 h2,
-h3 {
-  font-family: var(--font-serif-editorial), Georgia, "Times New Roman", serif;
+h3,
+h4 {
+  font-family: var(--font-archivo), system-ui, sans-serif;
+  letter-spacing: -0.012em;
+}
+
+/* Section kicker: an uppercase label preceded by a short accent bar. Replaces
+   the quiet grey eyebrow labels with a deliberate, branded marker. */
+.eyebrow {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  padding-left: 0.7rem;
+  font-family: var(--font-archivo), system-ui, sans-serif;
+  font-size: 0.72rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.13em;
+  color: var(--foreground);
+}
+
+.eyebrow::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 0.1em;
+  bottom: 0.1em;
+  width: 3px;
+  border-radius: 9px;
+  background: var(--accent);
 }

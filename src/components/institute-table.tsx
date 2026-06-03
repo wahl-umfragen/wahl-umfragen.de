@@ -76,7 +76,7 @@ export function InstituteTable({ surveys }: { surveys: NormalizedSurvey[] }) {
     <div className="overflow-x-auto">
       <table data-testid="survey-list" className="w-full border-collapse text-sm">
         <thead>
-          <tr className="border-b-2 border-zinc-300 dark:border-zinc-700">
+          <tr className="border-b-2 border-border-strong">
             <th
               aria-sort={ariaSort("institute")}
               className="sticky left-0 bg-background"
@@ -138,7 +138,7 @@ export function InstituteTable({ surveys }: { surveys: NormalizedSurvey[] }) {
                 key={survey.id}
                 data-testid="survey-card"
                 data-institute={survey.institute.name}
-                className="border-b border-zinc-100 last:border-0 hover:bg-zinc-50 dark:border-zinc-900 dark:hover:bg-zinc-900/50"
+                className="border-b border-border last:border-0 hover:bg-brand-soft"
               >
                 <th
                   scope="row"
@@ -151,7 +151,7 @@ export function InstituteTable({ surveys }: { surveys: NormalizedSurvey[] }) {
                     {survey.institute.name}
                   </Link>
                 </th>
-                <td className="whitespace-nowrap py-2 pr-3 text-zinc-500 dark:text-zinc-400">
+                <td className="whitespace-nowrap py-2 pr-3 text-muted">
                   {formatDate(survey.date)}
                 </td>
                 {parties.map((shortcut) => {
@@ -162,7 +162,7 @@ export function InstituteTable({ surveys }: { surveys: NormalizedSurvey[] }) {
                       className="py-2 px-2 text-right font-mono tabular-nums tracking-tight"
                     >
                       {percent === undefined ? (
-                        <span className="text-zinc-300 dark:text-zinc-700">–</span>
+                        <span className="text-border-strong">–</span>
                       ) : (
                         percent.toFixed(1)
                       )}
@@ -193,8 +193,8 @@ function SortButton({
     <button
       type="button"
       onClick={onClick}
-      className={`flex items-center gap-1 font-semibold tabular-nums hover:text-zinc-900 dark:hover:text-zinc-100 ${
-        active ? "text-zinc-900 dark:text-zinc-100" : "text-zinc-500"
+      className={`flex items-center gap-1 text-xs font-bold uppercase tracking-wide tabular-nums hover:text-foreground ${
+        active ? "text-foreground" : "text-muted"
       } ${className}`}
     >
       {children}

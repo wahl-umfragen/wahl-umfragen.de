@@ -1,6 +1,7 @@
 import { Suspense } from "react";
 import { InstituteTable } from "@/components/institute-table";
 import { JsonLd } from "@/components/json-ld";
+import { PageHeader } from "@/components/page-header";
 import { RecentSurveys } from "@/components/recent-surveys";
 import { FaqSection, SeoSection } from "@/components/seo-section";
 import { t } from "@/i18n";
@@ -16,14 +17,7 @@ const RECENT_DAYS = 365;
 export default function Page() {
   return (
     <div className="mx-auto max-w-6xl px-6 py-10">
-      <header className="mb-8">
-        <h2 className="text-2xl font-semibold tracking-tight">
-          {t("home.title")}
-        </h2>
-        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-          {t("home.subtitle")}
-        </p>
-      </header>
+      <PageHeader title={t("home.title")} subtitle={t("home.subtitle")} />
       <Suspense fallback={<TableSkeleton />}>
         <Surveys />
       </Suspense>
@@ -47,14 +41,14 @@ async function Surveys() {
     <>
       <p
         data-testid="data-freshness"
-        className="mb-4 text-xs text-zinc-500 dark:text-zinc-400"
+        className="mb-4 text-xs text-muted"
       >
         {t("common.asOf")} {lastUpdate ? formatDateTime(lastUpdate) : "—"}
       </p>
       {latest.length === 0 ? (
         <p
           data-testid="empty-state"
-          className="text-sm text-zinc-600 dark:text-zinc-400"
+          className="text-sm text-muted"
         >
           {t("common.noSurveys")}
         </p>
@@ -74,7 +68,7 @@ function TableSkeleton() {
   return (
     <div
       data-testid="surveys-skeleton"
-      className="h-80 animate-pulse rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900"
+      className="h-80 animate-pulse rounded-xl border border-border bg-surface"
     />
   );
 }

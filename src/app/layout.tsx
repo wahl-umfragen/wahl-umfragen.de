@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Geist, Geist_Mono, Source_Serif_4 } from "next/font/google";
+import { Archivo, IBM_Plex_Mono, Inter } from "next/font/google";
 import { Analytics } from "@/components/analytics";
 import { CookieBanner } from "@/components/cookie-banner";
 import { Logo } from "@/components/logo";
@@ -17,19 +17,25 @@ import {
 } from "@/lib/seo";
 import "./globals.css";
 
-const geistSans = Geist({
-  variable: "--font-geist-sans",
+// Body/UI: Inter. Display/headings: Archivo (a strong, slightly wide grotesque
+// for the civic-bold wordmark and titles). Figures: IBM Plex Mono for crisp
+// tabular alignment in the poll tables. None of these are the Next.js default
+// (Geist), which was the whole point of the redesign.
+const inter = Inter({
+  variable: "--font-inter",
   subsets: ["latin"],
 });
 
-const geistMono = Geist_Mono({
-  variable: "--font-geist-mono",
+const archivo = Archivo({
+  variable: "--font-archivo",
   subsets: ["latin"],
+  weight: ["500", "600", "700", "800"],
 });
 
-const serif = Source_Serif_4({
-  variable: "--font-serif-editorial",
+const plexMono = IBM_Plex_Mono({
+  variable: "--font-plex-mono",
   subsets: ["latin"],
+  weight: ["400", "500", "600"],
 });
 
 export const metadata: Metadata = {
@@ -81,18 +87,27 @@ export default function RootLayout({
     <html
       lang="de"
       suppressHydrationWarning
-      className={`${geistSans.variable} ${geistMono.variable} ${serif.variable} h-full antialiased`}
+      className={`${inter.variable} ${archivo.variable} ${plexMono.variable} h-full antialiased`}
     >
       <body className="flex min-h-full flex-col bg-background text-foreground">
         <ThemeProvider>
-          <header className="border-b border-zinc-200 dark:border-zinc-800">
-            <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-4">
-              <h1 className="flex items-center gap-2.5 text-lg font-semibold tracking-tight">
-                <Logo className="h-7 w-7 shrink-0 text-foreground" />
-                {t("app.name")}
+          <header className="sticky top-0 z-40 border-b border-brand-hover/40 bg-brand text-brand-foreground">
+            <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-3">
+              <h1 className="text-lg leading-none">
+                <Link
+                  href="/"
+                  className="flex items-center gap-2.5 font-display font-extrabold uppercase tracking-[0.06em]"
+                >
+                  <Logo className="h-8 w-8 shrink-0 text-brand-foreground" />
+                  {t("app.name")}
+                </Link>
               </h1>
-              <div className="flex items-center gap-3">
+              <div className="flex items-center gap-2">
                 <SiteNav />
+                <span
+                  aria-hidden="true"
+                  className="mx-1 hidden h-5 w-px bg-brand-foreground/20 sm:block"
+                />
                 <ThemeToggle />
               </div>
             </div>
@@ -100,16 +115,16 @@ export default function RootLayout({
           <main className="flex-1">{children}</main>
           <footer
             data-testid="site-footer"
-            className="border-t border-zinc-200 dark:border-zinc-800"
+            className="mt-16 border-t-4 border-accent bg-brand text-brand-foreground"
           >
-            <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-4 text-xs text-zinc-600 dark:text-zinc-400">
+            <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-6 text-xs text-brand-foreground/75">
               <span>
                 {t("footer.dataPrefix")}{" "}
                 <a
                   href="https://dawum.de/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="underline"
+                  className="font-medium text-brand-foreground underline underline-offset-2"
                 >
                   dawum.de
                 </a>{" "}
@@ -118,17 +133,23 @@ export default function RootLayout({
                   href="https://opendatacommons.org/licenses/odbl/1-0/"
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="underline"
+                  className="font-medium text-brand-foreground underline underline-offset-2"
                 >
                   ODbL
                 </a>
                 . {t("footer.noWarranty")}
               </span>
               <nav className="flex gap-4">
-                <Link href="/impressum" className="underline">
+                <Link
+                  href="/impressum"
+                  className="font-medium text-brand-foreground underline underline-offset-2"
+                >
                   {t("footer.impressum")}
                 </Link>
-                <Link href="/datenschutz" className="underline">
+                <Link
+                  href="/datenschutz"
+                  className="font-medium text-brand-foreground underline underline-offset-2"
+                >
                   {t("footer.datenschutz")}
                 </Link>
               </nav>

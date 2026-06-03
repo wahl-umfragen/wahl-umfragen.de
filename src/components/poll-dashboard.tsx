@@ -102,7 +102,7 @@ export function PollDashboard({
         action={
           <div
             data-testid="trend-window"
-            className="flex items-center gap-0.5 rounded-md border border-zinc-200 p-0.5 dark:border-zinc-800"
+            className="flex items-center gap-0.5 rounded-md border border-border p-0.5"
           >
             {(Object.keys(TREND_WINDOW_DAYS) as TrendWindowKey[]).map((key) => (
               <button
@@ -110,10 +110,10 @@ export function PollDashboard({
                 type="button"
                 onClick={() => setWindowKey(key)}
                 aria-pressed={windowKey === key}
-                className={`rounded px-2 py-0.5 text-xs font-medium normal-case tracking-normal transition-colors ${
+                className={`rounded px-2 py-0.5 text-xs font-semibold normal-case tracking-normal transition-colors ${
                   windowKey === key
-                    ? "bg-zinc-200 text-zinc-900 dark:bg-zinc-700 dark:text-zinc-100"
-                    : "text-zinc-500 hover:text-zinc-900 dark:hover:text-zinc-100"
+                    ? "bg-brand text-brand-foreground"
+                    : "text-muted hover:text-foreground"
                 }`}
               >
                 {t(WINDOW_LABELS[key])}
@@ -127,7 +127,7 @@ export function PollDashboard({
             data-testid="trend-party-filter"
             className="mb-3 flex flex-wrap items-center gap-1.5"
           >
-            <span className="mr-1 text-xs font-medium normal-case tracking-normal text-zinc-500">
+            <span className="mr-1 text-xs font-medium normal-case tracking-normal text-muted">
               {t("dashboard.partiesLabel")}
             </span>
             {filterableParties.map((s) => {
@@ -138,10 +138,10 @@ export function PollDashboard({
                   type="button"
                   onClick={() => toggleParty(s.shortcut)}
                   aria-pressed={active}
-                  className={`flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs font-medium transition-colors ${
+                  className={`flex items-center gap-1.5 rounded-full border px-2 py-0.5 text-xs font-semibold transition-colors ${
                     active
-                      ? "border-zinc-300 text-zinc-900 dark:border-zinc-600 dark:text-zinc-100"
-                      : "border-zinc-200 text-zinc-400 line-through dark:border-zinc-800 dark:text-zinc-600"
+                      ? "border-border-strong text-foreground"
+                      : "border-border text-muted/60 line-through"
                   }`}
                 >
                   <span
@@ -160,7 +160,7 @@ export function PollDashboard({
               <button
                 type="button"
                 onClick={() => setHiddenParties(new Set())}
-                className="ml-1 rounded-full px-2 py-0.5 text-xs font-medium text-zinc-500 underline hover:text-zinc-900 dark:hover:text-zinc-100"
+                className="ml-1 rounded-full px-2 py-0.5 text-xs font-medium text-muted underline hover:text-foreground"
               >
                 {t("dashboard.partiesAll")}
               </button>
@@ -212,15 +212,11 @@ function Section({
   return (
     <section>
       <div className="mb-3 flex items-baseline justify-between gap-3">
-        <h3 className="text-sm font-semibold uppercase tracking-wide text-zinc-500 dark:text-zinc-400">
-          {title}
-        </h3>
+        <h3 className="eyebrow">{title}</h3>
         {action}
       </div>
       {hint ? (
-        <p className="-mt-2 mb-3 text-xs text-zinc-500 dark:text-zinc-400">
-          {hint}
-        </p>
+        <p className="-mt-2 mb-3 text-xs text-muted">{hint}</p>
       ) : null}
       {children}
     </section>

@@ -45,9 +45,9 @@ export function CookieBanner() {
       data-testid="cookie-banner"
       role="region"
       aria-label={t("cookie.text")}
-      className="fixed inset-x-0 bottom-0 z-50 border-t border-zinc-200 bg-white/95 backdrop-blur dark:border-zinc-800 dark:bg-zinc-950/95"
+      className="fixed inset-x-0 bottom-0 z-50 border-t border-border bg-surface/95 backdrop-blur"
     >
-      <div className="mx-auto flex max-w-6xl flex-col gap-3 px-6 py-4 text-sm text-zinc-700 sm:flex-row sm:items-center sm:justify-between dark:text-zinc-300">
+      <div className="mx-auto flex max-w-6xl flex-col gap-3 px-6 py-4 text-sm text-muted sm:flex-row sm:items-center sm:justify-between">
         <p className="max-w-3xl">
           {t("cookie.text")}{" "}
           <Link href="/datenschutz" className="underline">
@@ -58,7 +58,7 @@ export function CookieBanner() {
         <button
           type="button"
           onClick={dismiss}
-          className="shrink-0 self-start rounded-md bg-zinc-900 px-4 py-2 font-medium text-white transition-colors hover:bg-zinc-700 sm:self-auto dark:bg-zinc-100 dark:text-zinc-900 dark:hover:bg-zinc-300"
+          className="shrink-0 self-start rounded-md bg-brand px-4 py-2 font-semibold text-brand-foreground transition-colors hover:bg-brand-hover sm:self-auto"
         >
           {t("cookie.accept")}
         </button>

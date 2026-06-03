@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { Suspense } from "react";
+import { PageHeader } from "@/components/page-header";
 import { PollDashboardClient } from "@/components/poll-dashboard-client";
 import { t } from "@/i18n";
 import { loadBundestagData } from "@/lib/data";
@@ -26,14 +27,10 @@ export const metadata: Metadata = buildMetadata({
 export default function TrendPage() {
   return (
     <div className="mx-auto max-w-6xl px-6 py-10">
-      <header className="mb-8">
-        <h2 className="text-2xl font-semibold tracking-tight">
-          {t("trendPage.title")}
-        </h2>
-        <p className="mt-1 text-sm text-zinc-600 dark:text-zinc-400">
-          {t("trendPage.subtitle")}
-        </p>
-      </header>
+      <PageHeader
+        title={t("trendPage.title")}
+        subtitle={t("trendPage.subtitle")}
+      />
       <Suspense fallback={<DashboardSkeleton />}>
         <Dashboard />
       </Suspense>
@@ -64,7 +61,7 @@ async function Dashboard() {
     <>
       <p
         data-testid="data-freshness"
-        className="mb-6 text-xs text-zinc-500 dark:text-zinc-400"
+        className="mb-6 text-xs text-muted"
       >
         {t("common.asOf")} {lastUpdate ? formatDateTime(lastUpdate) : "—"}
       </p>
@@ -84,7 +81,7 @@ function DashboardSkeleton() {
       {Array.from({ length: 4 }).map((_, i) => (
         <div
           key={i}
-          className="h-72 w-full animate-pulse rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-900"
+          className="h-72 w-full animate-pulse rounded-xl border border-border bg-surface"
         />
       ))}
     </div>

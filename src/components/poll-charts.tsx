@@ -24,7 +24,7 @@ import type {
 import { useColorScheme } from "./use-color-scheme";
 
 const CARD =
-  "w-full rounded-lg border border-zinc-200 bg-white p-2 dark:border-zinc-800 dark:bg-zinc-900";
+  "w-full rounded-xl border border-border bg-surface p-2";
 
 const fmt1 = (v: number) => v.toFixed(1);
 
@@ -150,7 +150,7 @@ export function SeatDistributionChart({ data }: { data: SeatDistribution }) {
           </PieChart>
         </ResponsiveContainer>
       </div>
-      <p className="-mt-4 text-center text-xs text-zinc-500 dark:text-zinc-400">
+      <p className="-mt-4 text-center text-xs text-muted">
         {t("charts.seatsSummary", {
           total: data.totalSeats,
           majority: data.majority,
@@ -165,7 +165,7 @@ export function SeatDistributionChart({ data }: { data: SeatDistribution }) {
               style={{ backgroundColor: partyColor(e.shortcut, { scheme }) }}
             />
             <span className="font-medium">{e.shortcut}</span>
-            <span className="font-mono tabular-nums text-zinc-500 dark:text-zinc-400">
+            <span className="font-mono tabular-nums text-muted">
               {e.seats}
             </span>
           </li>
@@ -254,7 +254,7 @@ function ChartTooltip({
   rows: Array<{ label: string; value: string; color?: string }>;
 }) {
   return (
-    <div className="rounded-md border border-zinc-200 bg-white/95 p-2 text-xs shadow-md dark:border-zinc-700 dark:bg-zinc-900/95">
+    <div className="rounded-md border border-border-strong bg-surface/95 p-2 text-xs shadow-lg backdrop-blur">
       <p className="font-semibold">{title}</p>
       <ul className="mt-1 space-y-0.5">
         {rows.map((r) => (
@@ -279,7 +279,7 @@ function ChartTooltip({
 
 function Empty() {
   return (
-    <p className="text-sm text-zinc-600 dark:text-zinc-400">
+    <p className="text-sm text-muted">
       {t("common.noData")}
     </p>
   );

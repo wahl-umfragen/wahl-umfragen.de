@@ -45,7 +45,7 @@ export function Fullscreenable({ children }: { children: React.ReactNode }) {
           onClick={toggle}
           aria-label={label}
           title={label}
-          className="rounded-md border border-zinc-200 bg-white p-1.5 text-zinc-500 transition-colors hover:text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:text-zinc-100"
+          className="rounded-md border border-border bg-surface p-1.5 text-muted transition-colors hover:text-foreground"
         >
           {isFullscreen ? <CollapseIcon /> : <ExpandIcon />}
         </button>

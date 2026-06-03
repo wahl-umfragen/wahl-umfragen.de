@@ -93,7 +93,7 @@ export function TrendChart({
     return (
       <p
         data-testid="trend-empty"
-        className="text-sm text-zinc-600 dark:text-zinc-400"
+        className="text-sm text-muted"
       >
         {t("charts.trendEmpty")}
       </p>
@@ -131,7 +131,7 @@ export function TrendChart({
   return (
     <div
       data-testid="trend-chart"
-      className="flex h-80 w-full flex-col rounded-lg border border-zinc-200 bg-white p-2 dark:border-zinc-800 dark:bg-zinc-900 sm:h-[26rem]"
+      className="flex h-80 w-full flex-col rounded-xl border border-border bg-surface p-2 sm:h-[26rem]"
     >
       <div className="min-h-0 flex-1 cursor-pointer">
         <ResponsiveContainer
@@ -239,7 +239,7 @@ export function TrendChart({
       {visibleElections.length > 0 ? (
         <p
           data-testid="trend-election-caption"
-          className="mt-1 text-center text-[11px] text-zinc-500 dark:text-zinc-400"
+          className="mt-1 text-center text-[11px] text-muted"
         >
           {t("charts.electionMarker")} · {t("charts.electionSourcePrefix")}
           <a
@@ -398,12 +398,12 @@ function TrendTooltip({ active, payload, label }: TooltipContentProps) {
     .sort((a, b) => b.value - a.value);
 
   return (
-    <div className="rounded-md border border-zinc-200 bg-white/95 p-2 text-xs shadow-md dark:border-zinc-700 dark:bg-zinc-900/95">
+    <div className="rounded-md border border-border-strong bg-surface/95 p-2 text-xs shadow-lg backdrop-blur">
       <p className="font-semibold">
         {typeof ts === "number" ? TOOLTIP_FORMAT.format(new Date(ts)) : ""}
       </p>
       {point?.instituteName ? (
-        <p className="text-zinc-600 dark:text-zinc-400">{point.instituteName}</p>
+        <p className="text-muted">{point.instituteName}</p>
       ) : null}
       <ul className="mt-1 space-y-0.5">
         {rows.map((p) => (
