@@ -12,7 +12,7 @@ test.describe("legal pages", () => {
     await footer.getByRole("link", { name: "Impressum" }).click();
     await expect(page).toHaveURL(/\/impressum$/);
     await expect(
-      page.getByRole("heading", { name: "Impressum", level: 2 }),
+      page.getByRole("heading", { name: "Impressum", level: 1 }),
     ).toBeVisible();
     // Mandatory § 5 DDG provider section is present.
     await expect(
@@ -25,7 +25,7 @@ test.describe("legal pages", () => {
 
     await page.goto("/datenschutz");
     await expect(
-      page.getByRole("heading", { name: "Datenschutzerklärung", level: 2 }),
+      page.getByRole("heading", { name: "Datenschutzerklärung", level: 1 }),
     ).toBeVisible();
     // Cookieless analytics section.
     await expect(

@@ -24,7 +24,7 @@ test.describe("survey detail back navigation", () => {
     // Back must land on the home page (its unique heading), not the archive.
     await page.getByTestId("back-link").click();
     await expect(
-      page.getByRole("heading", { name: "Sonntagsfrage Bundestag", level: 2 }),
+      page.getByRole("heading", { name: "Sonntagsfrage Bundestag", level: 1 }),
     ).toBeVisible();
   });
 

@@ -7,11 +7,14 @@ test.describe("home page", () => {
     await page.goto("/");
 
     await expect(page).toHaveTitle(/Wahlumfragen/);
+    // The wordmark is the home link in the header — a link, not a heading, so
+    // each page's own <h1> stays the unique heading.
     await expect(
-      page.getByRole("heading", { name: "Wahlumfragen", level: 1 }),
+      page.getByRole("link", { name: "Wahlumfragen" }).first(),
     ).toBeVisible();
+    // The page's single, unique <h1> is the view's own title.
     await expect(
-      page.getByRole("heading", { name: "Sonntagsfrage Bundestag", level: 2 }),
+      page.getByRole("heading", { name: "Sonntagsfrage Bundestag", level: 1 }),
     ).toBeVisible();
 
     const nav = page.getByTestId("site-nav");
@@ -67,7 +70,7 @@ test.describe("auswertung page", () => {
     await page.goto("/trend");
 
     await expect(
-      page.getByRole("heading", { name: "Auswertung", level: 2 }),
+      page.getByRole("heading", { name: "Auswertung", level: 1 }),
     ).toBeVisible();
 
     // Current-standing bar chart always renders when any data exists.
