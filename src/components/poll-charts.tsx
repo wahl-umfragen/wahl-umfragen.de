@@ -21,6 +21,7 @@ import type {
   PartyAverage,
   SeatDistribution,
 } from "@/lib/dawum/aggregate";
+import { SrOnlyTable } from "./sr-table";
 import { useColorScheme } from "./use-color-scheme";
 
 const CARD =
@@ -41,6 +42,11 @@ export function CurrentStandingChart({ data }: { data: PartyAverage[] }) {
       className={CARD}
       style={{ height: Math.max(200, data.length * 36 + 24) }}
     >
+      <div
+        role="img"
+        aria-label="Aktueller Stand der Sonntagsfrage als Balkendiagramm"
+        className="h-full w-full"
+      >
       <ResponsiveContainer
         width="100%"
         height="100%"
@@ -95,6 +101,12 @@ export function CurrentStandingChart({ data }: { data: PartyAverage[] }) {
           </Bar>
         </BarChart>
       </ResponsiveContainer>
+      </div>
+      <SrOnlyTable
+        caption="Aktueller Stand der Sonntagsfrage"
+        head={["Partei", "Schnitt", "Institute"]}
+        rows={data.map((p) => [p.shortcut, `${fmt1(p.percent)} %`, p.institutes])}
+      />
     </div>
   );
 }
@@ -108,7 +120,11 @@ export function SeatDistributionChart({ data }: { data: SeatDistribution }) {
 
   return (
     <div data-testid="seat-chart" className={CARD}>
-      <div className="h-64 w-full">
+      <div
+        role="img"
+        aria-label="Sitzverteilung im Bundestag als Halbkreisdiagramm (Hochrechnung)"
+        className="h-64 w-full"
+      >
         <ResponsiveContainer
           width="100%"
           height="100%"
@@ -188,6 +204,11 @@ export function InstituteComparisonChart({
 
   return (
     <div data-testid="comparison-chart" className={`${CARD} h-96`}>
+      <div
+        role="img"
+        aria-label="Institutsvergleich: gleiche Parteien je Institut als Balkendiagramm"
+        className="h-full w-full"
+      >
       <ResponsiveContainer
         width="100%"
         height="100%"
@@ -242,6 +263,17 @@ export function InstituteComparisonChart({
           ))}
         </BarChart>
       </ResponsiveContainer>
+      </div>
+      <SrOnlyTable
+        caption="Institutsvergleich der Sonntagsfrage"
+        head={["Institut", ...data.parties]}
+        rows={data.rows.map((row) => [
+          String(row.institute),
+          ...data.parties.map((p) =>
+            typeof row[p] === "number" ? `${fmt1(row[p] as number)} %` : "—",
+          ),
+        ])}
+      />
     </div>
   );
 }

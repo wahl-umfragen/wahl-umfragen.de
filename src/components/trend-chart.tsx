@@ -24,6 +24,7 @@ import { partyColor } from "@/lib/dawum/colors";
 import type { TrendData, TrendPoint, TrendSeries } from "@/lib/dawum/trend";
 import { electionMarkers } from "@/lib/elections/markers";
 import { BUNDESTAG_ELECTIONS, type ElectionResult } from "@/lib/elections/results";
+import { SrOnlyTable } from "./sr-table";
 import { useColorScheme } from "./use-color-scheme";
 
 const X_FORMAT = new Intl.DateTimeFormat("de-DE", {
@@ -120,6 +121,20 @@ export function TrendChart({
     : [];
   const visibleMarkers = electionMarkers(visibleElections, series);
 
+  // Most recent charted value per party — the screen-reader summary of the
+  // line chart (a full point-by-point table would be unreadably long).
+  const latestBySeries = series.map((s) => {
+    let value: number | undefined;
+    for (let i = data.points.length - 1; i >= 0; i--) {
+      const v = data.points[i][s.shortcut];
+      if (typeof v === "number") {
+        value = v;
+        break;
+      }
+    }
+    return { shortcut: s.shortcut, value };
+  });
+
   // Clicking a point (or anywhere near one) opens that survey in the archive.
   // recharts hands us the active datum's index into the chart's data array
   // (a string at runtime despite the numeric typing, so coerce it).
@@ -137,7 +152,11 @@ export function TrendChart({
       data-testid="trend-chart"
       className="flex h-96 w-full flex-col rounded-xl border border-border bg-surface p-2 sm:h-[36rem]"
     >
-      <div className="min-h-0 flex-1 cursor-pointer">
+      <div
+        className="min-h-0 flex-1 cursor-pointer"
+        role="img"
+        aria-label="Wahltrend: geglätteter Umfrageverlauf je Partei als Liniendiagramm"
+      >
         <ResponsiveContainer
           width="100%"
           height="100%"
@@ -268,6 +287,14 @@ export function TrendChart({
           </Link>
         </p>
       ) : null}
+      <SrOnlyTable
+        caption="Aktuellster Trendwert je Partei (geglättet)"
+        head={["Partei", "Wert"]}
+        rows={latestBySeries.map((s) => [
+          s.shortcut,
+          typeof s.value === "number" ? `${s.value.toFixed(1)} %` : "—",
+        ])}
+      />
     </div>
   );
 }
