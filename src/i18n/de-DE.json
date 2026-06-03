@@ -8,7 +8,8 @@
     "surveys": "Umfragen",
     "trend": "Trend",
     "koalition": "Koalitionsrechner",
-    "archive": "Archiv"
+    "archive": "Archiv",
+    "elections": "Wahlen"
   },
   "theme": {
     "label": "Farbschema",
@@ -56,6 +57,14 @@
   "koalitionPage": {
     "title": "Koalitionsrechner",
     "subtitle": "Parteien auf Basis der aktuellsten Umfrage zu einer Koalition kombinieren."
+  },
+  "wahlenPage": {
+    "title": "Wahlergebnisse",
+    "subtitle": "Amtliche Endergebnisse der Bundestagswahlen (Zweitstimmen) – zum Vergleich mit den Umfragen.",
+    "party": "Partei",
+    "result": "Zweitstimmen",
+    "thresholdNote": "* unter der 5-%-Hürde – kein Einzug ohne Grundmandate.",
+    "sourcePrefix": "Quelle: "
   },
   "archivePage": {
     "title": "Archiv",
@@ -126,7 +135,8 @@
     "exitFullscreen": "Vollbild verlassen",
     "legendSolo": "Klick: nur diese Partei zeigen (erneut: alle)",
     "electionMarker": "○ Amtliches Wahlergebnis",
-    "electionSourcePrefix": "Quelle: "
+    "electionSourcePrefix": "Quelle: ",
+    "electionDetails": "Werte in der Tabelle"
   },
   "coalition": {
     "basis": "Grundlage: {label}",

@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { useMemo } from "react";
 import {
@@ -248,7 +249,11 @@ export function TrendChart({
             className="underline"
           >
             {visibleElections[0].source.name}
-          </a>
+          </a>{" "}
+          ·{" "}
+          <Link href="/wahlen" className="underline">
+            {t("charts.electionDetails")}
+          </Link>
         </p>
       ) : null}
     </div>

@@ -17,6 +17,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: absoluteUrl("/trend"), lastModified: now, changeFrequency: "hourly", priority: 0.9 },
     { url: absoluteUrl("/archiv"), lastModified: now, changeFrequency: "hourly", priority: 0.8 },
     { url: absoluteUrl("/koalition"), lastModified: now, changeFrequency: "daily", priority: 0.7 },
+    { url: absoluteUrl("/wahlen"), changeFrequency: "yearly", priority: 0.6 },
     { url: absoluteUrl("/impressum"), changeFrequency: "yearly", priority: 0.2 },
     { url: absoluteUrl("/datenschutz"), changeFrequency: "yearly", priority: 0.2 },
   ];
