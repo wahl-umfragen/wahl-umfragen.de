@@ -9,6 +9,7 @@ import {
   instituteComparison,
   latestPerInstitute,
   seatDistribution,
+  surveysWithinDays,
   TREND_WINDOW_DAYS,
   type TrendWindowKey,
   type TrendWindows,
@@ -46,7 +47,9 @@ export default function TrendPage() {
 
 async function Dashboard() {
   const { bundestag, lastUpdate } = await loadBundestagData();
-  const latest = latestPerInstitute(bundestag);
+  // Current standing & institute comparison only count institutes that polled
+  // within the last year, so ones that stopped don't skew the average.
+  const latest = latestPerInstitute(surveysWithinDays(bundestag, 365));
   const average = currentAverage(latest);
 
   // Precompute one trend per selectable window; the dashboard switches between

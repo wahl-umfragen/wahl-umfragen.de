@@ -5,9 +5,13 @@ import { RecentSurveys } from "@/components/recent-surveys";
 import { FaqSection, SeoSection } from "@/components/seo-section";
 import { t } from "@/i18n";
 import { loadBundestagData } from "@/lib/data";
-import { latestPerInstitute } from "@/lib/dawum";
+import { latestPerInstitute, surveysWithinDays } from "@/lib/dawum";
 import { formatDateTime } from "@/lib/format";
 import { PAGE_INTRO, websiteLd } from "@/lib/seo";
+
+/** Institutes whose latest poll is older than this are treated as inactive and
+ * hidden from the current-standing table. */
+const RECENT_DAYS = 365;
 
 export default function Page() {
   return (
@@ -36,7 +40,8 @@ export default function Page() {
 
 async function Surveys() {
   const { bundestag, lastUpdate } = await loadBundestagData();
-  const latest = latestPerInstitute(bundestag);
+  // Only institutes that polled within the last year — drop ones that stopped.
+  const latest = latestPerInstitute(surveysWithinDays(bundestag, RECENT_DAYS));
 
   return (
     <>

@@ -74,6 +74,27 @@ export function selectBundestagSurveys(db: DawumDatabase): NormalizedSurvey[] {
     .sort((a, b) => b.date.localeCompare(a.date));
 }
 
+/**
+ * Surveys published within `days` of the newest survey in the set. Used to drop
+ * institutes that stopped polling: their last (possibly years-old) survey would
+ * otherwise still surface in "current standing" views via `latestPerInstitute`,
+ * skewing the average. Anchored on the newest survey rather than the wall clock,
+ * so it stays deterministic and unit-testable (mirrors `buildBundestagTrend`).
+ */
+export function surveysWithinDays(
+  surveys: NormalizedSurvey[],
+  days: number,
+): NormalizedSurvey[] {
+  if (surveys.length === 0) return surveys;
+  let newest = 0;
+  for (const s of surveys) {
+    const t = new Date(s.date).getTime();
+    if (t > newest) newest = t;
+  }
+  const cutoff = newest - days * 24 * 60 * 60 * 1000;
+  return surveys.filter((s) => new Date(s.date).getTime() >= cutoff);
+}
+
 export function latestPerInstitute(
   surveys: NormalizedSurvey[],
 ): NormalizedSurvey[] {

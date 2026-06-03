@@ -5,6 +5,7 @@ import {
   latestPerInstitute,
   normalizeSurvey,
   selectBundestagSurveys,
+  surveysWithinDays,
 } from "./normalize";
 
 describe("normalizeSurvey", () => {
@@ -64,6 +65,25 @@ describe("selectBundestagSurveys", () => {
     expect(surveys.every((s) => s.parliament.shortcut === "Bundestag")).toBe(
       true,
     );
+  });
+});
+
+describe("surveysWithinDays", () => {
+  // Fixture Bundestag dates: 100 = 2026-06-01, 101 = 2026-05-28, 102 = 2026-05-20.
+  it("keeps only surveys within `days` of the newest one", () => {
+    const surveys = selectBundestagSurveys(SAMPLE_DB);
+    // 7 days back from 2026-06-01 → cutoff 2026-05-25, drops the 05-20 survey.
+    const recent = surveysWithinDays(surveys, 7);
+    expect(recent.map((s) => s.id)).toEqual(["100", "101"]);
+  });
+
+  it("keeps everything when the window covers the whole set", () => {
+    const surveys = selectBundestagSurveys(SAMPLE_DB);
+    expect(surveysWithinDays(surveys, 365)).toHaveLength(surveys.length);
+  });
+
+  it("returns an empty array unchanged", () => {
+    expect(surveysWithinDays([], 365)).toEqual([]);
   });
 });
 
