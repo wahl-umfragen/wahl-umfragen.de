@@ -91,6 +91,12 @@ export default function RootLayout({
     >
       <body className="flex min-h-full flex-col bg-background text-foreground">
         <ThemeProvider>
+          <a
+            href="#main"
+            className="sr-only focus:not-sr-only focus:absolute focus:left-4 focus:top-4 focus:z-50 focus:rounded-md focus:bg-brand focus:px-4 focus:py-2 focus:text-sm focus:font-semibold focus:text-brand-foreground"
+          >
+            Zum Inhalt springen
+          </a>
           <header className="sticky top-0 z-40 border-b border-brand-hover/40 bg-brand text-brand-foreground">
             <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-3">
               {/* Wordmark + home link. Intentionally NOT an <h1>: it repeats
@@ -116,7 +122,9 @@ export default function RootLayout({
               </div>
             </div>
           </header>
-          <main className="flex-1">{children}</main>
+          <main id="main" className="flex-1">
+            {children}
+          </main>
           <footer
             data-testid="site-footer"
             className="mt-16 border-t-4 border-accent bg-brand text-brand-foreground"
