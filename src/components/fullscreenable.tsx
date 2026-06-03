@@ -4,12 +4,14 @@ import { useEffect, useRef, useState } from "react";
 import { t } from "@/i18n";
 
 /**
- * Wraps a single chart and adds a corner button that takes it fullscreen via
- * the browser Fullscreen API. In fullscreen the wrapper becomes a flex column
- * filling the screen and forces the chart card to fill the available height
- * (`!h-full`), so height-driven charts (trend, comparison) expand; charts with
- * an intrinsic height keep it and sit centered. No portal/modal — the element
- * itself is promoted, so chart interactivity and tooltips keep working.
+ * Wraps a single chart and adds a button that takes it fullscreen via the
+ * browser Fullscreen API. The button sits in its own right-aligned row *above*
+ * the chart card, never overlapping the card content. In fullscreen the wrapper
+ * becomes a flex column filling the screen and forces the chart card to fill the
+ * available height (`!h-full`), so height-driven charts (trend, comparison)
+ * expand; charts with an intrinsic height keep it and sit centered. No
+ * portal/modal — the element itself is promoted, so chart interactivity and
+ * tooltips keep working.
  */
 export function Fullscreenable({ children }: { children: React.ReactNode }) {
   const ref = useRef<HTMLDivElement>(null);
@@ -35,19 +37,19 @@ export function Fullscreenable({ children }: { children: React.ReactNode }) {
   return (
     <div
       ref={ref}
-      className={`relative ${
-        isFullscreen ? "flex flex-col bg-background p-4" : ""
-      }`}
+      className={isFullscreen ? "flex flex-col bg-background p-4" : ""}
     >
-      <button
-        type="button"
-        onClick={toggle}
-        aria-label={label}
-        title={label}
-        className="absolute right-2 top-2 z-10 rounded-md border border-zinc-200 bg-white/80 p-1.5 text-zinc-500 backdrop-blur transition-colors hover:text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900/80 dark:hover:text-zinc-100"
-      >
-        {isFullscreen ? <CollapseIcon /> : <ExpandIcon />}
-      </button>
+      <div className="mb-1.5 flex justify-end">
+        <button
+          type="button"
+          onClick={toggle}
+          aria-label={label}
+          title={label}
+          className="rounded-md border border-zinc-200 bg-white p-1.5 text-zinc-500 transition-colors hover:text-zinc-900 dark:border-zinc-700 dark:bg-zinc-900 dark:hover:text-zinc-100"
+        >
+          {isFullscreen ? <CollapseIcon /> : <ExpandIcon />}
+        </button>
+      </div>
       <div className={isFullscreen ? "min-h-0 flex-1 [&>*]:!h-full" : "contents"}>
         {children}
       </div>
