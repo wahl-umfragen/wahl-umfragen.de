@@ -32,7 +32,12 @@ export function BackLink({
   }
 
   return (
-    <button type="button" onClick={handleBack} className={className}>
+    <button
+      type="button"
+      data-testid="back-link"
+      onClick={handleBack}
+      className={className}
+    >
       {label}
     </button>
   );
