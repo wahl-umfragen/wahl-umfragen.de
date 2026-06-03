@@ -32,10 +32,22 @@ npm run dev
 ## Daten-Flow
 
 Die Next-App liest die Umfragedaten aus **Postgres** (`loadBundestagData()` in
-`src/lib/data/load.ts`) — nicht mehr live von dawum. Die Seiten-Routen sind
-`dynamic`, fragen die DB also pro Request ab. Eine leere DB ergibt eine leere
-UI (kein Live-Fallback). Heißt: Die App braucht eine erreichbare, migrierte DB
-zum Bauen **und** Laufen.
+`src/lib/data/load.ts`) — nicht mehr live von dawum. Eine leere DB ergibt eine
+leere UI (kein Live-Fallback). Heißt: Die App braucht eine erreichbare,
+migrierte DB zum Bauen **und** Laufen.
+
+**Caching (klassisches ISR, kein Per-Request-Query).** Der Loader ist in
+`unstable_cache` mit dem Tag `surveys` und ohne Zeit-Expiry gewrappt: Die
+Seiten-Routen werden **statisch** gerendert und über alle Requests
+wiederverwendet — billig bei Last. Frische kommt per
+**On-Demand-Invalidierung**: Nach einem echten Ingest POSTet der Worker an
+`/api/revalidate` (gemeinsames `REVALIDATE_SECRET`), was `revalidateTag('surveys')`
+auslöst und die betroffenen Seiten neu rendern lässt. Die Routen sind bewusst
+**nicht** `force-dynamic` — das würde das Caching aushebeln. Der gecachte Wert
+wird **gzip-komprimiert** abgelegt (base64 der gezippten JSON), weil Next' Data
+Cache Einträge über 2 MB ablehnt und die akkumulierte Historie darüber
+hinausgewachsen ist; pro Request wird genau einmal via React `cache()`
+dekomprimiert.
 
 Befüllt wird die DB vom **Ingest-Worker** (`scripts/ingest.ts` →
 `runIngest()`), der stündlich läuft (systemd-Timer in `deploy/`) und Snapshots
