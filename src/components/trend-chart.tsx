@@ -135,7 +135,7 @@ export function TrendChart({
   return (
     <div
       data-testid="trend-chart"
-      className="flex h-96 w-full flex-col rounded-xl border border-border bg-surface p-2 sm:h-[32rem]"
+      className="flex h-96 w-full flex-col rounded-xl border border-border bg-surface p-2 sm:h-[36rem]"
     >
       <div className="min-h-0 flex-1 cursor-pointer">
         <ResponsiveContainer
