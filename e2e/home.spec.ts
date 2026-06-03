@@ -93,7 +93,12 @@ test.describe("auswertung page", () => {
     await expect(page.getByTestId("trend-chart")).toBeVisible();
     // The smoothed line is disclosed as such (methodology transparency).
     await expect(page.getByTestId("trend-smoothing-note")).toBeVisible();
-    // House-effects table is present (quantified pollster bias).
+    // House-effects table is present (quantified pollster bias) and its
+    // look-back window is selectable.
+    await expect(page.getByTestId("house-effects")).toBeVisible();
+    const heWindow = page.getByTestId("house-effects-window");
+    await expect(heWindow).toBeVisible();
+    await heWindow.selectOption("30");
     await expect(page.getByTestId("house-effects")).toBeVisible();
   });
 });

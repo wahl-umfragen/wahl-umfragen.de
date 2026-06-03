@@ -1,6 +1,7 @@
 import {
   buildBundestagTrend,
   currentAverage,
+  type HouseEffects,
   houseEffects,
   instituteComparison,
   latestPerInstitute,
@@ -10,6 +11,19 @@ import {
   type TrendWindows,
 } from "@/lib/dawum";
 import type { NormalizedSurvey } from "@/lib/dawum/types";
+
+/** Selectable look-back windows for house effects, in days. `all` is large
+ * enough to cover the whole dataset. */
+export const HOUSE_EFFECT_WINDOWS = {
+  "30": 30,
+  "90": 90,
+  "180": 180,
+  "365": 365,
+  all: 100_000,
+} as const;
+
+export type HouseEffectWindowKey = keyof typeof HOUSE_EFFECT_WINDOWS;
+export type HouseEffectWindows = Record<HouseEffectWindowKey, HouseEffects>;
 
 /**
  * Build the shared poll-dashboard view models from a parliament's surveys
@@ -24,7 +38,14 @@ export function buildDashboardData(surveys: NormalizedSurvey[]) {
   const latest = latestPerInstitute(within);
   const average = currentAverage(latest);
   const comparison = instituteComparison(latest);
-  const houseEffectsData = houseEffects(within);
+
+  // Precompute house effects per look-back window so the client can switch
+  // between them without a server round-trip (mirrors the trend windows).
+  const houseEffectsWindows = Object.fromEntries(
+    (Object.entries(HOUSE_EFFECT_WINDOWS) as [HouseEffectWindowKey, number][]).map(
+      ([key, days]) => [key, houseEffects(surveysWithinDays(surveys, days))],
+    ),
+  ) as HouseEffectWindows;
 
   const contributingSurveys = latest
     .map((s) => ({
@@ -44,7 +65,7 @@ export function buildDashboardData(surveys: NormalizedSurvey[]) {
   return {
     average,
     comparison,
-    houseEffects: houseEffectsData,
+    houseEffects: houseEffectsWindows,
     contributingSurveys,
     trends,
   };

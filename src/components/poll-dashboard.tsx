@@ -6,7 +6,6 @@ import { t, type TranslationKey } from "@/i18n";
 import { partyColorVar } from "@/lib/dawum/colors";
 import { formatDate } from "@/lib/format";
 import type {
-  HouseEffects,
   InstituteComparison,
   PartyAverage,
   SeatDistribution,
@@ -18,6 +17,11 @@ import {
   type TrendWindowKey,
   type TrendWindows,
 } from "@/lib/dawum/trend";
+import {
+  HOUSE_EFFECT_WINDOWS,
+  type HouseEffectWindowKey,
+  type HouseEffectWindows,
+} from "@/lib/dashboard";
 import { Fullscreenable } from "./fullscreenable";
 import { HouseEffectsTable } from "./house-effects-table";
 import {
@@ -43,7 +47,7 @@ export interface PollDashboardProps {
   trends: TrendWindows;
   seats: SeatDistribution;
   comparison: InstituteComparison;
-  houseEffects: HouseEffects;
+  houseEffects: HouseEffectWindows;
   /** The surveys averaged into "Aktueller Stand", listed for transparency. */
   contributingSurveys: ContributingSurvey[];
   /** Draw the official election markers on the trend (Bundestag only). */
@@ -54,6 +58,14 @@ const WINDOW_LABELS: Record<TrendWindowKey, TranslationKey> = {
   "90": "dashboard.window90",
   "365": "dashboard.window1y",
   all: "dashboard.windowAll",
+};
+
+const HE_WINDOW_LABELS: Record<HouseEffectWindowKey, TranslationKey> = {
+  "30": "dashboard.heWindow1m",
+  "90": "dashboard.heWindow3m",
+  "180": "dashboard.heWindow6m",
+  "365": "dashboard.heWindow12m",
+  all: "dashboard.heWindowAll",
 };
 
 export function PollDashboard({
@@ -69,6 +81,7 @@ export function PollDashboard({
   const [hiddenParties, setHiddenParties] = useState<ReadonlySet<string>>(
     () => new Set(),
   );
+  const [heWindow, setHeWindow] = useState<HouseEffectWindowKey>("365");
   // The trend is always smoothed (there is no toggle); the window scales with
   // the selected range.
   const trendData = useMemo(
@@ -244,8 +257,31 @@ export function PollDashboard({
       <Section
         title={t("dashboard.houseEffectsTitle")}
         hint={t("dashboard.houseEffectsHint")}
+        action={
+          <select
+            data-testid="house-effects-window"
+            value={heWindow}
+            onChange={(e) =>
+              setHeWindow(e.target.value as HouseEffectWindowKey)
+            }
+            aria-label={t("dashboard.houseEffectsPeriod")}
+            className="rounded-md border border-border bg-surface px-2 py-1 text-xs font-medium text-foreground"
+          >
+            {(Object.keys(HOUSE_EFFECT_WINDOWS) as HouseEffectWindowKey[]).map(
+              (key) => (
+                <option key={key} value={key}>
+                  {t(HE_WINDOW_LABELS[key])}
+                </option>
+              ),
+            )}
+          </select>
+        }
       >
-        <HouseEffectsTable data={houseEffects} />
+        {houseEffects[heWindow].rows.length > 0 ? (
+          <HouseEffectsTable data={houseEffects[heWindow]} />
+        ) : (
+          <p className="text-sm text-muted">{t("common.noData")}</p>
+        )}
       </Section>
     </div>
   );
