@@ -70,8 +70,10 @@
     "results": "{count} Umfragen",
     "noMatch": "Keine Umfragen für diese Filter.",
     "n": "Befragte",
+    "first": "Erste",
     "prev": "Zurück",
     "next": "Weiter",
+    "last": "Letzte",
     "page": "Seite {page} / {pages}",
     "details": "Details",
     "export": "Export"

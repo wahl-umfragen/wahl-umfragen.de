@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { useSearchParams } from "next/navigation";
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { t } from "@/i18n";
 import { partyColorVar } from "@/lib/dawum/colors";
 import type { NormalizedSurvey } from "@/lib/dawum/types";
@@ -16,6 +16,16 @@ type SortDir = "asc" | "desc";
 function sameKey(a: SortKey, b: SortKey): boolean {
   if (typeof a === "string" || typeof b === "string") return a === b;
   return a.party === b.party;
+}
+
+function serializeSort(key: SortKey): string {
+  return typeof key === "string" ? key : `party:${key.party}`;
+}
+
+function parseSort(raw: string | null): SortKey {
+  if (raw === "institute") return "institute";
+  if (raw?.startsWith("party:")) return { party: raw.slice("party:".length) };
+  return "date";
 }
 
 /**
@@ -47,17 +57,26 @@ export function SurveyArchive({ surveys }: { surveys: NormalizedSurvey[] }) {
       .sort((a, b) => a.name.localeCompare(b.name, "de"));
   }, [surveys]);
 
-  // Deep link: /archiv?institut=<id> preselects an institute (e.g. from an
-  // institute detail page). Read once for the initial value; the dropdown owns
-  // it afterwards. Filtering stays fully client-side, so the page stays static.
-  const initialInstitute = useSearchParams().get("institut") ?? "";
-
-  const [institute, setInstitute] = useState(initialInstitute);
-  const [from, setFrom] = useState("");
-  const [to, setTo] = useState("");
-  const [sortKey, setSortKey] = useState<SortKey>("date");
-  const [sortDir, setSortDir] = useState<SortDir>("desc");
-  const [page, setPage] = useState(0);
+  // All controls are mirrored to the URL query (?institut, from, to, sort, dir,
+  // page) so a reload, bookmark, or shared link restores the exact view. The
+  // params seed the initial state here; the URL is kept in sync by the effect
+  // below. Filtering stays fully client-side, so the page stays static.
+  const params = useSearchParams();
+  const [institute, setInstitute] = useState(
+    () => params.get("institut") ?? "",
+  );
+  const [from, setFrom] = useState(() => params.get("from") ?? "");
+  const [to, setTo] = useState(() => params.get("to") ?? "");
+  const [sortKey, setSortKey] = useState<SortKey>(() =>
+    parseSort(params.get("sort")),
+  );
+  const [sortDir, setSortDir] = useState<SortDir>(() =>
+    params.get("dir") === "asc" ? "asc" : "desc",
+  );
+  const [page, setPage] = useState(() => {
+    const p = Number(params.get("page"));
+    return Number.isInteger(p) && p > 1 ? p - 1 : 0;
+  });
 
   function toggleSort(key: SortKey) {
     if (sameKey(key, sortKey)) {
@@ -102,6 +121,25 @@ export function SurveyArchive({ surveys }: { surveys: NormalizedSurvey[] }) {
     safePage * PAGE_SIZE,
     safePage * PAGE_SIZE + PAGE_SIZE,
   );
+
+  const sortParam = serializeSort(sortKey);
+
+  // Mirror the current view into the URL without a navigation/refetch, so it
+  // survives a reload and can be shared. Only non-default values are written to
+  // keep the URL clean. `replaceState` avoids cluttering the back-history with
+  // every keystroke.
+  useEffect(() => {
+    const q = new URLSearchParams();
+    if (institute) q.set("institut", institute);
+    if (from) q.set("from", from);
+    if (to) q.set("to", to);
+    if (sortParam !== "date") q.set("sort", sortParam);
+    if (sortDir !== "desc") q.set("dir", sortDir);
+    if (safePage > 0) q.set("page", String(safePage + 1));
+    const qs = q.toString();
+    const url = qs ? `?${qs}` : window.location.pathname;
+    window.history.replaceState(window.history.state, "", url);
+  }, [institute, from, to, sortParam, sortDir, safePage]);
 
   function indicator(key: SortKey): string {
     if (!sameKey(key, sortKey)) return "";
@@ -323,29 +361,58 @@ export function SurveyArchive({ surveys }: { surveys: NormalizedSurvey[] }) {
           </div>
 
           <div className="mt-4 flex items-center justify-between gap-3 text-sm">
-            <button
-              type="button"
-              onClick={() => setPage((p) => Math.max(0, p - 1))}
-              disabled={safePage === 0}
-              className="rounded-md border border-zinc-300 px-3 py-1 font-medium disabled:opacity-40 enabled:hover:bg-zinc-100 dark:border-zinc-700 dark:enabled:hover:bg-zinc-900"
-            >
-              {t("archive.prev")}
-            </button>
+            <div className="flex items-center gap-2">
+              <PageButton
+                onClick={() => setPage(0)}
+                disabled={safePage === 0}
+                label={`« ${t("archive.first")}`}
+              />
+              <PageButton
+                onClick={() => setPage((p) => Math.max(0, p - 1))}
+                disabled={safePage === 0}
+                label={`‹ ${t("archive.prev")}`}
+              />
+            </div>
             <span data-testid="archive-page" className="text-xs text-zinc-500">
               {t("archive.page", { page: safePage + 1, pages: pageCount })}
             </span>
-            <button
-              type="button"
-              onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
-              disabled={safePage >= pageCount - 1}
-              className="rounded-md border border-zinc-300 px-3 py-1 font-medium disabled:opacity-40 enabled:hover:bg-zinc-100 dark:border-zinc-700 dark:enabled:hover:bg-zinc-900"
-            >
-              {t("archive.next")}
-            </button>
+            <div className="flex items-center gap-2">
+              <PageButton
+                onClick={() => setPage((p) => Math.min(pageCount - 1, p + 1))}
+                disabled={safePage >= pageCount - 1}
+                label={`${t("archive.next")} ›`}
+              />
+              <PageButton
+                onClick={() => setPage(pageCount - 1)}
+                disabled={safePage >= pageCount - 1}
+                label={`${t("archive.last")} »`}
+              />
+            </div>
           </div>
         </>
       )}
     </div>
+  );
+}
+
+function PageButton({
+  onClick,
+  disabled,
+  label,
+}: {
+  onClick: () => void;
+  disabled: boolean;
+  label: string;
+}) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      disabled={disabled}
+      className="rounded-md border border-zinc-300 px-3 py-1 font-medium disabled:opacity-40 enabled:hover:bg-zinc-100 dark:border-zinc-700 dark:enabled:hover:bg-zinc-900"
+    >
+      {label}
+    </button>
   );
 }
 
