@@ -15,6 +15,11 @@ Create GitHub issues in the wahlumfragen repo via Claude Code.
 
 Runs in the repo this script lives in (must be a git repo with a GitHub
 remote). Loops until Claude outputs DONE three times in a row.
+
+Env (token/cost tuning):
+  CLAUDE_MODEL   model alias passed to claude (default: sonnet; use 'opus' for
+                 harder reasoning at higher cost)
+  CLAUDE_EFFORT  effort level low|medium|high|xhigh|max (default: low)
 EOF
 }
 
@@ -39,6 +44,30 @@ gh auth status >/dev/null 2>&1 || die "gh not authenticated. Run 'gh auth login'
 log_dir="$repo_root/logs/issue-creation"
 mkdir -p "$log_dir"
 
+# Token/cost tuning. Sonnet + low effort is plenty for issue triage; override
+# CLAUDE_MODEL=opus / CLAUDE_EFFORT=medium when you want deeper reasoning.
+MODEL="${CLAUDE_MODEL:-sonnet}"
+EFFORT="${CLAUDE_EFFORT:-low}"
+CLAUDE_FLAGS=(
+  --dangerously-skip-permissions
+  --model "$MODEL"
+  --effort "$EFFORT"
+  --exclude-dynamic-system-prompt-sections
+)
+
+# Pre-fetch the cheap repo state in bash so Claude doesn't burn agentic turns
+# (each turn re-sends the whole context) re-running these gh queries itself.
+repo_state() {
+  echo "Open issues (number / title / labels):"
+  gh issue list --state open  --limit 50 2>/dev/null || true
+  echo
+  echo "Recently closed issues:"
+  gh issue list --state closed --limit 15 2>/dev/null || true
+  echo
+  echo "Available labels:"
+  gh label list 2>/dev/null || true
+}
+
 PROMPT=$(cat <<'EOF'
 You are the Issue Planning Agent for the `wahlumfragen` repo — an aggregator
 for Bundestag/Landtag polling data from dawum.de (Next.js, Drizzle, Postgres,
@@ -59,8 +88,12 @@ Goal:
 Required reading before deciding (in this order):
 - ./AGENTS.md and ./CLAUDE.md (data flow, caching model, data layer, gotchas)
 - ./README.md if it exists
-- src/ — explore the area your candidate issue touches
-- Existing OPEN and CLOSED issues via `gh issue list` — avoid duplicates
+- src/ — explore ONLY the area your candidate issue touches; don't read broadly
+
+The current open issues, recently closed issues, and available labels are
+provided below under "Current repo state" — use them to avoid duplicates and to
+pick a label. Do NOT call `gh issue list` or `gh label list` yourself; they are
+already fetched.
 
 If AGENTS.md documents a constraint that makes a candidate "issue" a non-issue
 (intentional design, already handled, documented gotcha), skip it and pick
@@ -70,14 +103,11 @@ AGENTS.md explicitly rules out.
 
 Issue creation rules:
 - Clear, concise title.
-- Labels are REQUIRED. First run `gh label list` to see what exists in this repo.
-  Pick at least one fitting label and pass it via `gh issue create --label <name>`
-  (repeat `--label` for multiple). If truly nothing fits, create a new label with
-  `gh label create` first, then use it — never create the issue without a label.
+- Labels are REQUIRED. Pick at least one fitting label from the list below and
+  pass it via `gh issue create --label <name>` (repeat `--label` for multiple).
+  If truly nothing fits, create a new label with `gh label create` first, then
+  use it — never create the issue without a label.
 - Body must contain: Summary, Context, Acceptance Criteria checklist, References.
-- Before drafting, inspect one existing closed issue for style reference
-  (`gh issue list --state closed --limit 1` → `gh issue view <n>`). If there are
-  no closed issues yet, just follow the body structure above.
 
 Termination:
 - If no new issue remains, output DONE as both the first and last word.
@@ -97,7 +127,11 @@ while true; do
   output_file="$log_dir/iter-${iteration}-${timestamp}.txt"
 
   echo "=== [wahlumfragen] Iteration $iteration ==="
-  if ! claude --dangerously-skip-permissions -p "$PROMPT" >"$output_file" 2>&1; then
+  full_prompt="$PROMPT
+
+--- Current repo state (pre-fetched — do NOT re-run these gh commands) ---
+$(repo_state)"
+  if ! claude "${CLAUDE_FLAGS[@]}" -p "$full_prompt" >"$output_file" 2>&1; then
     warn "Claude exited non-zero on iteration $iteration. Continuing."
   fi
 

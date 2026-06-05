@@ -22,6 +22,9 @@ remote).
 Env:
   MAX_ITERATIONS  default 50
   MAIN_BRANCH     default: auto-detected from 'gh repo view'
+  CLAUDE_MODEL    model alias passed to claude (default: sonnet; use 'opus' for
+                  harder issues at higher cost)
+  CLAUDE_EFFORT   effort level low|medium|high|xhigh|max (default: medium)
 EOF
 }
 
@@ -46,6 +49,17 @@ fi
 
 log_dir="$repo_root/logs/auto-develop"
 mkdir -p "$log_dir"
+
+# Token/cost tuning. Sonnet + medium effort handles most routine issues;
+# override CLAUDE_MODEL=opus / CLAUDE_EFFORT=high for harder ones.
+MODEL="${CLAUDE_MODEL:-sonnet}"
+EFFORT="${CLAUDE_EFFORT:-medium}"
+CLAUDE_FLAGS=(
+  --dangerously-skip-permissions
+  --model "$MODEL"
+  --effort "$EFFORT"
+  --exclude-dynamic-system-prompt-sections
+)
 
 # Refuse to run on a dirty worktree — the checkout -B below would trample changes.
 if ! git diff --quiet || ! git diff --cached --quiet; then
@@ -118,9 +132,9 @@ Project context:
   obvious approach will break something.
 
 Workflow:
-1. Read the issue. Read \`./AGENTS.md\`, \`./CLAUDE.md\`, \`./README.md\`, and
-   any relevant area under \`src/\`.
-2. Explore the relevant code before editing.
+1. Read the issue. Read \`./AGENTS.md\` and \`./CLAUDE.md\`. Read \`./README.md\`
+   only if the issue touches docs/setup.
+2. Explore ONLY the code the issue touches before editing — don't read broadly.
 3. Implement the change following existing style.
 4. Run the repo's checks and fix what breaks. Typically:
    - \`npm run lint\` and \`npm run typecheck\` (or \`tsc\`) if present
@@ -148,7 +162,7 @@ PROMPT_EOF
   )
 
   echo "Running Claude on #${issue_number}..."
-  if ! claude --dangerously-skip-permissions -p "$PROMPT" >"$output_file" 2>&1; then
+  if ! claude "${CLAUDE_FLAGS[@]}" -p "$PROMPT" >"$output_file" 2>&1; then
     warn "Claude exited non-zero on iteration $iteration."
   fi
 
