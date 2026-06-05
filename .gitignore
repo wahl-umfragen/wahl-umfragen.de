@@ -50,3 +50,6 @@ next-env.d.ts
 /test-results/
 /playwright-report/
 /playwright/.cache/
+
+# auto-create-issues / auto-develop run logs
+/logs/
