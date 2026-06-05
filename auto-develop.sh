@@ -25,6 +25,9 @@ Env:
   CLAUDE_MODEL    model alias passed to claude (default: sonnet; use 'opus' for
                   harder issues at higher cost)
   CLAUDE_EFFORT   effort level low|medium|high|xhigh|max (default: medium)
+  PUSH_MODE       pr | main — skip the startup prompt and pick the delivery mode
+                  non-interactively (pr: branch + PR; main: push to default
+                  branch). If unset and stdin is a TTY, you are asked at start.
 EOF
 }
 
@@ -61,10 +64,31 @@ CLAUDE_FLAGS=(
   --exclude-dynamic-system-prompt-sections
 )
 
-# Refuse to run on a dirty worktree — the checkout -B below would trample changes.
+# Refuse to run on a dirty worktree — the checkout below would trample changes.
 if ! git diff --quiet || ! git diff --cached --quiet; then
   die "wahlumfragen has uncommitted changes. Commit or stash before running."
 fi
+
+# Delivery mode: open a PR per issue, or push straight to the default branch.
+# Honour PUSH_MODE if set (for cron/non-interactive); otherwise ask once at start.
+mode_choice="$(printf '%s' "${PUSH_MODE:-}" | tr '[:upper:]' '[:lower:]')"
+if [[ -z "$mode_choice" ]]; then
+  if [[ -t 0 ]]; then
+    echo "How should solved issues land? Target branch: $MAIN_BRANCH"
+    echo "  [p] open a Pull Request per issue (default, safer)"
+    echo "  [m] commit and push directly to $MAIN_BRANCH"
+    read -r -p "Choice [p/m]: " reply
+    mode_choice="$(printf '%s' "$reply" | tr '[:upper:]' '[:lower:]')"
+  else
+    mode_choice="pr"
+  fi
+fi
+case "$mode_choice" in
+  ""|p|pr)        PUSH_MODE=pr ;;
+  m|main|direct)  PUSH_MODE=main ;;
+  *)              die "invalid delivery mode '$mode_choice' (use pr|main)" ;;
+esac
+echo "Delivery mode: $PUSH_MODE"
 
 # Oldest open issue NOT labeled wip/blocked. jq-side filter is more robust than
 # --search flag combinations across gh versions.
@@ -104,12 +128,35 @@ while (( iteration < MAX_ITERATIONS )); do
   issue_title="$(printf '%s' "$issue_json"  | jq -r '.title')"
   echo "Working on #${issue_number}: ${issue_title}"
 
-  # Fresh branch off up-to-date default
-  branch_name="issue-${issue_number}"
   git fetch origin "$MAIN_BRANCH" || warn "git fetch origin $MAIN_BRANCH failed"
-  if ! git checkout -B "$branch_name" "origin/$MAIN_BRANCH"; then
-    warn "checkout $branch_name from origin/$MAIN_BRANCH failed. Skipping #${issue_number}."
-    continue
+  if [[ "$PUSH_MODE" == "pr" ]]; then
+    # Fresh branch off up-to-date default
+    branch_name="issue-${issue_number}"
+    if ! git checkout -B "$branch_name" "origin/$MAIN_BRANCH"; then
+      warn "checkout $branch_name from origin/$MAIN_BRANCH failed. Skipping #${issue_number}."
+      continue
+    fi
+  else
+    # Direct-to-main: work on an up-to-date default branch (non-destructive ff).
+    branch_name="$MAIN_BRANCH"
+    if ! git checkout "$MAIN_BRANCH"; then
+      warn "checkout $MAIN_BRANCH failed. Skipping #${issue_number}."
+      continue
+    fi
+    git merge --ff-only "origin/$MAIN_BRANCH" || warn "could not fast-forward $MAIN_BRANCH (local commits ahead?)"
+  fi
+
+  if [[ "$PUSH_MODE" == "pr" ]]; then
+    delivery="5. Commit on the current branch \`$branch_name\` with a message referencing #${issue_number} (conventional commits: \`fix:\`, \`feat:\`, …).
+6. Push the branch and open a PR:
+   \`gh pr create --title \"<title>\" --body \"Closes #${issue_number}\\n\\n<details>\" --base ${MAIN_BRANCH}\`
+   Do NOT push to ${MAIN_BRANCH} directly."
+    success_note="- On success: include the PR URL."
+  else
+    delivery="5. Commit directly on the default branch \`${MAIN_BRANCH}\` (you are already on it). Use a conventional-commit message that includes a closing keyword, e.g. \`fix: <title> (closes #${issue_number})\`.
+6. Push straight to the default branch: \`git push origin ${MAIN_BRANCH}\`.
+   Do NOT create a branch and do NOT open a PR. Pushing the closing-keyword commit to the default branch closes #${issue_number} automatically."
+    success_note="- On success: include the pushed commit hash."
   fi
 
   PROMPT=$(cat <<PROMPT_EOF
@@ -143,10 +190,7 @@ Workflow:
    - For schema changes: edit \`src/db/schema.ts\` → \`npm run db:generate\` →
      inspect the generated SQL in \`drizzle/\` → \`npm run db:migrate\`. Commit
      schema AND the generated migration together. NEVER use \`db:push\`.
-5. Commit with a message referencing #${issue_number} (conventional commits:
-   \`fix:\`, \`feat:\`, …).
-6. Push the branch and open a PR:
-   \`gh pr create --title "<title>" --body "Closes #${issue_number}\\n\\n<details>" --base ${MAIN_BRANCH}\`
+${delivery}
 
 Rules:
 - Do everything via Bash yourself — don't ask the caller.
@@ -156,7 +200,7 @@ Rules:
   client outside the ingest path — these are explicit AGENTS.md constraints.
 - If the issue is unclear or blocked, comment on it via \`gh issue comment\` and
   output SKIP as the first and last word.
-- On success: include the PR URL.
+${success_note}
 - On unrecoverable failure: output FAIL as the first and last word.
 PROMPT_EOF
   )
