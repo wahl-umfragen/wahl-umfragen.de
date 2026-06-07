@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { loadBundestagData } from "@/lib/data";
+import { loadSurveysByInstitute } from "@/lib/data";
 import { OG_CONTENT_TYPE, OG_SIZE, OgCard } from "@/lib/og";
 
 export const alt = "Umfragen eines Instituts – Wahlumfragen";
@@ -13,8 +13,7 @@ export default async function OpengraphImage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const { bundestag } = await loadBundestagData();
-  const surveys = bundestag.filter((s) => s.institute.id === id);
+  const surveys = await loadSurveysByInstitute(id);
   const name = surveys[0]?.institute.name ?? "Institut";
   const sinceYear = surveys.length
     ? new Date(
