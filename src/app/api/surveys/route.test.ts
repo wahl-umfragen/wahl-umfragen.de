@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { describe, expect, it, vi, beforeEach } from "vitest";
 import { GET, ATTRIBUTION } from "./route";
 import { loadBundestagData } from "@/lib/data";
@@ -129,6 +130,163 @@ describe("GET /api/surveys — attribution & license", () => {
 
     expect(headerLine).toBeDefined();
     expect(headerLine!.split(",")).toHaveLength(10);
+  });
+});
+
+describe("GET /api/surveys — CSV formula-injection neutralisation (CWE-1236)", () => {
+  it("prefixes institute name starting with = with a single quote guard", async () => {
+    vi.mocked(loadBundestagData).mockResolvedValue({
+      lastUpdate: "2024-01-01",
+      bundestag: [
+        {
+          id: "42",
+          date: "2024-01-01",
+          periodStart: null,
+          periodEnd: null,
+          institute: { id: "x", name: "=DANGEROUS()" },
+          method: null,
+          tasker: null,
+          surveyedPersons: null,
+          results: [{ shortcut: "SPD", percent: 25 }],
+        },
+      ] as any,
+    });
+
+    const res = await GET(makeRequest("format=csv"));
+    const text = await res.text();
+
+    expect(text).toContain("'=DANGEROUS()");
+    expect(text).not.toMatch(/,=DANGEROUS\(\)/);
+  });
+
+  it.each([
+    ["leading -", "-Institut"],
+    ["leading +", "+Institut"],
+    ["leading @", "@Institut"],
+    ["leading tab", "\tInstitut"],
+    ["leading CR", "\rInstitut"],
+  ])("prefixes cell with guard for %s", async (_label, name) => {
+    vi.mocked(loadBundestagData).mockResolvedValue({
+      lastUpdate: "2024-01-01",
+      bundestag: [
+        {
+          id: "1",
+          date: "2024-01-01",
+          periodStart: null,
+          periodEnd: null,
+          institute: { id: "x", name },
+          method: null,
+          tasker: null,
+          surveyedPersons: null,
+          results: [{ shortcut: "SPD", percent: 10 }],
+        },
+      ] as any,
+    });
+
+    const res = await GET(makeRequest("format=csv"));
+    const text = await res.text();
+
+    expect(text).toContain(`'${name}`);
+  });
+
+  it("does not add guard to a normal institute name", async () => {
+    vi.mocked(loadBundestagData).mockResolvedValue({
+      lastUpdate: "2024-01-01",
+      bundestag: [
+        {
+          id: "1",
+          date: "2024-01-01",
+          periodStart: null,
+          periodEnd: null,
+          institute: { id: "x", name: "Normal Institut" },
+          method: null,
+          tasker: null,
+          surveyedPersons: null,
+          results: [{ shortcut: "SPD", percent: 10 }],
+        },
+      ] as any,
+    });
+
+    const res = await GET(makeRequest("format=csv"));
+    const text = await res.text();
+
+    expect(text).toContain("Normal Institut");
+    expect(text).not.toContain("'Normal Institut");
+  });
+
+  it("numeric columns (percent, surveyedPersons) are not guarded and remain numeric", async () => {
+    vi.mocked(loadBundestagData).mockResolvedValue({
+      lastUpdate: "2024-01-01",
+      bundestag: [
+        {
+          id: "99",
+          date: "2024-01-01",
+          periodStart: null,
+          periodEnd: null,
+          institute: { id: "x", name: "Institut" },
+          method: null,
+          tasker: null,
+          surveyedPersons: 1000,
+          results: [{ shortcut: "SPD", percent: 25.5 }],
+        },
+      ] as any,
+    });
+
+    const res = await GET(makeRequest("format=csv"));
+    const text = await res.text();
+
+    expect(text).toContain(",1000,");
+    expect(text).toContain(",25.5");
+    expect(text).not.toContain("'1000");
+    expect(text).not.toContain("'25.5");
+  });
+
+  it("guard composes with RFC-4180 quoting when the guarded cell also contains a comma", async () => {
+    vi.mocked(loadBundestagData).mockResolvedValue({
+      lastUpdate: "2024-01-01",
+      bundestag: [
+        {
+          id: "1",
+          date: "2024-01-01",
+          periodStart: null,
+          periodEnd: null,
+          institute: { id: "x", name: "=Foo, Bar" },
+          method: null,
+          tasker: null,
+          surveyedPersons: null,
+          results: [{ shortcut: "SPD", percent: 10 }],
+        },
+      ] as any,
+    });
+
+    const res = await GET(makeRequest("format=csv"));
+    const text = await res.text();
+
+    expect(text).toContain('"\'=Foo, Bar"');
+  });
+
+  it("JSON response values are not affected by formula guarding", async () => {
+    vi.mocked(loadBundestagData).mockResolvedValue({
+      lastUpdate: "2024-01-01",
+      bundestag: [
+        {
+          id: "1",
+          date: "2024-01-01",
+          periodStart: null,
+          periodEnd: null,
+          institute: { id: "x", name: "=DANGEROUS()" },
+          method: null,
+          tasker: null,
+          surveyedPersons: null,
+          results: [{ shortcut: "SPD", percent: 10 }],
+        },
+      ] as any,
+    });
+
+    const res = await GET(makeRequest());
+    const body = await res.json();
+
+    expect(body.surveys[0].institute.name).toBe("=DANGEROUS()");
   });
 });
 

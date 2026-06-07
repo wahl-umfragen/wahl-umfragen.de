@@ -173,8 +173,16 @@ function toCsv(
   return "﻿" + lines.join("\r\n");
 }
 
-/** Quote a CSV cell when it contains a comma, quote, or newline. */
+/** Characters that cause spreadsheets to interpret a cell as a formula (OWASP CWE-1236). */
+const FORMULA_TRIGGER = /^[=+\-@\t\r]/;
+
+/**
+ * Quote a CSV cell per RFC-4180 and neutralise formula-injection triggers so
+ * spreadsheets don't evaluate the cell as a formula (OWASP CWE-1236).
+ * Numbers are returned as-is so they still parse as numeric values.
+ */
 function csvCell(value: string | number): string {
-  const s = String(value);
-  return /[",\n]/.test(s) ? `"${s.replace(/"/g, '""')}"` : s;
+  if (typeof value === "number") return String(value);
+  const guarded = FORMULA_TRIGGER.test(value) ? `'${value}` : value;
+  return /[",\n]/.test(guarded) ? `"${guarded.replace(/"/g, '""')}"` : guarded;
 }
