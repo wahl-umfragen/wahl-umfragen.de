@@ -5,13 +5,40 @@ import { BackLink } from "@/components/back-link";
 import { JsonLd } from "@/components/json-ld";
 import { t } from "@/i18n";
 import { partyColorVar } from "@/lib/dawum/colors";
-import type { NormalizedSurvey } from "@/lib/dawum/types";
+import { BUNDESTAG_PARLIAMENT_ID, type NormalizedSurvey } from "@/lib/dawum/types";
 import { loadSurveyById } from "@/lib/data";
 import { formatDate } from "@/lib/format";
+import { STATE_PARLIAMENTS } from "@/lib/parliaments";
 import { breadcrumbLd, buildMetadata } from "@/lib/seo";
 
 async function findSurvey(id: string): Promise<NormalizedSurvey | undefined> {
   return (await loadSurveyById(id)) ?? undefined;
+}
+
+function isBundestag(survey: NormalizedSurvey): boolean {
+  return survey.parliament.id === BUNDESTAG_PARLIAMENT_ID;
+}
+
+function surveyBackHref(survey: NormalizedSurvey): string {
+  if (isBundestag(survey)) return "/archiv";
+  const state = STATE_PARLIAMENTS.find((p) => p.id === survey.parliament.id);
+  return state ? `/laender/${state.slug}` : "/archiv";
+}
+
+function surveyBreadcrumb(survey: NormalizedSurvey, id: string) {
+  const label = `${survey.institute.name}, ${formatDate(survey.date)}`;
+  if (isBundestag(survey)) {
+    return [
+      { name: "Startseite", path: "/" },
+      { name: t("archivePage.title"), path: "/archiv" },
+      { name: label, path: `/archiv/${id}` },
+    ];
+  }
+  const state = STATE_PARLIAMENTS.find((p) => p.id === survey.parliament.id);
+  const trail = [{ name: "Startseite", path: "/" }];
+  if (state) trail.push({ name: state.name, path: `/laender/${state.slug}` });
+  trail.push({ name: label, path: `/archiv/${id}` });
+  return trail;
 }
 
 export async function generateMetadata({
@@ -29,7 +56,7 @@ export async function generateMetadata({
     .join(", ");
   return buildMetadata({
     title: `${survey.institute.name}, ${formatDate(survey.date)}`,
-    description: `Sonntagsfrage zur Bundestagswahl von ${survey.institute.name} (${formatDate(survey.date)}): ${top}. Mit Werten je Partei, Feldzeit und Befragtenzahl.`,
+    description: `Sonntagsfrage zur ${survey.parliament.name} von ${survey.institute.name} (${formatDate(survey.date)}): ${top}. Mit Werten je Partei, Feldzeit und Befragtenzahl.`,
     path: `/archiv/${id}`,
   });
 }
@@ -47,18 +74,9 @@ export default async function SurveyDetailPage({
 
   return (
     <div className="mx-auto max-w-3xl px-6 py-10">
-      <JsonLd
-        data={breadcrumbLd([
-          { name: "Startseite", path: "/" },
-          { name: t("archivePage.title"), path: "/archiv" },
-          {
-            name: `${survey.institute.name}, ${formatDate(survey.date)}`,
-            path: `/archiv/${id}`,
-          },
-        ])}
-      />
+      <JsonLd data={breadcrumbLd(surveyBreadcrumb(survey, id))} />
       <BackLink
-        fallbackHref="/archiv"
+        fallbackHref={surveyBackHref(survey)}
         label={t("detail.back")}
         className="text-sm font-medium text-muted hover:text-foreground"
       />
@@ -83,6 +101,7 @@ export default async function SurveyDetailPage({
         data-testid="survey-meta"
         className="mb-8 grid grid-cols-2 gap-x-6 gap-y-3 text-sm sm:grid-cols-3"
       >
+        <Meta label={t("detail.parliament")}>{survey.parliament.name}</Meta>
         <Meta label={t("detail.date")}>{formatDate(survey.date)}</Meta>
         {survey.periodStart && survey.periodEnd ? (
           <Meta label={t("detail.period")}>

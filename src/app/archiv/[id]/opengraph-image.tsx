@@ -1,5 +1,5 @@
 import { ImageResponse } from "next/og";
-import { loadBundestagData } from "@/lib/data";
+import { loadSurveyById } from "@/lib/data";
 import { formatDate } from "@/lib/format";
 import { OG_CONTENT_TYPE, OG_SIZE, OgCard } from "@/lib/og";
 
@@ -14,8 +14,7 @@ export default async function OpengraphImage({
   params: Promise<{ id: string }>;
 }) {
   const { id } = await params;
-  const { bundestag } = await loadBundestagData();
-  const survey = bundestag.find((s) => s.id === id);
+  const survey = await loadSurveyById(id);
 
   if (!survey) {
     return new ImageResponse(<OgCard title="Sonntagsfrage" />, { ...size });
