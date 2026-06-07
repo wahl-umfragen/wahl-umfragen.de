@@ -341,6 +341,46 @@ describe("GET /api/surveys — filtering by institut/from/to", () => {
     expect(body.surveys[0].id).toBe("1");
   });
 
+  it("offset without limit skips the first N items and returns the rest", async () => {
+    const res = await GET(makeRequest("offset=1"));
+    const body = await res.json();
+    expect(body.total).toBe(3);
+    expect(body.count).toBe(2);
+    expect(body.surveys[0].id).toBe("2");
+    expect(body.surveys[1].id).toBe("3");
+  });
+
+  it("offset equal to total returns empty page, total stays at full size", async () => {
+    const res = await GET(makeRequest("offset=3"));
+    const body = await res.json();
+    expect(body.total).toBe(3);
+    expect(body.count).toBe(0);
+    expect(body.surveys).toHaveLength(0);
+  });
+
+  it("offset beyond total returns empty page, not an error", async () => {
+    const res = await GET(makeRequest("offset=999"));
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.total).toBe(3);
+    expect(body.count).toBe(0);
+  });
+
+  it("no params still returns the full dataset unchanged", async () => {
+    const res = await GET(makeRequest());
+    const body = await res.json();
+    expect(body.total).toBe(3);
+    expect(body.count).toBe(3);
+  });
+
+  it("limit and offset together are unchanged by the fix", async () => {
+    const res = await GET(makeRequest("limit=1&offset=1"));
+    const body = await res.json();
+    expect(body.total).toBe(3);
+    expect(body.count).toBe(1);
+    expect(body.surveys[0].id).toBe("2");
+  });
+
   it("CSV format also applies filters", async () => {
     const res = await GET(makeRequest("format=csv&institut=inst-b"));
     expect(res.status).toBe(200);

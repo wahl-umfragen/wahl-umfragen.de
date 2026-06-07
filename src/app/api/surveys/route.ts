@@ -46,10 +46,10 @@ export async function GET(req: NextRequest) {
 
   const filtered = applyFilters(bundestag, params);
   const total = filtered.length;
-  // When no limit is given we keep returning the full dataset (the public
-  // export use case); a given limit is clamped to [1, MAX_LIMIT].
+  // When no limit is given return everything from offset onward (full export
+  // use case); a given limit is clamped to [1, MAX_LIMIT].
   const page =
-    limit === undefined ? filtered : filtered.slice(offset, offset + limit);
+    limit === undefined ? filtered.slice(offset) : filtered.slice(offset, offset + limit);
 
   const headers = {
     // Cache at the browser (max-age) and the edge (s-maxage), and let the edge
