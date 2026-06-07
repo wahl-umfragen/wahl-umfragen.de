@@ -2,6 +2,7 @@ import Link from "next/link";
 import { t } from "@/i18n";
 import type { HouseEffects } from "@/lib/dawum/aggregate";
 import { partyColorVar } from "@/lib/dawum/colors";
+import { BUNDESTAG_PARLIAMENT_ID } from "@/lib/dawum/types";
 
 const SIGNED = new Intl.NumberFormat("de-DE", {
   signDisplay: "exceptZero",
@@ -17,7 +18,13 @@ const NEUTRAL = 0.05;
  * per party. Positive = the institute reports that party higher than the panel.
  * Tinted by direction (over/under), not good/bad. Reuses the shared party colours.
  */
-export function HouseEffectsTable({ data }: { data: HouseEffects }) {
+export function HouseEffectsTable({
+  data,
+  parliamentId,
+}: {
+  data: HouseEffects;
+  parliamentId?: string;
+}) {
   if (data.rows.length === 0 || data.parties.length === 0) return null;
 
   return (
@@ -53,7 +60,11 @@ export function HouseEffectsTable({ data }: { data: HouseEffects }) {
             >
               <th scope="row" className="px-4 py-2.5 text-left font-medium">
                 <Link
-                  href={`/institut/${row.instituteId}`}
+                  href={
+                    parliamentId && parliamentId !== BUNDESTAG_PARLIAMENT_ID
+                      ? `/institut/${row.instituteId}?p=${parliamentId}`
+                      : `/institut/${row.instituteId}`
+                  }
                   className="hover:text-foreground hover:underline"
                 >
                   {row.institute}

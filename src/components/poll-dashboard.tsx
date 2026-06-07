@@ -52,6 +52,11 @@ export interface PollDashboardProps {
   contributingSurveys: ContributingSurvey[];
   /** Draw the official election markers on the trend (Bundestag only). */
   showElectionMarkers?: boolean;
+  /** Parliament ID for institute link targets in the house-effects table. When
+   *  omitted or set to the Bundestag ID, links go to /institut/[id] (default).
+   *  For state-parliament dashboards, pass the parliament ID so links point to
+   *  /institut/[id]?p=<parliamentId> and show the correct survey context. */
+  parliamentId?: string;
 }
 
 const WINDOW_LABELS: Record<TrendWindowKey, TranslationKey> = {
@@ -76,6 +81,7 @@ export function PollDashboard({
   houseEffects,
   contributingSurveys,
   showElectionMarkers = true,
+  parliamentId,
 }: PollDashboardProps) {
   const [windowKey, setWindowKey] = useState<TrendWindowKey>("all");
   const [hiddenParties, setHiddenParties] = useState<ReadonlySet<string>>(
@@ -278,7 +284,7 @@ export function PollDashboard({
         }
       >
         {houseEffects[heWindow].rows.length > 0 ? (
-          <HouseEffectsTable data={houseEffects[heWindow]} />
+          <HouseEffectsTable data={houseEffects[heWindow]} parliamentId={parliamentId} />
         ) : (
           <p className="text-sm text-muted">{t("common.noData")}</p>
         )}

@@ -261,6 +261,54 @@ export const loadSurveysByInstitute = unstable_cache(
 );
 
 /**
+ * All surveys from one institute for a specific parliament, newest first.
+ * Parliament-aware counterpart to `loadSurveysByInstitute` — used by
+ * `/institut/[id]?p=<parliamentId>` when reached from a Landtag dashboard.
+ * Cached under the shared `surveys` tag (institute + parliament form the key),
+ * so ingest revalidation reaches it.
+ */
+export const loadSurveysByInstituteAndParliament = unstable_cache(
+  async (instituteId: string, parliamentId: string): Promise<NormalizedSurvey[]> => {
+    const where = and(
+      eq(schema.surveys.parliamentId, parliamentId),
+      eq(schema.surveys.instituteId, instituteId),
+    );
+    const surveyRows = await db
+      .select(surveyColumns)
+      .from(schema.surveys)
+      .innerJoin(
+        schema.parliaments,
+        eq(schema.surveys.parliamentId, schema.parliaments.id),
+      )
+      .innerJoin(
+        schema.institutes,
+        eq(schema.surveys.instituteId, schema.institutes.id),
+      )
+      .leftJoin(schema.taskers, eq(schema.surveys.taskerId, schema.taskers.id))
+      .leftJoin(schema.methods, eq(schema.surveys.methodId, schema.methods.id))
+      .where(where)
+      .orderBy(desc(schema.surveys.date), desc(schema.surveys.id));
+    if (surveyRows.length === 0) return [];
+
+    const resultRows = await db
+      .select(resultColumns)
+      .from(schema.surveyResults)
+      .innerJoin(
+        schema.parties,
+        eq(schema.surveyResults.partyId, schema.parties.id),
+      )
+      .innerJoin(
+        schema.surveys,
+        eq(schema.surveyResults.surveyId, schema.surveys.id),
+      )
+      .where(where);
+    return mapSurveyRows(surveyRows, resultRows);
+  },
+  ["surveys-by-institute-parliament"],
+  { tags: [SURVEYS_TAG], revalidate: false },
+);
+
+/**
  * A single survey by id, or null. Targeted loader for `/archiv/[id]` so the
  * detail page reads one row instead of the whole history.
  */

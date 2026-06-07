@@ -97,6 +97,7 @@ async function StateDashboard({
         houseEffects={d.houseEffects}
         contributingSurveys={d.contributingSurveys}
         showElectionMarkers={false}
+        parliamentId={id}
       />
     </>
   );
