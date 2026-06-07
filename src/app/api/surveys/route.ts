@@ -22,6 +22,20 @@ import { loadBundestagData } from "@/lib/data";
 /** Hard ceiling on an explicit `limit`, so a client can't request a huge page. */
 const MAX_LIMIT = 1000;
 
+/** Single source of truth for ODbL attribution surfaced to API consumers. */
+export const ATTRIBUTION = {
+  source: "dawum.de",
+  license: "ODbL-1.0",
+  licenseUrl: "https://opendatacommons.org/licenses/odbl/1-0/",
+  attributionText: "Data sourced from dawum.de, licensed under ODbL-1.0. Share-alike required for derived databases.",
+} as const;
+
+/** HTTP headers added to every response so the license is discoverable without parsing the body. */
+const LICENSE_HEADERS = {
+  link: `<${ATTRIBUTION.licenseUrl}>; rel="license"`,
+  "x-data-source": ATTRIBUTION.source,
+} as const;
+
 export async function GET(req: NextRequest) {
   const { bundestag, lastUpdate } = await loadBundestagData();
   const params = req.nextUrl.searchParams;
@@ -40,6 +54,7 @@ export async function GET(req: NextRequest) {
     // Cache at the browser (max-age) and the edge (s-maxage), and let the edge
     // serve stale while it revalidates so bursts don't pile onto the origin.
     "cache-control": "public, max-age=300, s-maxage=300, stale-while-revalidate=60",
+    ...LICENSE_HEADERS,
   };
 
   if (format === "csv") {
@@ -53,7 +68,7 @@ export async function GET(req: NextRequest) {
   }
 
   return Response.json(
-    { lastUpdate, total, count: page.length, surveys: page },
+    { lastUpdate, total, count: page.length, attribution: ATTRIBUTION, surveys: page },
     { headers },
   );
 }
@@ -107,7 +122,11 @@ const CSV_HEADER = [
 function toCsv(
   surveys: Awaited<ReturnType<typeof loadBundestagData>>["bundestag"],
 ): string {
-  const lines = [CSV_HEADER.join(",")];
+  const lines = [
+    `# Source: ${ATTRIBUTION.source} — ${ATTRIBUTION.license} (${ATTRIBUTION.licenseUrl})`,
+    `# ${ATTRIBUTION.attributionText}`,
+    CSV_HEADER.join(","),
+  ];
   for (const s of surveys) {
     for (const r of s.results) {
       lines.push(
