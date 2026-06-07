@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { t } from "@/i18n";
+import { archivePartyOrder } from "@/lib/dawum/aggregate";
 import { partyColorVar } from "@/lib/dawum/colors";
 import { formatDate } from "@/lib/format";
 import type { NormalizedSurvey } from "@/lib/dawum/types";
@@ -18,17 +19,8 @@ function sameKey(a: SortKey, b: SortKey): boolean {
 export function InstituteTable({ surveys }: { surveys: NormalizedSurvey[] }) {
   // Column order: every party that appears in any survey, ranked by its
   // average share across surveys so the strongest parties sit on the left.
-  const parties = useMemo(() => {
-    const totals = new Map<string, number>();
-    for (const s of surveys) {
-      for (const r of s.results) {
-        totals.set(r.shortcut, (totals.get(r.shortcut) ?? 0) + r.percent);
-      }
-    }
-    return [...totals.entries()]
-      .sort((a, b) => b[1] - a[1])
-      .map(([shortcut]) => shortcut);
-  }, [surveys]);
+  // Average only counts surveys that reported the party (not biased by appearance count).
+  const parties = useMemo(() => archivePartyOrder(surveys), [surveys]);
 
   // Default: freshest survey first.
   const [sortKey, setSortKey] = useState<SortKey>("date");
