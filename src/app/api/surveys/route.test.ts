@@ -1,12 +1,53 @@
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it, vi, beforeEach } from "vitest";
 import { GET, ATTRIBUTION } from "./route";
+import { loadBundestagData } from "@/lib/data";
+
+const SURVEYS = [
+  {
+    id: "1",
+    date: "2024-01-15",
+    periodStart: null,
+    periodEnd: null,
+    institute: { id: "inst-a", name: "Institut A" },
+    method: null,
+    tasker: null,
+    surveyedPersons: null,
+    results: [{ shortcut: "SPD", percent: 25 }],
+  },
+  {
+    id: "2",
+    date: "2024-06-01",
+    periodStart: null,
+    periodEnd: null,
+    institute: { id: "inst-b", name: "Institut B" },
+    method: null,
+    tasker: null,
+    surveyedPersons: null,
+    results: [{ shortcut: "CDU", percent: 30 }],
+  },
+  {
+    id: "3",
+    date: "2025-03-10",
+    periodStart: null,
+    periodEnd: null,
+    institute: { id: "inst-a", name: "Institut A" },
+    method: null,
+    tasker: null,
+    surveyedPersons: null,
+    results: [{ shortcut: "SPD", percent: 20 }],
+  },
+];
 
 vi.mock("@/lib/data", () => ({
-  loadBundestagData: vi.fn().mockResolvedValue({
+  loadBundestagData: vi.fn(),
+}));
+
+beforeEach(() => {
+  vi.mocked(loadBundestagData).mockResolvedValue({
     lastUpdate: "2024-01-01",
     bundestag: [],
-  }),
-}));
+  });
+});
 
 function makeRequest(search = "") {
   return { nextUrl: { searchParams: new URLSearchParams(search) } } as Parameters<typeof GET>[0];
@@ -88,5 +129,65 @@ describe("GET /api/surveys — attribution & license", () => {
 
     expect(headerLine).toBeDefined();
     expect(headerLine!.split(",")).toHaveLength(10);
+  });
+});
+
+describe("GET /api/surveys — filtering by institut/from/to", () => {
+  beforeEach(() => {
+    vi.mocked(loadBundestagData).mockResolvedValue({
+      lastUpdate: "2025-03-10",
+      bundestag: SURVEYS as any,
+    });
+  });
+
+  it("no filters returns the full dataset", async () => {
+    const res = await GET(makeRequest());
+    const body = await res.json();
+    expect(body.total).toBe(3);
+    expect(body.surveys).toHaveLength(3);
+  });
+
+  it("institut filter returns only surveys from that institute", async () => {
+    const res = await GET(makeRequest("institut=inst-a"));
+    const body = await res.json();
+    expect(body.total).toBe(2);
+    expect(body.surveys.every((s: { institute: { id: string } }) => s.institute.id === "inst-a")).toBe(true);
+  });
+
+  it("unknown institut yields zero rows (not a 500)", async () => {
+    const res = await GET(makeRequest("institut=unknown-xyz"));
+    expect(res.status).toBe(200);
+    const body = await res.json();
+    expect(body.total).toBe(0);
+    expect(body.surveys).toHaveLength(0);
+  });
+
+  it("from filter returns only surveys on or after the date", async () => {
+    const res = await GET(makeRequest("from=2024-06-01"));
+    const body = await res.json();
+    expect(body.total).toBe(2);
+    expect(body.surveys.every((s: { date: string }) => s.date >= "2024-06-01")).toBe(true);
+  });
+
+  it("to filter returns only surveys on or before the date", async () => {
+    const res = await GET(makeRequest("to=2024-06-01"));
+    const body = await res.json();
+    expect(body.total).toBe(2);
+    expect(body.surveys.every((s: { date: string }) => s.date <= "2024-06-01")).toBe(true);
+  });
+
+  it("combined institut + from + to filter narrows results correctly", async () => {
+    const res = await GET(makeRequest("institut=inst-a&from=2024-01-01&to=2024-12-31"));
+    const body = await res.json();
+    expect(body.total).toBe(1);
+    expect(body.surveys[0].id).toBe("1");
+  });
+
+  it("CSV format also applies filters", async () => {
+    const res = await GET(makeRequest("format=csv&institut=inst-b"));
+    expect(res.status).toBe(200);
+    const text = await res.text();
+    expect(text).toContain("Institut B");
+    expect(text).not.toContain("Institut A");
   });
 });

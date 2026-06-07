@@ -28,6 +28,16 @@ function parseSort(raw: string | null): SortKey {
   return "date";
 }
 
+function buildExportUrl(format: string, institut: string, from: string, to: string): string {
+  const q = new URLSearchParams();
+  if (format) q.set("format", format);
+  if (institut) q.set("institut", institut);
+  if (from) q.set("from", from);
+  if (to) q.set("to", to);
+  const qs = q.toString();
+  return qs ? `/api/surveys?${qs}` : "/api/surveys";
+}
+
 /**
  * Full browsable archive of every Bundestag survey. Everything — filtering by
  * institute and date range, sorting, paging — happens client-side over the
@@ -218,14 +228,14 @@ export function SurveyArchive({ surveys }: { surveys: NormalizedSurvey[] }) {
           <span>
             {t("archive.export")}:{" "}
             <a
-              href="/api/surveys"
+              href={buildExportUrl("", institute, from, to)}
               className="underline hover:text-foreground"
             >
               JSON
             </a>
             {" · "}
             <a
-              href="/api/surveys?format=csv"
+              href={buildExportUrl("csv", institute, from, to)}
               className="underline hover:text-foreground"
             >
               CSV

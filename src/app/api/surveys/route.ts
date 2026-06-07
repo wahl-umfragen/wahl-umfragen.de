@@ -44,11 +44,12 @@ export async function GET(req: NextRequest) {
   const { limit, offset, error } = parsePaging(params);
   if (error) return Response.json({ error }, { status: 400 });
 
-  const total = bundestag.length;
+  const filtered = applyFilters(bundestag, params);
+  const total = filtered.length;
   // When no limit is given we keep returning the full dataset (the public
   // export use case); a given limit is clamped to [1, MAX_LIMIT].
   const page =
-    limit === undefined ? bundestag : bundestag.slice(offset, offset + limit);
+    limit === undefined ? filtered : filtered.slice(offset, offset + limit);
 
   const headers = {
     // Cache at the browser (max-age) and the edge (s-maxage), and let the edge
@@ -71,6 +72,28 @@ export async function GET(req: NextRequest) {
     { lastUpdate, total, count: page.length, attribution: ATTRIBUTION, surveys: page },
     { headers },
   );
+}
+
+/**
+ * Filter `surveys` in-process by `institut` (exact id match), `from` (ISO date,
+ * inclusive lower bound), and `to` (ISO date, inclusive upper bound).
+ * Missing or malformed params are silently ignored so the call degrades
+ * gracefully (unknown institute → zero rows, not a 500).
+ */
+function applyFilters(
+  surveys: Awaited<ReturnType<typeof loadBundestagData>>["bundestag"],
+  params: URLSearchParams,
+): Awaited<ReturnType<typeof loadBundestagData>>["bundestag"] {
+  const institut = params.get("institut") ?? "";
+  const from = params.get("from") ?? "";
+  const to = params.get("to") ?? "";
+  if (!institut && !from && !to) return surveys;
+  return surveys.filter((s) => {
+    if (institut && s.institute.id !== institut) return false;
+    if (from && s.date < from) return false;
+    if (to && s.date > to) return false;
+    return true;
+  });
 }
 
 /**
