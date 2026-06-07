@@ -1,5 +1,5 @@
 import type { MetadataRoute } from "next";
-import { loadBundestagData } from "@/lib/data";
+import { loadBundestagData, loadParliamentData } from "@/lib/data";
 import { STATE_PARLIAMENTS } from "@/lib/parliaments";
 import { absoluteUrl } from "@/lib/seo";
 
@@ -10,7 +10,10 @@ import { absoluteUrl } from "@/lib/seo";
  * 50k-URL limit (a few thousand surveys).
  */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const { bundestag, lastUpdate } = await loadBundestagData();
+  const [{ bundestag, lastUpdate }, ...landtagResults] = await Promise.all([
+    loadBundestagData(),
+    ...STATE_PARLIAMENTS.map((p) => loadParliamentData(p.id)),
+  ]);
   const now = lastUpdate ? new Date(lastUpdate) : undefined;
 
   const staticEntries: MetadataRoute.Sitemap = [
@@ -52,5 +55,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.4,
   }));
 
-  return [...staticEntries, ...instituteEntries, ...surveyEntries];
+  const landtagSurveyEntries: MetadataRoute.Sitemap = landtagResults
+    .flatMap((r) => r.surveys)
+    .map((s) => ({
+      url: absoluteUrl(`/archiv/${s.id}`),
+      lastModified: new Date(s.date),
+      changeFrequency: "monthly" as const,
+      priority: 0.4,
+    }));
+
+  return [...staticEntries, ...instituteEntries, ...surveyEntries, ...landtagSurveyEntries];
 }
