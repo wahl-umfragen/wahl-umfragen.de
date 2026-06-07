@@ -48,10 +48,30 @@ describe("GET /api/surveys — attribution & license", () => {
     expect(res.headers.get("x-data-source")).toBe(ATTRIBUTION.source);
   });
 
+  it("CSV response body starts with a UTF-8 BOM so Excel renders umlauts correctly", async () => {
+    const res = await GET(makeRequest("format=csv"));
+    // Response.text() strips the BOM per the WHATWG encoding spec, so check raw bytes.
+    const buf = await res.arrayBuffer();
+    const bytes = new Uint8Array(buf);
+
+    expect(bytes[0]).toBe(0xef);
+    expect(bytes[1]).toBe(0xbb);
+    expect(bytes[2]).toBe(0xbf);
+  });
+
+  it("JSON response body does not contain a leading BOM", async () => {
+    const res = await GET(makeRequest());
+    const buf = await res.arrayBuffer();
+    const bytes = new Uint8Array(buf);
+
+    expect(bytes[0]).not.toBe(0xef);
+  });
+
   it("CSV response starts with attribution comment lines before header row", async () => {
     const res = await GET(makeRequest("format=csv"));
     const text = await res.text();
-    const lines = text.split("\n");
+    // Strip leading BOM before parsing lines; split on CRLF (RFC 4180).
+    const lines = text.replace(/^﻿/, "").split("\r\n");
 
     expect(lines[0]).toMatch(/^# Source: dawum\.de/);
     expect(lines[0]).toContain("ODbL-1.0");
@@ -63,7 +83,7 @@ describe("GET /api/surveys — attribution & license", () => {
   it("CSV column layout is unchanged for data rows", async () => {
     const res = await GET(makeRequest("format=csv"));
     const text = await res.text();
-    const lines = text.split("\n");
+    const lines = text.replace(/^﻿/, "").split("\r\n");
     const headerLine = lines.find((l) => l.startsWith("survey_id"));
 
     expect(headerLine).toBeDefined();

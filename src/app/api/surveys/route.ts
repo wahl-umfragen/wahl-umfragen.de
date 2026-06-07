@@ -147,7 +147,7 @@ function toCsv(
       );
     }
   }
-  return lines.join("\n");
+  return "﻿" + lines.join("\r\n");
 }
 
 /** Quote a CSV cell when it contains a comma, quote, or newline. */
