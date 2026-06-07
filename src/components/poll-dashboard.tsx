@@ -1,5 +1,6 @@
 "use client";
 
+import dynamic from "next/dynamic";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { t, type TranslationKey } from "@/i18n";
@@ -24,12 +25,32 @@ import {
 } from "@/lib/dashboard";
 import { Fullscreenable } from "./fullscreenable";
 import { HouseEffectsTable } from "./house-effects-table";
-import {
-  CurrentStandingChart,
-  InstituteComparisonChart,
-  SeatDistributionChart,
-} from "./poll-charts";
-import { TrendChart } from "./trend-chart";
+
+const CHART_CARD =
+  "w-full animate-pulse rounded-xl border border-border bg-surface";
+
+const CurrentStandingChart = dynamic(
+  () => import("./poll-charts").then((m) => m.CurrentStandingChart),
+  { ssr: false, loading: () => <div className={`${CHART_CARD} h-72`} /> },
+);
+
+const SeatDistributionChart = dynamic(
+  () => import("./poll-charts").then((m) => m.SeatDistributionChart),
+  { ssr: false, loading: () => <div className={`${CHART_CARD} h-64`} /> },
+);
+
+const InstituteComparisonChart = dynamic(
+  () => import("./poll-charts").then((m) => m.InstituteComparisonChart),
+  { ssr: false, loading: () => <div className={`${CHART_CARD} h-96`} /> },
+);
+
+const TrendChart = dynamic(
+  () => import("./trend-chart").then((m) => m.TrendChart),
+  {
+    ssr: false,
+    loading: () => <div className={`${CHART_CARD} h-96 sm:h-[36rem]`} />,
+  },
+);
 
 /** Lines beyond this many crowd the legend; also the filterable party set. */
 const MAX_TREND_SERIES = 8;
