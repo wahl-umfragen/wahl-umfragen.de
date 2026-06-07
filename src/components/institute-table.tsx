@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { t } from "@/i18n";
 import { partyColorVar } from "@/lib/dawum/colors";
+import { formatDate } from "@/lib/format";
 import type { NormalizedSurvey } from "@/lib/dawum/types";
 
 type SortKey = "institute" | "date" | { party: string };
@@ -202,12 +203,3 @@ function SortButton({
   );
 }
 
-function formatDate(iso: string): string {
-  const d = new Date(iso);
-  if (Number.isNaN(d.getTime())) return iso;
-  return d.toLocaleDateString("de-DE", {
-    year: "numeric",
-    month: "short",
-    day: "2-digit",
-  });
-}

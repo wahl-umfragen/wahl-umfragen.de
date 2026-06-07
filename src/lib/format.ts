@@ -5,6 +5,7 @@ export function formatDate(iso: string): string {
     year: "numeric",
     month: "short",
     day: "2-digit",
+    timeZone: "Europe/Berlin",
   });
 }
 
@@ -17,5 +18,6 @@ export function formatDateTime(iso: string): string {
     day: "2-digit",
     hour: "2-digit",
     minute: "2-digit",
+    timeZone: "Europe/Berlin",
   });
 }
