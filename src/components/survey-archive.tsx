@@ -4,6 +4,7 @@ import Link from "next/link";
 import { useSearchParams } from "next/navigation";
 import { useEffect, useMemo, useState } from "react";
 import { t } from "@/i18n";
+import { archivePartyOrder } from "@/lib/dawum/aggregate";
 import { partyColorVar } from "@/lib/dawum/colors";
 import type { NormalizedSurvey } from "@/lib/dawum/types";
 import { formatDate } from "@/lib/format";
@@ -46,17 +47,7 @@ function buildExportUrl(format: string, institut: string, from: string, to: stri
  */
 export function SurveyArchive({ surveys }: { surveys: NormalizedSurvey[] }) {
   // Party columns: every party that ever appears, strongest average on the left.
-  const parties = useMemo(() => {
-    const totals = new Map<string, number>();
-    for (const s of surveys) {
-      for (const r of s.results) {
-        totals.set(r.shortcut, (totals.get(r.shortcut) ?? 0) + r.percent);
-      }
-    }
-    return [...totals.entries()]
-      .sort((a, b) => b[1] - a[1])
-      .map(([shortcut]) => shortcut);
-  }, [surveys]);
+  const parties = useMemo(() => archivePartyOrder(surveys), [surveys]);
 
   // Distinct institutes for the filter dropdown, alphabetical.
   const institutes = useMemo(() => {

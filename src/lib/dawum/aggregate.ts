@@ -23,6 +23,29 @@ export interface PartyAverage {
 }
 
 /**
+ * Returns party shortcuts ordered by their all-time mean reported percentage
+ * across the given surveys, descending. Each party's mean only counts surveys
+ * that actually reported it, so column order is not biased toward longevity.
+ */
+export function archivePartyOrder(surveys: NormalizedSurvey[]): string[] {
+  const acc = new Map<string, { sum: number; n: number }>();
+  for (const s of surveys) {
+    for (const r of s.results) {
+      const prev = acc.get(r.shortcut);
+      if (prev) {
+        prev.sum += r.percent;
+        prev.n += 1;
+      } else {
+        acc.set(r.shortcut, { sum: r.percent, n: 1 });
+      }
+    }
+  }
+  return [...acc.entries()]
+    .sort((a, b) => b[1].sum / b[1].n - a[1].sum / a[1].n)
+    .map(([shortcut]) => shortcut);
+}
+
+/**
  * Average each party's share across a set of surveys (typically the latest
  * survey per institute). A party's mean only counts institutes that actually
  * reported it. Sorted by share, descending.

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import {
+  archivePartyOrder,
   currentAverage,
   houseEffects,
   instituteComparison,
@@ -163,5 +164,28 @@ describe("houseEffects", () => {
       { topParties: 2 },
     );
     expect(he.parties).toEqual(["CDU", "AfD"]);
+  });
+});
+
+describe("archivePartyOrder", () => {
+  it("orders by average, not sum — a high-average but less-frequent party ranks before a low-average but more-frequent one", () => {
+    // NewParty: 20% in 2 surveys → avg 20; sum 40
+    // OldParty: 15% in 3 surveys → avg 15; sum 45
+    // Sum-based order: OldParty first (wrong). Average-based: NewParty first (correct).
+    const s = [
+      survey("1", "A", "Alpha", { NewParty: 20 }),
+      survey("2", "B", "Beta", { NewParty: 20, OldParty: 15 }),
+      survey("3", "C", "Gamma", { OldParty: 15 }),
+      survey("4", "D", "Delta", { OldParty: 15 }),
+    ];
+    expect(archivePartyOrder(s)).toEqual(["NewParty", "OldParty"]);
+  });
+
+  it("returns parties in descending average order when all appear equally often", () => {
+    const s = [
+      survey("1", "A", "Alpha", { SPD: 25, CDU: 30, Grüne: 15 }),
+      survey("2", "B", "Beta", { SPD: 23, CDU: 28, Grüne: 13 }),
+    ];
+    expect(archivePartyOrder(s)).toEqual(["CDU", "SPD", "Grüne"]);
   });
 });
