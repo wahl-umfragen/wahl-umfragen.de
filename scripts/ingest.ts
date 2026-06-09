@@ -1,4 +1,5 @@
 import { pool } from "@/db/client";
+import { sendIngestAlert } from "@/lib/ingest/alert";
 import { runIngest } from "@/lib/ingest/run";
 
 async function main() {
@@ -14,6 +15,16 @@ async function main() {
       console.log(
         `[ingest] ok  seen=${result.surveysSeen}  new=${result.surveysNew}  updated=${result.surveysUpdated}  ${result.durationMs}ms  run=${result.runId}`,
       );
+      // Surfaced data anomalies → alert (rows were still upserted).
+      if (result.anomalies.length > 0) {
+        const body = result.anomalies
+          .map((a) => `- (${a.kind}) survey ${a.surveyId}: ${a.detail}`)
+          .join("\n");
+        await sendIngestAlert(
+          `${result.anomalies.length} Daten-Auffälligkeit(en) beim Ingest`,
+          `Beim Ingest (run=${result.runId}) wurden Auffälligkeiten erkannt:\n\n${body}`,
+        );
+      }
       // New data landed — tell the running app to rebuild its cached pages.
       await triggerRevalidate();
     }
@@ -56,7 +67,12 @@ async function triggerRevalidate() {
   }
 }
 
-main().catch((err) => {
+main().catch(async (err) => {
   console.error("[ingest] failed:", err);
+  // Alert on a hard failure so a broken hourly worker doesn't fail silently.
+  await sendIngestAlert(
+    "Ingest fehlgeschlagen",
+    `Der Ingest ist mit einem Fehler abgebrochen:\n\n${err instanceof Error ? (err.stack ?? err.message) : String(err)}`,
+  ).catch(() => {});
   process.exit(1);
 });

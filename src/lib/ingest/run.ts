@@ -5,6 +5,7 @@ import {
   fetchDawumDatabaseRaw,
   fetchDawumLastUpdateRaw,
 } from "@/lib/dawum/client";
+import { type Anomaly, detectAnomalies } from "./anomalies";
 import { transformDawumToRows } from "./transform";
 
 const CHUNK_SIZE = 1000;
@@ -28,6 +29,9 @@ export interface IngestResult {
   surveysNew: number;
   surveysUpdated: number;
   durationMs: number;
+  /** Plausibility issues found in the dawum payload (not a hard failure — the
+   * rows are still upserted; the caller can alert on these). */
+  anomalies: Anomaly[];
 }
 
 export async function runIngest(
@@ -56,6 +60,7 @@ export async function runIngest(
         surveysNew: 0,
         surveysUpdated: 0,
         durationMs: Date.now() - startedAt,
+        anomalies: [],
       };
     }
   }
@@ -66,6 +71,12 @@ export async function runIngest(
   try {
     const data = await fetchDawumDatabaseRaw();
     const rows = transformDawumToRows(data);
+
+    // Flag implausible data (don't drop it — still upsert; the caller alerts).
+    const anomalies = detectAnomalies(rows);
+    for (const a of anomalies) {
+      console.warn(`[ingest] anomaly (${a.kind}) survey=${a.surveyId}: ${a.detail}`);
+    }
 
     const existing = await database
       .select({ id: schema.surveys.id })
@@ -185,6 +196,7 @@ export async function runIngest(
       surveysNew,
       surveysUpdated,
       durationMs,
+      anomalies,
     };
   } catch (err) {
     await database

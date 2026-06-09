@@ -9,8 +9,13 @@
 import { build } from "esbuild";
 
 await build({
-  entryPoints: ["scripts/ingest.ts"],
-  outfile: "dist/ingest.cjs",
+  // Both worker entrypoints: the hourly ingest and the staleness watchdog.
+  entryPoints: {
+    ingest: "scripts/ingest.ts",
+    "check-ingest-health": "scripts/check-ingest-health.ts",
+  },
+  outdir: "dist",
+  outExtension: { ".js": ".cjs" },
   bundle: true,
   platform: "node",
   target: "node22",
