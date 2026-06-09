@@ -1,4 +1,4 @@
-import type { Metadata } from "next";
+import type { Metadata, Viewport } from "next";
 import { headers } from "next/headers";
 import Link from "next/link";
 import { Archivo, IBM_Plex_Mono, Inter } from "next/font/google";
@@ -81,6 +81,14 @@ export const metadata: Metadata = {
       "max-video-preview": -1,
     },
   },
+};
+
+// Address-bar / PWA theme colour — the brand navy header band in both schemes.
+export const viewport: Viewport = {
+  themeColor: [
+    { media: "(prefers-color-scheme: light)", color: "#15264c" },
+    { media: "(prefers-color-scheme: dark)", color: "#18305e" },
+  ],
 };
 
 export default async function RootLayout({
