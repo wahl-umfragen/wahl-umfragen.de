@@ -105,6 +105,20 @@ export const problemReports = pgTable(
   (t) => [index("problem_reports_created_idx").on(t.createdAt)],
 );
 
+/**
+ * Persistent per-client rate-limit counter for the problem-report endpoint.
+ * Survives restarts and is shared across instances (the in-memory limiter was
+ * neither). `key` is a SHA-256 of the client IP — we never store the raw IP
+ * (data minimisation). A fixed window is tracked via `windowStart`.
+ */
+export const reportRateLimit = pgTable("report_rate_limit", {
+  key: text("key").primaryKey(),
+  count: integer("count").notNull().default(0),
+  windowStart: timestamp("window_start", { withTimezone: true })
+    .notNull()
+    .defaultNow(),
+});
+
 export const ingestRuns = pgTable("ingest_runs", {
   id: text("id").primaryKey(),
   startedAt: timestamp("started_at", { withTimezone: true })

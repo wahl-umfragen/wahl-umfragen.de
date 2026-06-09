@@ -1,4 +1,5 @@
-import { randomUUID } from "node:crypto";
+import { createHash, randomUUID } from "node:crypto";
+import { sql } from "drizzle-orm";
 import type { NextRequest } from "next/server";
 import { db } from "@/db/client";
 import { problemReports } from "@/db/schema";
@@ -31,22 +32,40 @@ const MAX_BODY_BYTES = 16 * 1024;
 /** Page URL is context only — keep it short, don't let it become an attack vector. */
 const MAX_PAGE_URL_LENGTH = 512;
 
-// --- Per-IP rate limit (fixed window) -------------------------------------
-// In-memory is fine for the single-server systemd deploy: it resets on restart
-// and isn't shared across instances, but it blunts trivial floods. Pair with the
-// edge rate limit (deploy/SECURITY.md) for anything serious.
+// --- Per-IP rate limit (fixed window, persisted in Postgres) ---------------
+// DB-backed so it survives restarts and is shared across instances (the old
+// in-memory map was neither). The client IP is hashed — the raw IP is never
+// stored. Pair with the edge rate limit (deploy/SECURITY.md) for anything serious.
 const RATE_LIMIT = 5;
-const RATE_WINDOW_MS = 10 * 60 * 1000;
-const hits = new Map<string, { count: number; resetAt: number }>();
+const RATE_WINDOW = "10 minutes";
 
-function rateLimited(ip: string, now: number): boolean {
-  const entry = hits.get(ip);
-  if (!entry || now >= entry.resetAt) {
-    hits.set(ip, { count: 1, resetAt: now + RATE_WINDOW_MS });
+/**
+ * Atomically bump the counter for this client and report whether it's now over
+ * the limit. One upsert: a new key (or an expired window) resets to 1, otherwise
+ * the count increments. Fails open (returns false) on a DB error so a transient
+ * DB hiccup can't lock out a legitimate report.
+ */
+async function rateLimited(ip: string): Promise<boolean> {
+  const key = createHash("sha256").update(ip).digest("hex");
+  try {
+    const { rows } = await db.execute(sql`
+      INSERT INTO report_rate_limit (key, count, window_start)
+      VALUES (${key}, 1, now())
+      ON CONFLICT (key) DO UPDATE SET
+        count = CASE
+          WHEN report_rate_limit.window_start < now() - interval '${sql.raw(RATE_WINDOW)}'
+          THEN 1 ELSE report_rate_limit.count + 1 END,
+        window_start = CASE
+          WHEN report_rate_limit.window_start < now() - interval '${sql.raw(RATE_WINDOW)}'
+          THEN now() ELSE report_rate_limit.window_start END
+      RETURNING count
+    `);
+    const count = Number((rows[0] as { count: number } | undefined)?.count ?? 0);
+    return count > RATE_LIMIT;
+  } catch (err) {
+    console.error("[report] rate-limit check failed:", err);
     return false;
   }
-  entry.count += 1;
-  return entry.count > RATE_LIMIT;
 }
 
 function clientIp(req: NextRequest): string {
@@ -56,10 +75,8 @@ function clientIp(req: NextRequest): string {
 }
 
 export async function POST(req: NextRequest) {
-  // crypto isn't deterministic; Date.now is fine here (not a cached render path).
-  const now = Date.now();
   const ip = clientIp(req);
-  if (rateLimited(ip, now)) {
+  if (await rateLimited(ip)) {
     return Response.json(
       { error: "Zu viele Meldungen. Bitte später erneut versuchen." },
       { status: 429 },
