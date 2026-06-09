@@ -8,7 +8,7 @@ const STORAGE_KEY = "cookie-notice-ack";
 
 /**
  * Info-only notice (no consent gate): the site uses cookieless analytics
- * (Plausible) which needs no opt-in. The banner is a one-time informational
+ * (countless) which needs no opt-in. The banner is a one-time informational
  * hint; dismissing it persists in localStorage so it stays hidden.
  *
  * Reads localStorage through useSyncExternalStore so the server snapshot is

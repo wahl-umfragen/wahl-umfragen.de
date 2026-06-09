@@ -13,9 +13,10 @@ export const metadata: Metadata = buildMetadata({
  * Static privacy policy (Datenschutzerklärung) per DSGVO. Single-locale German
  * legal prose lives inline rather than in the i18n catalog.
  *
- * This text describes the *current* data practices: cookieless Plausible
- * analytics (no consent gate), server logfiles, and the dawum.de data source.
- * If the analytics provider or hosting changes, update this page accordingly.
+ * This text describes the *current* data practices: our own cookieless,
+ * self-hosted countless analytics (no consent gate, no third party), server
+ * logfiles, and the dawum.de data source. If the analytics setup or hosting
+ * changes, update this page accordingly.
  * [PLATZHALTER] markers must be filled before going live.
  */
 export default function DatenschutzPage() {
@@ -76,20 +77,38 @@ export default function DatenschutzPage() {
 
         <section>
           <h3 className="text-base font-semibold text-foreground">
-            4. Reichweitenmessung mit Plausible Analytics
+            4. Reichweitenmessung (countless)
           </h3>
           <p className="mt-2">
-            Zur statistischen Auswertung der Besuche nutzen wir Plausible
-            Analytics. Plausible arbeitet{" "}
+            Zur statistischen Auswertung der Besuche nutzen wir{" "}
+            <strong className="font-medium text-foreground">countless</strong>,
+            eine von uns selbst betriebene, cookielose Analyselösung. Die
+            Auswertung erfolgt ausschließlich auf unserer eigenen Infrastruktur –
+            es ist{" "}
+            <strong className="font-medium text-foreground">
+              kein externer Analyse-Dienstleister
+            </strong>{" "}
+            eingebunden und es werden keine Daten an Dritte weitergegeben.
+          </p>
+          <p className="mt-2">
+            countless arbeitet{" "}
             <strong className="font-medium text-foreground">
               cookielos und ohne personenbezogene Daten
             </strong>
-            : Es werden keine Cookies gesetzt und keine Daten über mehrere
-            Geräte oder Websites hinweg zusammengeführt. IP-Adressen werden
-            ausschließlich kurzzeitig und anonymisiert zur Generierung eines
-            tagesbezogenen, nicht zurückverfolgbaren Zählwerts verarbeitet und
-            nicht gespeichert. Es werden lediglich aggregierte Kennzahlen wie
-            Seitenaufrufe, Referrer und ungefähre Herkunftsregion erhoben.
+            : Es werden keine Cookies gesetzt, nichts auf Ihrem Endgerät
+            gespeichert oder ausgelesen und keine Daten über mehrere Geräte oder
+            Websites hinweg zusammengeführt. Zur Zählung tagesbezogener Besuche
+            wird aus IP-Adresse, Browserkennung und einem täglich wechselnden,
+            danach gelöschten Zufallswert ein nicht umkehrbarer Tageskennwert
+            gebildet. IP-Adresse und Browserkennung dienen ausschließlich dieser
+            kurzzeitigen Berechnung und werden{" "}
+            <strong className="font-medium text-foreground">
+              nicht gespeichert
+            </strong>
+            ; der Tageskennwert lässt sich keiner Person zuordnen und ist über
+            Tage hinweg nicht verknüpfbar. Erhoben werden lediglich aggregierte
+            Kennzahlen wie Seitenaufrufe, Referrer und ungefähre Herkunftsregion
+            (Land).
           </p>
           <p className="mt-2">
             Da hierbei keine personenbezogenen Daten verarbeitet und keine
@@ -97,16 +116,7 @@ export default function DatenschutzPage() {
             ist hierfür keine Einwilligung erforderlich. Soweit eine Verarbeitung
             erfolgt, beruht sie auf unserem berechtigten Interesse an einer
             datensparsamen Analyse des Nutzungsverhaltens (Art. 6 Abs. 1 lit. f
-            DSGVO). Weitere Informationen finden Sie in der{" "}
-            <a
-              href="https://plausible.io/data-policy"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="underline"
-            >
-              Datenschutzrichtlinie von Plausible
-            </a>
-            .
+            DSGVO).
           </p>
         </section>
 

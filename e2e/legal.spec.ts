@@ -29,7 +29,7 @@ test.describe("legal pages", () => {
     ).toBeVisible();
     // Cookieless analytics section.
     await expect(
-      page.getByRole("heading", { name: /Plausible Analytics/ }),
+      page.getByRole("heading", { name: /Reichweitenmessung/ }),
     ).toBeVisible();
   });
 
