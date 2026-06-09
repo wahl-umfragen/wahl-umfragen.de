@@ -1,0 +1,26 @@
+# One-shot unit that checks whether the stored dawum data has gone stale and
+# emails an alert if so. Triggered by wahlumfragen-ingest-health.timer — do NOT
+# enable this unit directly; enable the .timer instead.
+#
+# Adjust the same three placeholders as the ingest unit (User, WorkingDirectory,
+# ExecStart node path). SMTP_* / REPORT_RECIPIENT_EMAIL in .env enable the alert
+# mail; INGEST_STALE_HOURS (default 12) sets the staleness threshold.
+
+[Unit]
+Description=wahlumfragen ingest staleness watchdog (one-shot)
+After=network-online.target docker.service
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=wahlumfragen
+WorkingDirectory=/opt/wahlumfragen
+EnvironmentFile=/opt/wahlumfragen/.env
+ExecStart=/usr/bin/node dist/check-ingest-health.cjs
+
+TimeoutStartSec=120
+
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true

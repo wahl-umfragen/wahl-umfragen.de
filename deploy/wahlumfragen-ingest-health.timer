@@ -1,0 +1,18 @@
+# Schedules the ingest staleness watchdog. Enable THIS unit (not the .service):
+#   sudo systemctl enable --now wahlumfragen-ingest-health.timer
+#
+# Fires daily. It alerts only when the newest stored dawum_last_update is older
+# than INGEST_STALE_HOURS (default 12) — catching a wedged worker even though a
+# skipped ingest leaves no DB row (its heartbeat is the journald log).
+
+[Unit]
+Description=Run wahlumfragen ingest staleness watchdog daily
+
+[Timer]
+OnCalendar=daily
+Persistent=true
+RandomizedDelaySec=300
+Unit=wahlumfragen-ingest-health.service
+
+[Install]
+WantedBy=timers.target
