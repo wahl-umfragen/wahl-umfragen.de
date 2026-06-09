@@ -6,6 +6,7 @@ import {
   instituteComparison,
   instituteDeltas,
   seatDistribution,
+  weightedAverage,
   type PartyAverage,
 } from "./aggregate";
 import { SAMPLE_DB } from "./fixtures";
@@ -76,6 +77,45 @@ describe("instituteDeltas", () => {
     ]);
     expect(out.a2).toEqual({ CDU: 2 });
     expect(out.b2).toEqual({ CDU: -1 });
+  });
+});
+
+describe("weightedAverage", () => {
+  it("returns [] for no surveys", () => {
+    expect(weightedAverage([])).toEqual([]);
+  });
+
+  it("weights an older survey by the recency half-life", () => {
+    // Two surveys, same party, same (absent) sample size. The older one is
+    // exactly one half-life back, so its weight is 0.5 vs 1.0.
+    const surveys = [
+      dated("new", "a", "2026-02-15", { CDU: 30 }),
+      dated("old", "b", "2026-02-01", { CDU: 36 }), // 14 days older
+    ];
+    const [cdu] = weightedAverage(surveys, { halfLifeDays: 14 });
+    // (1*30 + 0.5*36) / 1.5 = 48/1.5 = 32
+    expect(cdu.percent).toBeCloseTo(32, 6);
+    expect(cdu.institutes).toBe(2);
+  });
+
+  it("weights by sqrt of sample size relative to the reference", () => {
+    // Same date (no recency effect). Sizes 1000 (w=1) and 4000 (w=2).
+    const surveys = [
+      dated("s", "a", "2026-02-15", { CDU: 30 }),
+      dated("l", "b", "2026-02-15", { CDU: 33 }),
+    ];
+    surveys[0].surveyedPersons = 1000;
+    surveys[1].surveyedPersons = 4000;
+    const [cdu] = weightedAverage(surveys, { refSampleSize: 1000 });
+    // (1*30 + 2*33) / 3 = 96/3 = 32
+    expect(cdu.percent).toBeCloseTo(32, 6);
+  });
+
+  it("sorts parties by weighted share, descending", () => {
+    const out = weightedAverage([
+      dated("x", "a", "2026-02-15", { CDU: 28, AfD: 22, SPD: 15 }),
+    ]);
+    expect(out.map((p) => p.shortcut)).toEqual(["CDU", "AfD", "SPD"]);
   });
 });
 

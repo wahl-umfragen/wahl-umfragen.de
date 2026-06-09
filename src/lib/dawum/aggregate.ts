@@ -113,6 +113,68 @@ export function instituteDeltas(
   return out;
 }
 
+export interface WeightedAverageOptions {
+  /** Recency half-life in days: a survey this many days older than the newest
+   * one in the set counts half as much. Smaller = more weight on fresh polls. */
+  halfLifeDays?: number;
+  /** Sample size that scores a weight of 1; others scale by sqrt(n / ref), so a
+   * 4× larger sample counts ~2× (diminishing returns). Surveys without a sample
+   * size get a neutral weight of 1. */
+  refSampleSize?: number;
+}
+
+/**
+ * "Poll of polls": a recency- and sample-size-weighted average across *all*
+ * given surveys (not just the latest per institute). Each survey's weight is
+ * `0.5^(ageDays / halfLifeDays) · sqrt(n / refSampleSize)`, where `ageDays` is
+ * measured from the **newest survey in the set** (not the wall clock) so the
+ * result is deterministic and unit-testable — mirroring `buildBundestagTrend`
+ * and `surveysWithinDays`. Each party's mean only counts surveys that reported
+ * it. Pass surveys already windowed (e.g. `surveysWithinDays(bundestag, 30)`).
+ * `institutes` carries the count of contributing surveys for this estimate.
+ */
+export function weightedAverage(
+  surveys: NormalizedSurvey[],
+  { halfLifeDays = 14, refSampleSize = 1000 }: WeightedAverageOptions = {},
+): PartyAverage[] {
+  if (surveys.length === 0) return [];
+
+  let newest = 0;
+  for (const s of surveys) {
+    const t = new Date(s.date).getTime();
+    if (t > newest) newest = t;
+  }
+
+  const acc = new Map<string, { name: string; wSum: number; wpSum: number; n: number }>();
+  for (const s of surveys) {
+    const ageDays = (newest - new Date(s.date).getTime()) / 86_400_000;
+    const wRecency = Math.pow(0.5, ageDays / halfLifeDays);
+    const wSize = s.surveyedPersons
+      ? Math.sqrt(s.surveyedPersons / refSampleSize)
+      : 1;
+    const w = wRecency * wSize;
+    for (const r of s.results) {
+      const prev = acc.get(r.shortcut);
+      if (prev) {
+        prev.wSum += w;
+        prev.wpSum += w * r.percent;
+        prev.n += 1;
+      } else {
+        acc.set(r.shortcut, { name: r.name, wSum: w, wpSum: w * r.percent, n: 1 });
+      }
+    }
+  }
+
+  return [...acc.entries()]
+    .map(([shortcut, v]) => ({
+      shortcut,
+      name: v.name,
+      percent: v.wSum > 0 ? v.wpSum / v.wSum : 0,
+      institutes: v.n,
+    }))
+    .sort((a, b) => b.percent - a.percent);
+}
+
 export interface SeatEntry {
   shortcut: string;
   name: string;

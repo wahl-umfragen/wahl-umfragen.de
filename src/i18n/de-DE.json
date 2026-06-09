@@ -159,6 +159,11 @@
     "noMajority": "keine Mehrheit",
     "excluded": "Unter 5%-Hürde, zählt nicht: {parties}"
   },
+  "pollOfPolls": {
+    "title": "Poll of Polls",
+    "hint": "Gewichteter Schnitt aller Umfragen der letzten 30 Tage – nach Aktualität und Stichprobengröße.",
+    "basis": "Aus {count} Umfragen"
+  },
   "report": {
     "trigger": "Problem melden",
     "title": "Problem melden",

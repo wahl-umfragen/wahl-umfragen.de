@@ -2,6 +2,7 @@ import { Suspense } from "react";
 import { InstituteTable } from "@/components/institute-table";
 import { JsonLd } from "@/components/json-ld";
 import { PageHeader } from "@/components/page-header";
+import { PollOfPolls } from "@/components/poll-of-polls";
 import { RecentSurveys } from "@/components/recent-surveys";
 import { FaqSection, SeoSection } from "@/components/seo-section";
 import { t } from "@/i18n";
@@ -10,6 +11,7 @@ import {
   instituteDeltas,
   latestPerInstitute,
   surveysWithinDays,
+  weightedAverage,
 } from "@/lib/dawum";
 import { formatDateTime } from "@/lib/format";
 import { PAGE_INTRO, websiteLd } from "@/lib/seo";
@@ -42,6 +44,9 @@ async function Surveys() {
   const latest = latestPerInstitute(surveysWithinDays(bundestag, RECENT_DAYS));
   // Per-row change vs each institute's previous poll (computed over full history).
   const deltas = instituteDeltas(bundestag);
+  // Poll of polls: weighted average over the last 30 days of surveys.
+  const recent = surveysWithinDays(bundestag, 30);
+  const pollOfPolls = weightedAverage(recent);
 
   return (
     <>
@@ -60,6 +65,9 @@ async function Surveys() {
         </p>
       ) : (
         <>
+          {pollOfPolls.length > 0 ? (
+            <PollOfPolls average={pollOfPolls} basisCount={recent.length} />
+          ) : null}
           <InstituteTable surveys={latest} deltas={deltas} />
           <div className="mt-10">
             <RecentSurveys surveys={bundestag} />
