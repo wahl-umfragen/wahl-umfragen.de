@@ -162,6 +162,7 @@ export function ReportDialog() {
       <button
         type="button"
         onClick={open}
+        data-testid="report-trigger"
         className="font-medium text-brand-foreground underline underline-offset-2"
       >
         {t("report.trigger")}
@@ -170,6 +171,7 @@ export function ReportDialog() {
       <dialog
         ref={dialogRef}
         onClose={() => setIsOpen(false)}
+        data-testid="report-dialog"
         aria-labelledby={`${formId}-title`}
         className="m-auto w-[calc(100%-2rem)] max-w-lg rounded-xl border border-border bg-surface p-0 text-foreground shadow-xl backdrop:bg-black/50"
       >
@@ -204,7 +206,9 @@ export function ReportDialog() {
 
         {status === "success" ? (
           <div className="px-6 py-8">
-            <p className="text-sm text-foreground">{t("report.success")}</p>
+            <p data-testid="report-success" className="text-sm text-foreground">
+              {t("report.success")}
+            </p>
             <div className="mt-6 flex justify-end">
               <button
                 type="button"
