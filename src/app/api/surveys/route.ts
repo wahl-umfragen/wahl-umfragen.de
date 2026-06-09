@@ -51,7 +51,7 @@ export async function GET(req: NextRequest) {
   // ETag over (lastUpdate + query) lets clients revalidate with a 304 instead of
   // re-downloading the (potentially large) body.
   const etag = `W/"${lastUpdate ?? "0"}-${djb2(params.toString())}"`;
-  if (req.headers.get("if-none-match") === etag) {
+  if (req.headers?.get("if-none-match") === etag) {
     return new Response(null, { status: 304, headers: { etag, ...LICENSE_HEADERS } });
   }
 
