@@ -65,9 +65,9 @@ export default async function DatenstandPage() {
             <table className="w-full border-collapse text-sm">
               <thead>
                 <tr className="border-b-2 border-border-strong text-left text-xs font-bold uppercase tracking-wide text-muted">
-                  <th className="py-2 pr-3">{t("statusPage.institute")}</th>
-                  <th className="py-2 pr-3 text-right">{t("statusPage.count")}</th>
-                  <th className="py-2 pr-3 text-right">{t("statusPage.latest")}</th>
+                  <th scope="col" className="py-2 pr-3">{t("statusPage.institute")}</th>
+                  <th scope="col" className="py-2 pr-3 text-right">{t("statusPage.count")}</th>
+                  <th scope="col" className="py-2 pr-3 text-right">{t("statusPage.latest")}</th>
                 </tr>
               </thead>
               <tbody>

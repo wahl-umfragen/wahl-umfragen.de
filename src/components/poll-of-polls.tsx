@@ -52,7 +52,10 @@ export function PollOfPolls({
                 p.shortcut
               )}
             </span>
-            <div className="h-5 flex-1 overflow-hidden rounded bg-border/40">
+            <div
+              aria-hidden="true"
+              className="h-5 flex-1 overflow-hidden rounded bg-border/40"
+            >
               <div
                 className="h-full rounded"
                 style={{

@@ -126,9 +126,9 @@ export default async function PartyPage({
               <table className="w-full border-collapse text-sm">
                 <thead>
                   <tr className="border-b-2 border-border-strong text-left text-xs font-bold uppercase tracking-wide text-muted">
-                    <th className="py-2 pr-3">{t("partyPage.tableInstitute")}</th>
-                    <th className="py-2 pr-3">{t("partyPage.tableDate")}</th>
-                    <th className="py-2 pr-3 text-right">{t("partyPage.tableValue")}</th>
+                    <th scope="col" className="py-2 pr-3">{t("partyPage.tableInstitute")}</th>
+                    <th scope="col" className="py-2 pr-3">{t("partyPage.tableDate")}</th>
+                    <th scope="col" className="py-2 pr-3 text-right">{t("partyPage.tableValue")}</th>
                   </tr>
                 </thead>
                 <tbody>

@@ -18,7 +18,7 @@ export function SiteNav() {
   const pathname = usePathname();
 
   return (
-    <nav data-testid="site-nav" className="flex gap-1 text-sm">
+    <nav data-testid="site-nav" className="flex flex-wrap gap-1 text-sm">
       {LINKS.map((link) => {
         const active =
           link.href === "/"
