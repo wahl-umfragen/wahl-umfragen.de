@@ -158,5 +158,27 @@
     "majority": "Mehrheit",
     "noMajority": "keine Mehrheit",
     "excluded": "Unter 5%-Hürde, zählt nicht: {parties}"
+  },
+  "report": {
+    "trigger": "Problem melden",
+    "title": "Problem melden",
+    "intro": "Falsche Daten, ein Anzeigefehler oder ein anderer Hinweis? Schreib uns kurz – wir schauen es uns an.",
+    "categoryLabel": "Kategorie",
+    "categories": {
+      "data": "Falsche/veraltete Daten",
+      "bug": "Anzeige-/Funktionsfehler",
+      "other": "Sonstiges"
+    },
+    "messageLabel": "Beschreibung",
+    "messagePlaceholder": "Was ist passiert? Bitte so genau wie möglich.",
+    "emailLabel": "Deine E-Mail (optional)",
+    "emailHint": "Nur für Rückfragen. Wird nicht veröffentlicht.",
+    "submit": "Absenden",
+    "sending": "Wird gesendet …",
+    "close": "Schließen",
+    "cancel": "Abbrechen",
+    "required": "Pflichtfeld",
+    "success": "Danke! Deine Meldung ist bei uns eingegangen.",
+    "error": "Senden fehlgeschlagen. Bitte später erneut versuchen."
   }
 }

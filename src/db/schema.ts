@@ -80,6 +80,31 @@ export const surveyResults = pgTable(
   (t) => [primaryKey({ columns: [t.surveyId, t.partyId] })],
 );
 
+/**
+ * User-submitted problem reports from the site's "Problem melden" dialog. This
+ * is the durable record (the email notification is best-effort on top). No FK to
+ * any survey — a report is free-form feedback about anything on the site.
+ */
+export const problemReports = pgTable(
+  "problem_reports",
+  {
+    id: text("id").primaryKey(),
+    category: text("category").notNull(),
+    message: text("message").notNull(),
+    // Optional reporter email for follow-up questions.
+    email: text("email"),
+    // Page the user was on when reporting, plus their UA — context for triage.
+    pageUrl: text("page_url"),
+    userAgent: text("user_agent"),
+    // Triage workflow column; defaults to "new".
+    status: text("status").notNull().default("new"),
+    createdAt: timestamp("created_at", { withTimezone: true })
+      .notNull()
+      .defaultNow(),
+  },
+  (t) => [index("problem_reports_created_idx").on(t.createdAt)],
+);
+
 export const ingestRuns = pgTable("ingest_runs", {
   id: text("id").primaryKey(),
   startedAt: timestamp("started_at", { withTimezone: true })
@@ -104,3 +129,5 @@ export type Party = typeof parties.$inferSelect;
 export type Survey = typeof surveys.$inferSelect;
 export type SurveyResult = typeof surveyResults.$inferSelect;
 export type IngestRun = typeof ingestRuns.$inferSelect;
+export type ProblemReport = typeof problemReports.$inferSelect;
+export type NewProblemReport = typeof problemReports.$inferInsert;

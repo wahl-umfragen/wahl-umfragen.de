@@ -4,6 +4,7 @@ import { Archivo, IBM_Plex_Mono, Inter } from "next/font/google";
 import { Analytics } from "@/components/analytics";
 import { CookieBanner } from "@/components/cookie-banner";
 import { Logo } from "@/components/logo";
+import { ReportDialog } from "@/components/report-dialog";
 import { SiteNav } from "@/components/site-nav";
 import { ThemeProvider } from "@/components/theme-provider";
 import { ThemeToggle } from "@/components/theme-toggle";
@@ -161,6 +162,7 @@ export default function RootLayout({
                   <GitHubIcon className="h-4 w-4 shrink-0" />
                   {t("footer.github")}
                 </a>
+                <ReportDialog />
                 <Link
                   href="/impressum"
                   className="font-medium text-brand-foreground underline underline-offset-2"
