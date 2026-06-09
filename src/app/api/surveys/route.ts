@@ -1,14 +1,20 @@
 import type { NextRequest } from "next/server";
 import { loadBundestagData } from "@/lib/data";
+import { partyBySlug } from "@/lib/parties";
 
 /**
  * Public data endpoint for all Bundestag surveys.
  *   GET /api/surveys                    → JSON { lastUpdate, count, total, surveys }
  *   GET /api/surveys?format=csv         → CSV, one row per party result (long format)
  *   GET /api/surveys?limit=100&offset=0 → page through the dataset (newest first)
+ *   GET /api/surveys?partei=union       → only surveys reporting that party
+ *                                          (registry slug or raw dawum shortcut)
+ *   Also accepts ?institut=<id>, ?from=<ISO>, ?to=<ISO>.
  *
  * Reads the cached loader, so it returns current data without hitting the DB
- * per request. dawum data is ODbL — attribute accordingly when reusing.
+ * per request. Sends a weak ETag (over lastUpdate + query) so clients can
+ * revalidate with `If-None-Match` and get a 304. dawum data is ODbL — attribute
+ * accordingly when reusing.
  *
  * Hardening: serializing the full dataset (esp. CSV) is the most expensive
  * thing the origin does per uncached request, so it's a natural flood target.
@@ -41,6 +47,14 @@ export async function GET(req: NextRequest) {
   const params = req.nextUrl.searchParams;
   const format = params.get("format");
 
+  // Cheap conditional request: the dataset only changes on ingest, so a weak
+  // ETag over (lastUpdate + query) lets clients revalidate with a 304 instead of
+  // re-downloading the (potentially large) body.
+  const etag = `W/"${lastUpdate ?? "0"}-${djb2(params.toString())}"`;
+  if (req.headers.get("if-none-match") === etag) {
+    return new Response(null, { status: 304, headers: { etag, ...LICENSE_HEADERS } });
+  }
+
   const { limit, offset, error } = parsePaging(params);
   if (error) return Response.json({ error }, { status: 400 });
 
@@ -55,6 +69,7 @@ export async function GET(req: NextRequest) {
     // Cache at the browser (max-age) and the edge (s-maxage), and let the edge
     // serve stale while it revalidates so bursts don't pile onto the origin.
     "cache-control": "public, max-age=300, s-maxage=300, stale-while-revalidate=60",
+    etag,
     ...LICENSE_HEADERS,
   };
 
@@ -76,9 +91,10 @@ export async function GET(req: NextRequest) {
 
 /**
  * Filter `surveys` in-process by `institut` (exact id match), `from` (ISO date,
- * inclusive lower bound), and `to` (ISO date, inclusive upper bound).
- * Missing or malformed params are silently ignored so the call degrades
- * gracefully (unknown institute → zero rows, not a 500).
+ * inclusive lower bound), `to` (ISO date, inclusive upper bound), and `partei`
+ * (a party slug like "union" or a raw dawum shortcut — keeps only surveys that
+ * report that party). Missing or malformed params are silently ignored so the
+ * call degrades gracefully (unknown institute/party → zero rows, not a 500).
  */
 function applyFilters(
   surveys: Awaited<ReturnType<typeof loadBundestagData>>["bundestag"],
@@ -87,13 +103,29 @@ function applyFilters(
   const institut = params.get("institut") ?? "";
   const from = params.get("from") ?? "";
   const to = params.get("to") ?? "";
-  if (!institut && !from && !to) return surveys;
+  const partei = params.get("partei") ?? "";
+  if (!institut && !from && !to && !partei) return surveys;
+
+  // A party param may be a registry slug (→ its aliases) or a raw shortcut.
+  const partyAliases = partei
+    ? (partyBySlug(partei)?.aliases ?? [partei])
+    : null;
+
   return surveys.filter((s) => {
     if (institut && s.institute.id !== institut) return false;
     if (from && s.date < from) return false;
     if (to && s.date > to) return false;
+    if (partyAliases && !s.results.some((r) => partyAliases.includes(r.shortcut)))
+      return false;
     return true;
   });
+}
+
+/** Small, stable string hash for weak ETags (not security-sensitive). */
+function djb2(input: string): string {
+  let h = 5381;
+  for (let i = 0; i < input.length; i++) h = ((h << 5) + h + input.charCodeAt(i)) | 0;
+  return (h >>> 0).toString(36);
 }
 
 /**
