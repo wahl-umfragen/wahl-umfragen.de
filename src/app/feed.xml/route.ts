@@ -1,4 +1,5 @@
 import { loadBundestagData } from "@/lib/data";
+import { escapeXml } from "@/lib/escape";
 import { absoluteUrl, SITE_NAME } from "@/lib/seo";
 
 /**
@@ -12,15 +13,6 @@ const FEED_LIMIT = 50;
 
 /** Top parties summarised in each item's description. */
 const SUMMARY_PARTIES = 6;
-
-function escapeXml(value: string): string {
-  return value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;");
-}
 
 export async function GET() {
   const { bundestag, lastUpdate } = await loadBundestagData();
