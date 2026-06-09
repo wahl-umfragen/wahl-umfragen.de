@@ -229,6 +229,44 @@ export function weightedAverage(
     .sort((a, b) => b.percent - a.percent);
 }
 
+export interface PartyComparisonRow {
+  shortcut: string;
+  name: string;
+  current?: number;
+  previous?: number;
+  /** current − previous, only when both are present. */
+  delta?: number;
+}
+
+/**
+ * Diff two party-average snapshots (e.g. "now" vs "3 months ago") into one row
+ * per party with both values and the change. Parties present in only one
+ * snapshot keep that value and get no delta. Sorted by the current value
+ * (falling back to the previous) descending. Pure.
+ */
+export function comparePartyAverages(
+  current: PartyAverage[],
+  previous: PartyAverage[],
+): PartyComparisonRow[] {
+  const byShortcut = new Map<string, PartyComparisonRow>();
+  for (const p of current) {
+    byShortcut.set(p.shortcut, { shortcut: p.shortcut, name: p.name, current: p.percent });
+  }
+  for (const p of previous) {
+    const row = byShortcut.get(p.shortcut);
+    if (row) row.previous = p.percent;
+    else byShortcut.set(p.shortcut, { shortcut: p.shortcut, name: p.name, previous: p.percent });
+  }
+  for (const row of byShortcut.values()) {
+    if (row.current !== undefined && row.previous !== undefined) {
+      row.delta = Math.round((row.current - row.previous) * 10) / 10;
+    }
+  }
+  return [...byShortcut.values()].sort(
+    (a, b) => (b.current ?? b.previous ?? 0) - (a.current ?? a.previous ?? 0),
+  );
+}
+
 export interface SeatEntry {
   shortcut: string;
   name: string;

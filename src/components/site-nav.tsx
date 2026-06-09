@@ -9,6 +9,7 @@ const LINKS = [
   { href: "/partei", label: t("nav.parties") },
   { href: "/archiv", label: t("nav.archive") },
   { href: "/trend", label: t("nav.trend") },
+  { href: "/vergleich", label: t("nav.compare") },
   { href: "/laender", label: t("nav.laender") },
   { href: "/wahlen", label: t("nav.elections") },
   { href: "/koalition", label: t("nav.koalition") },

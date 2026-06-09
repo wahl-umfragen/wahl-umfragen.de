@@ -125,6 +125,11 @@ export const PAGE_META = {
     description:
       "Aktuelle Umfragewerte aller Bundestagsparteien (CDU/CSU, SPD, Grüne, AfD, Linke, BSW, FDP, FW): gewichteter Schnitt, Verlauf und Höchst-/Tiefstwerte der Sonntagsfrage.",
   },
+  vergleich: {
+    title: "Umfrage-Vergleich – Veränderung über die Zeit",
+    description:
+      "Vergleiche die aktuelle Sonntagsfrage mit dem Stand vor 1, 3, 6 oder 12 Monaten: gewichteter Schnitt je Partei mit der Veränderung in Prozentpunkten.",
+  },
   datenstand: {
     title: "Datenstand – Aktualität und Abdeckung der Umfragen",
     description:

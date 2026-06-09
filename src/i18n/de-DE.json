@@ -9,7 +9,8 @@
     "archive": "Archiv",
     "elections": "Wahlen",
     "laender": "Länder",
-    "parties": "Parteien"
+    "parties": "Parteien",
+    "compare": "Vergleich"
   },
   "theme": {
     "label": "Farbschema",
@@ -203,6 +204,20 @@
     "tableInstitute": "Institut",
     "tableDate": "Datum",
     "tableValue": "Wert"
+  },
+  "comparePage": {
+    "title": "Umfrage-Vergleich",
+    "subtitle": "Veränderung der Sonntagsfrage gegenüber einem früheren Zeitpunkt.",
+    "periodLabel": "Vergleichszeitraum:",
+    "m1": "vor 1 Monat",
+    "m3": "vor 3 Monaten",
+    "m6": "vor 6 Monaten",
+    "m12": "vor 12 Monaten",
+    "party": "Partei",
+    "then": "Damals",
+    "now": "Jetzt",
+    "delta": "Veränderung",
+    "noData": "Für diesen Vergleichszeitraum liegen keine Umfragen vor."
   },
   "report": {
     "trigger": "Problem melden",

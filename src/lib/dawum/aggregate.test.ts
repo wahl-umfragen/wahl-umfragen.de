@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import {
   archivePartyOrder,
+  comparePartyAverages,
   currentAverage,
   houseEffects,
   instituteComparison,
@@ -106,6 +107,43 @@ describe("partySeries", () => {
     const out = partySeries(surveys, (s) => s === "FDP");
     expect(out.points).toEqual([]);
     expect(out.latest).toBeUndefined();
+  });
+});
+
+describe("comparePartyAverages", () => {
+  const now = [
+    { shortcut: "CDU/CSU", name: "CDU/CSU", percent: 30, institutes: 3 },
+    { shortcut: "AfD", name: "AfD", percent: 22, institutes: 3 },
+    { shortcut: "BSW", name: "BSW", percent: 6, institutes: 2 },
+  ];
+  const then = [
+    { shortcut: "CDU/CSU", name: "CDU/CSU", percent: 28, institutes: 3 },
+    { shortcut: "AfD", name: "AfD", percent: 25, institutes: 3 },
+    { shortcut: "FDP", name: "FDP", percent: 4, institutes: 2 },
+  ];
+
+  it("computes deltas for parties in both snapshots", () => {
+    const rows = comparePartyAverages(now, then);
+    const cdu = rows.find((r) => r.shortcut === "CDU/CSU");
+    const afd = rows.find((r) => r.shortcut === "AfD");
+    expect(cdu).toMatchObject({ current: 30, previous: 28, delta: 2 });
+    expect(afd).toMatchObject({ current: 22, previous: 25, delta: -3 });
+  });
+
+  it("keeps one-sided parties without a delta", () => {
+    const rows = comparePartyAverages(now, then);
+    const bsw = rows.find((r) => r.shortcut === "BSW");
+    expect(bsw?.current).toBe(6);
+    expect(bsw?.previous).toBeUndefined();
+    expect(bsw?.delta).toBeUndefined();
+    const fdp = rows.find((r) => r.shortcut === "FDP");
+    expect(fdp?.previous).toBe(4);
+    expect(fdp?.current).toBeUndefined();
+  });
+
+  it("sorts by current value descending", () => {
+    const rows = comparePartyAverages(now, then);
+    expect(rows[0].shortcut).toBe("CDU/CSU");
   });
 });
 
