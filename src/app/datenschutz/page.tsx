@@ -6,6 +6,7 @@ import { buildMetadata, PAGE_META } from "@/lib/seo";
 export const metadata: Metadata = buildMetadata({
   ...PAGE_META.datenschutz,
   path: "/datenschutz",
+  noindex: true,
 });
 
 /**

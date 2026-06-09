@@ -29,8 +29,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "daily" as const,
       priority: 0.6,
     })),
-    { url: absoluteUrl("/impressum"), changeFrequency: "yearly", priority: 0.2 },
-    { url: absoluteUrl("/datenschutz"), changeFrequency: "yearly", priority: 0.2 },
+    // Impressum and Datenschutz are intentionally omitted: they carry a
+    // `noindex` robots tag (see buildMetadata) and must not be advertised for
+    // indexing.
   ];
 
   // Institute pages: distinct institutes, stamped with their newest survey.

@@ -51,6 +51,14 @@ interface PageMetaInput {
   path: string;
   /** Use the title verbatim (no "· Wahlumfragen" template suffix). */
   absoluteTitle?: boolean;
+  /**
+   * Keep the page out of search engines (legal pages like Impressum and
+   * Datenschutz). Emits a `noindex, follow` robots meta tag so crawlers still
+   * follow outgoing links but neither index nor surface the page in results.
+   * Note: such pages must stay crawlable (not disallowed in robots.txt) so the
+   * crawler can actually read this tag.
+   */
+  noindex?: boolean;
 }
 
 /**
@@ -63,11 +71,13 @@ export function buildMetadata({
   description,
   path,
   absoluteTitle = false,
+  noindex = false,
 }: PageMetaInput): Metadata {
   return {
     title: absoluteTitle ? { absolute: title } : title,
     description,
     alternates: { canonical: path },
+    ...(noindex ? { robots: { index: false, follow: true } } : {}),
     openGraph: {
       type: "website",
       siteName: SITE_NAME,
