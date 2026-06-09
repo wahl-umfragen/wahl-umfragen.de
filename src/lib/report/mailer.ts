@@ -85,12 +85,7 @@ export async function sendReportEmail(
   ];
 
   try {
-    const transport = nodemailer.createTransport({
-      host: config.host,
-      port: config.port,
-      secure: config.secure,
-      auth: { user: config.user, pass: config.pass },
-    });
+    const transport = transportFor(config);
     await transport.sendMail({
       from: config.from,
       to: config.to,
@@ -104,4 +99,51 @@ export async function sendReportEmail(
     console.error("[report] failed to send notification email:", err);
     return false;
   }
+}
+
+/**
+ * Acknowledgement email to the reporter (only when they supplied an address and
+ * SMTP is configured). Best-effort like `sendReportEmail`: never throws, returns
+ * false when skipped or failed.
+ */
+export async function sendReportConfirmation(report: ValidReport): Promise<boolean> {
+  if (!report.email) return false;
+  const config = readConfig();
+  if (!config) return false;
+
+  const categoryLabel = CATEGORY_LABELS[report.category] ?? report.category;
+  const lines = [
+    "Danke für deine Meldung an wahlumfragen!",
+    "",
+    "Wir haben deinen Hinweis erhalten und schauen ihn uns an. Diese E-Mail",
+    "dient nur der Bestätigung – du musst nichts weiter tun.",
+    "",
+    `Kategorie: ${categoryLabel}`,
+    "",
+    "Deine Nachricht:",
+    report.message,
+  ];
+
+  try {
+    const transport = transportFor(config);
+    await transport.sendMail({
+      from: config.from,
+      to: report.email,
+      subject: "Deine Meldung an Wahlumfragen ist eingegangen",
+      text: lines.join("\n"),
+    });
+    return true;
+  } catch (err) {
+    console.error("[report] failed to send confirmation email:", err);
+    return false;
+  }
+}
+
+function transportFor(config: SmtpConfig) {
+  return nodemailer.createTransport({
+    host: config.host,
+    port: config.port,
+    secure: config.secure,
+    auth: { user: config.user, pass: config.pass },
+  });
 }

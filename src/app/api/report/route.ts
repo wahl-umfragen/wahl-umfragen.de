@@ -2,7 +2,7 @@ import { randomUUID } from "node:crypto";
 import type { NextRequest } from "next/server";
 import { db } from "@/db/client";
 import { problemReports } from "@/db/schema";
-import { sendReportEmail } from "@/lib/report/mailer";
+import { sendReportConfirmation, sendReportEmail } from "@/lib/report/mailer";
 import { verifyTurnstile } from "@/lib/report/turnstile";
 import {
   isHoneypotTripped,
@@ -127,8 +127,12 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  // Best-effort notification — the report is already saved, so don't fail on it.
-  await sendReportEmail(report, { id, pageUrl, userAgent });
+  // Best-effort notification + reporter acknowledgement — the report is already
+  // saved, so don't fail the request on a mail error. Run both concurrently.
+  await Promise.all([
+    sendReportEmail(report, { id, pageUrl, userAgent }),
+    sendReportConfirmation(report),
+  ]);
 
   return Response.json({ ok: true });
 }
