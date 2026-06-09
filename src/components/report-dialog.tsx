@@ -1,38 +1,115 @@
 "use client";
 
-import { useId, useRef, useState } from "react";
+import { useEffect, useId, useRef, useState } from "react";
+import Script from "next/script";
 import { t } from "@/i18n";
 import { REPORT_CATEGORIES } from "@/lib/report/validate";
 
 type Status = "idle" | "sending" | "success" | "error";
 
+/** Minimal typing for the Turnstile JS API we use (explicit-render subset). */
+interface TurnstileApi {
+  render: (
+    el: HTMLElement,
+    opts: {
+      sitekey: string;
+      callback?: (token: string) => void;
+      "expired-callback"?: () => void;
+      "error-callback"?: () => void;
+      theme?: "auto" | "light" | "dark";
+    },
+  ) => string;
+  reset: (id?: string) => void;
+}
+declare global {
+  interface Window {
+    turnstile?: TurnstileApi;
+  }
+}
+
+const TURNSTILE_SRC = "https://challenges.cloudflare.com/turnstile/v0/api.js";
+
 /**
  * "Problem melden" footer entry: a button that opens a native <dialog> modal
  * with the report form. Native <dialog> gives us focus trapping, Esc-to-close
- * and a backdrop for free. The form POSTs JSON to /api/report; on success it
- * shows a confirmation. A hidden honeypot field traps naive bots (see the
- * route's `isHoneypotTripped`).
+ * and a backdrop for free. The form POSTs JSON to /api/report.
+ *
+ * Bot protection: when NEXT_PUBLIC_TURNSTILE_SITE_KEY is set, a Cloudflare
+ * Turnstile widget is rendered and its token is required before submitting; the
+ * route verifies it server-side (see deploy/SECURITY.md). When the key is unset
+ * (dev/preview) the widget is skipped and the route doesn't enforce it. A hidden
+ * honeypot field and a per-IP rate limit back this up.
  */
 export function ReportDialog() {
+  const siteKey = process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY;
+
   const dialogRef = useRef<HTMLDialogElement>(null);
+  const widgetContainerRef = useRef<HTMLDivElement>(null);
+  const widgetIdRef = useRef<string | null>(null);
   const formId = useId();
+
+  const [isOpen, setIsOpen] = useState(false);
+  const [scriptReady, setScriptReady] = useState(false);
+  const [token, setToken] = useState("");
   const [status, setStatus] = useState<Status>("idle");
-  const [error, setError] = useState<string>("");
+  const [error, setError] = useState("");
+
+  // Drive the native dialog from state so we can coordinate widget rendering.
+  useEffect(() => {
+    const dialog = dialogRef.current;
+    if (!dialog) return;
+    if (isOpen && !dialog.open) dialog.showModal();
+    if (!isOpen && dialog.open) dialog.close();
+  }, [isOpen]);
+
+  // Render the Turnstile widget only while the dialog is visible (Turnstile
+  // needs a visible container). Render once, then reset on subsequent opens so
+  // every submission gets a fresh single-use token.
+  useEffect(() => {
+    if (!isOpen || !scriptReady || !siteKey) return;
+    const ts = window.turnstile;
+    const el = widgetContainerRef.current;
+    if (!ts || !el) return;
+    if (widgetIdRef.current == null) {
+      widgetIdRef.current = ts.render(el, {
+        sitekey: siteKey,
+        callback: (tok) => setToken(tok),
+        "expired-callback": () => setToken(""),
+        "error-callback": () => setToken(""),
+        theme: "auto",
+      });
+    } else {
+      ts.reset(widgetIdRef.current);
+      setToken("");
+    }
+  }, [isOpen, scriptReady, siteKey]);
 
   function open() {
     setStatus("idle");
     setError("");
-    dialogRef.current?.showModal();
+    setIsOpen(true);
   }
 
   function close() {
-    dialogRef.current?.close();
+    setIsOpen(false);
+  }
+
+  function resetCaptcha() {
+    if (widgetIdRef.current != null) window.turnstile?.reset(widgetIdRef.current);
+    setToken("");
   }
 
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     const form = e.currentTarget;
     const data = new FormData(form);
+
+    if (siteKey && !token) {
+      setError(t("report.captchaRequired"));
+      setStatus("error");
+      return;
+    }
+
     setStatus("sending");
     setError("");
 
@@ -45,6 +122,7 @@ export function ReportDialog() {
           message: data.get("message"),
           email: data.get("email"),
           honeypot: data.get("website"),
+          turnstileToken: token || undefined,
           pageUrl:
             typeof window !== "undefined" ? window.location.href : undefined,
         }),
@@ -55,13 +133,16 @@ export function ReportDialog() {
         } | null;
         setError(payload?.error ?? t("report.error"));
         setStatus("error");
+        resetCaptcha();
         return;
       }
       form.reset();
       setStatus("success");
+      resetCaptcha();
     } catch {
       setError(t("report.error"));
       setStatus("error");
+      resetCaptcha();
     }
   }
 
@@ -69,6 +150,15 @@ export function ReportDialog() {
 
   return (
     <>
+      {siteKey && (
+        <Script
+          src={TURNSTILE_SRC}
+          strategy="afterInteractive"
+          onLoad={() => setScriptReady(true)}
+          onReady={() => setScriptReady(true)}
+        />
+      )}
+
       <button
         type="button"
         onClick={open}
@@ -79,6 +169,7 @@ export function ReportDialog() {
 
       <dialog
         ref={dialogRef}
+        onClose={() => setIsOpen(false)}
         aria-labelledby={`${formId}-title`}
         className="m-auto w-[calc(100%-2rem)] max-w-lg rounded-xl border border-border bg-surface p-0 text-foreground shadow-xl backdrop:bg-black/50"
       >
@@ -201,6 +292,9 @@ export function ReportDialog() {
                 autoComplete="off"
               />
             </div>
+
+            {/* Cloudflare Turnstile widget mount point (only when configured). */}
+            {siteKey && <div ref={widgetContainerRef} className="min-h-[65px]" />}
 
             {status === "error" && (
               <p role="alert" className="text-sm text-red-600 dark:text-red-400">

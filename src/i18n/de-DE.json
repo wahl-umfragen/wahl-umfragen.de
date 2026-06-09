@@ -178,6 +178,7 @@
     "close": "Schließen",
     "cancel": "Abbrechen",
     "required": "Pflichtfeld",
+    "captchaRequired": "Bitte die Bot-Schutz-Prüfung abschließen.",
     "success": "Danke! Deine Meldung ist bei uns eingegangen.",
     "error": "Senden fehlgeschlagen. Bitte später erneut versuchen."
   }

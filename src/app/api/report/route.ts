@@ -3,6 +3,7 @@ import type { NextRequest } from "next/server";
 import { db } from "@/db/client";
 import { problemReports } from "@/db/schema";
 import { sendReportEmail } from "@/lib/report/mailer";
+import { verifyTurnstile } from "@/lib/report/turnstile";
 import {
   isHoneypotTripped,
   MAX_EMAIL_LENGTH,
@@ -91,6 +92,16 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: result.error }, { status: 400 });
   }
   const report = result.value;
+
+  // Bot gate: verify the Cloudflare Turnstile token. No-ops when Turnstile is
+  // unconfigured (dev/preview); enforced in production (see deploy/SECURITY.md).
+  const human = await verifyTurnstile(raw.turnstileToken, ip);
+  if (!human) {
+    return Response.json(
+      { error: "Bot-Schutz-Prüfung fehlgeschlagen. Bitte erneut versuchen." },
+      { status: 403 },
+    );
+  }
 
   const pageUrl =
     typeof raw.pageUrl === "string" && raw.pageUrl.length <= MAX_PAGE_URL_LENGTH

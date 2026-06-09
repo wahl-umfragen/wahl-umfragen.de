@@ -1,11 +1,13 @@
 # Edge protection: Cloudflare + locked-down origin
 
 This documents the bot / DDoS protection for wahlumfragen. The site is
-**read-only** — static pages plus a public read API (`/api/surveys`) and one
-secret-gated POST (`/api/revalidate`) the local ingest worker calls. There are
-**no forms, no logins, no user submissions**, so the protection that matters is
-*edge caching + DDoS mitigation + a hidden origin*, **not** a CAPTCHA (there is
-no interactive endpoint for one to guard — see "Turnstile, for later").
+**almost entirely read-only** — static pages plus a public read API
+(`/api/surveys`) and one secret-gated POST (`/api/revalidate`) the local ingest
+worker calls. The one public, unauthenticated write endpoint is the
+problem-report form (`/api/report`); it is gated by **Cloudflare Turnstile** plus
+a honeypot and per-IP rate limit (see "Turnstile (shipped)" below). For
+everything else the protection that matters is *edge caching + DDoS mitigation +
+a hidden origin*.
 
 The strategy, in order of impact:
 
@@ -156,42 +158,34 @@ curl -sI https://wahlumfragen.example.de | grep -iE 'strict-transport|x-content|
 
 ---
 
-## Turnstile, for later (NOT needed today)
+## Turnstile (shipped — guards `/api/report`)
 
-A CAPTCHA only protects **interactive endpoints** — a form/submission a human
-fills in. wahlumfragen has none, so there is nothing for hCaptcha or Turnstile
-to guard right now; adding one would only add JS weight and a vendor dependency
-for zero benefit.
+The problem-report form is the one interactive endpoint, so it's gated by
+**Cloudflare Turnstile** (chosen over hCaptcha: free, privacy-friendly, and
+native to a Cloudflare-fronted site — no extra third party). It's wired in the
+app already; production just needs the keys set.
 
-**When that changes** (e.g. a contact form, a data-correction submission, an
-email signup), add **Cloudflare Turnstile** rather than hCaptcha — it's the
-direct hCaptcha equivalent, free, privacy-friendly, and integrates natively with
-a Cloudflare-fronted site (no extra third party). Sketch:
+**Layers on `/api/report`** (defense in depth, see `src/app/api/report/route.ts`):
+
+1. **Turnstile** — widget in the dialog (`src/components/report-dialog.tsx`),
+   token verified server-side via siteverify (`src/lib/report/turnstile.ts`)
+   **before** the report is persisted.
+2. **Honeypot** — a hidden field bots tend to fill; tripping it drops the
+   submission silently (fake `200`).
+3. **Per-IP rate limit** — in-memory fixed window (5 / 10 min) in the route.
+
+**Setup:**
 
 1. Cloudflare dashboard → **Turnstile** → create a widget for the hostname.
    You get a **site key** (public) and **secret key** (server-side).
-2. Store the secret as an env var (`TURNSTILE_SECRET`) — never commit it.
-3. Render the widget on the form:
+2. Set env on the app (never commit them):
+   - `NEXT_PUBLIC_TURNSTILE_SITE_KEY` — renders the widget (build-time inlined).
+   - `TURNSTILE_SECRET` — enables + enforces server-side verification.
+3. Behaviour is keyed on env presence: when `TURNSTILE_SECRET` is **unset**
+   (dev/preview) verification is skipped and the widget isn't rendered; set both
+   in production to enforce the gate. Fails **closed** on a missing token or a
+   siteverify error.
 
-   ```tsx
-   // in the form's client component
-   <script src="https://challenges.cloudflare.com/turnstile/v0/api.js" async defer />
-   <div className="cf-turnstile" data-sitekey={process.env.NEXT_PUBLIC_TURNSTILE_SITE_KEY} />
-   ```
-
-4. Verify the token server-side in the route handler **before** doing the work:
-
-   ```ts
-   const token = formData.get("cf-turnstile-response");
-   const verify = await fetch(
-     "https://challenges.cloudflare.com/turnstile/v0/siteverify",
-     {
-       method: "POST",
-       headers: { "content-type": "application/json" },
-       body: JSON.stringify({ secret: process.env.TURNSTILE_SECRET, response: token }),
-     },
-   ).then((r) => r.json());
-   if (!verify.success) return Response.json({ error: "captcha failed" }, { status: 400 });
-   ```
-
-Until there's such an endpoint, leave this out.
+> Optionally also add a Cloudflare **WAF rate-limiting rule** on
+> `URI Path equals /api/report` (e.g. 10 / 10 min per IP, Managed Challenge) as
+> an edge layer in front of the app's in-memory limiter.
