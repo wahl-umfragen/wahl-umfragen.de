@@ -9,9 +9,10 @@ import type { NextRequest } from "next/server";
  * own dependencies (next/script analytics, the Turnstile widget) without
  * enumerating every host.
  *
- * Rollout safety: defaults to **Report-Only** (logs violations, blocks nothing)
- * so a missed directive can't break the live site. Set `CSP_ENFORCE=true` to
- * switch to the enforcing header once the reports look clean. `style-src`
+ * The policy is **enforcing** by default — verified violation-free on the
+ * JS-heavy pages by e2e/csp.spec.ts (Next hydration, recharts, next-themes).
+ * Set `CSP_REPORT_ONLY=true` to fall back to the Report-Only header (logs
+ * violations, blocks nothing) if a future change needs re-verifying. `style-src`
  * allows 'unsafe-inline' because Next/recharts/next-font emit inline styles.
  *
  * The matcher skips API routes, the embeddable /embed widget (it sets its own
@@ -42,9 +43,9 @@ export function proxy(request: NextRequest) {
 
   const response = NextResponse.next({ request: { headers: requestHeaders } });
   const headerName =
-    process.env.CSP_ENFORCE === "true"
-      ? "content-security-policy"
-      : "content-security-policy-report-only";
+    process.env.CSP_REPORT_ONLY === "true"
+      ? "content-security-policy-report-only"
+      : "content-security-policy";
   response.headers.set(headerName, csp);
   return response;
 }
