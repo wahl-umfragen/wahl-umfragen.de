@@ -11,24 +11,42 @@ import type { NextConfig } from "next";
  * clickjacking protection, which is safe and doesn't touch script/style.
  * HSTS assumes the site is served over HTTPS (Cloudflare terminates TLS).
  */
-const securityHeaders = [
+/** Headers shared by every response (framing aside). */
+const baseHeaders = [
   {
     key: "Strict-Transport-Security",
     value: "max-age=63072000; includeSubDomains; preload",
   },
   { key: "X-Content-Type-Options", value: "nosniff" },
-  { key: "X-Frame-Options", value: "DENY" },
   { key: "Referrer-Policy", value: "strict-origin-when-cross-origin" },
   {
     key: "Permissions-Policy",
     value: "camera=(), microphone=(), geolocation=(), browsing-topics=()",
   },
+];
+
+/** Clickjacking protection for the app itself — must NOT be framed. */
+const denyFramingHeaders = [
+  ...baseHeaders,
+  { key: "X-Frame-Options", value: "DENY" },
   { key: "Content-Security-Policy", value: "frame-ancestors 'none'" },
+];
+
+/** The /embed widget is meant to be iframed by third-party sites, so it opts
+ * out of the deny-framing headers (no X-Frame-Options; CSP allows any ancestor). */
+const allowFramingHeaders = [
+  ...baseHeaders,
+  { key: "Content-Security-Policy", value: "frame-ancestors *" },
 ];
 
 const nextConfig: NextConfig = {
   async headers() {
-    return [{ source: "/:path*", headers: securityHeaders }];
+    return [
+      // Everything except the embed widget gets the strict no-framing headers.
+      { source: "/((?!embed).*)", headers: denyFramingHeaders },
+      { source: "/embed", headers: allowFramingHeaders },
+      { source: "/embed/:path*", headers: allowFramingHeaders },
+    ];
   },
 };
 
