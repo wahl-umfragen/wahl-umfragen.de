@@ -1,0 +1,196 @@
+import type { Metadata } from "next";
+import Link from "next/link";
+import { notFound } from "next/navigation";
+import { JsonLd } from "@/components/json-ld";
+import { PageHeader } from "@/components/page-header";
+import { PartySparkline } from "@/components/party-sparkline";
+import { SeoSection } from "@/components/seo-section";
+import { t } from "@/i18n";
+import { loadBundestagData } from "@/lib/data";
+import { partySeries, surveysWithinDays, weightedAverage } from "@/lib/dawum";
+import { partyColorVar } from "@/lib/dawum/colors";
+import { formatDate } from "@/lib/format";
+import { PARTIES, partyBySlug } from "@/lib/parties";
+import { breadcrumbLd, buildMetadata } from "@/lib/seo";
+
+/** Pre-render every registered party page at build time (small, known set). */
+export function generateStaticParams() {
+  return PARTIES.map((p) => ({ slug: p.slug }));
+}
+
+export async function generateMetadata({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}): Promise<Metadata> {
+  const { slug } = await params;
+  const party = partyBySlug(slug);
+  if (!party) return {};
+  return buildMetadata({
+    title: `${party.name} Umfragen – Sonntagsfrage Bundestag`,
+    description: `Aktuelle Umfragewerte für ${party.name} zur Bundestagswahl: gewichteter Schnitt der Sonntagsfrage, Verlauf über die Zeit sowie Höchst- und Tiefstwert aller erfassten Umfragen.`,
+    path: `/partei/${slug}`,
+  });
+}
+
+export default async function PartyPage({
+  params,
+}: {
+  params: Promise<{ slug: string }>;
+}) {
+  const { slug } = await params;
+  const party = partyBySlug(slug);
+  if (!party) notFound();
+
+  const { bundestag } = await loadBundestagData();
+  const matches = (s: string) => party.aliases.includes(s);
+  const series = partySeries(bundestag, matches);
+
+  // Weighted poll-of-polls value for this party (last 30 days), else latest.
+  const weighted = weightedAverage(surveysWithinDays(bundestag, 30)).find((p) =>
+    party.aliases.includes(p.shortcut),
+  );
+  const current = weighted?.percent ?? series.latest?.percent;
+
+  return (
+    <div className="mx-auto max-w-4xl px-6 py-10">
+      <JsonLd
+        data={breadcrumbLd([
+          { name: "Startseite", path: "/" },
+          { name: t("partyPage.overviewTitle"), path: "/partei" },
+          { name: party.name, path: `/partei/${slug}` },
+        ])}
+      />
+      <Link
+        href="/partei"
+        className="text-sm font-medium text-muted hover:text-foreground"
+      >
+        {t("partyPage.back")}
+      </Link>
+
+      <div className="mt-4 mb-8 flex items-center gap-3">
+        <span
+          aria-hidden="true"
+          className="inline-block h-7 w-7 shrink-0 rounded-full"
+          style={{ backgroundColor: partyColorVar(party.shortcut) }}
+        />
+        <PageHeader title={party.name} />
+      </div>
+
+      {series.points.length === 0 ? (
+        <p className="text-sm text-muted">{t("partyPage.noData")}</p>
+      ) : (
+        <>
+          <dl className="mb-10 grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4">
+            <Stat label={t("partyPage.current")} hint={t("partyPage.currentHint")}>
+              {current !== undefined ? `${current.toFixed(1)} %` : "—"}
+            </Stat>
+            <Stat label={t("partyPage.latest")}>
+              {series.latest ? `${series.latest.percent.toFixed(1)} %` : "—"}
+              {series.latest ? (
+                <span className="block text-xs font-normal text-muted">
+                  {formatDate(series.latest.date)}
+                </span>
+              ) : null}
+            </Stat>
+            <Stat label={t("partyPage.high")}>
+              {series.high ? `${series.high.percent.toFixed(1)} %` : "—"}
+              {series.high ? (
+                <span className="block text-xs font-normal text-muted">
+                  {formatDate(series.high.date)}
+                </span>
+              ) : null}
+            </Stat>
+            <Stat label={t("partyPage.low")}>
+              {series.low ? `${series.low.percent.toFixed(1)} %` : "—"}
+              {series.low ? (
+                <span className="block text-xs font-normal text-muted">
+                  {formatDate(series.low.date)}
+                </span>
+              ) : null}
+            </Stat>
+          </dl>
+
+          <section className="mb-10">
+            <h2 className="eyebrow mb-3">{t("partyPage.trendTitle")}</h2>
+            <PartySparkline
+              points={series.points}
+              shortcut={party.shortcut}
+              label={`Umfrageverlauf ${party.name}`}
+            />
+          </section>
+
+          <section className="mb-10">
+            <h2 className="eyebrow mb-3">{t("partyPage.recentTitle")}</h2>
+            <div className="overflow-x-auto">
+              <table className="w-full border-collapse text-sm">
+                <thead>
+                  <tr className="border-b-2 border-border-strong text-left text-xs font-bold uppercase tracking-wide text-muted">
+                    <th className="py-2 pr-3">{t("partyPage.tableInstitute")}</th>
+                    <th className="py-2 pr-3">{t("partyPage.tableDate")}</th>
+                    <th className="py-2 pr-3 text-right">{t("partyPage.tableValue")}</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  {[...series.points]
+                    .reverse()
+                    .slice(0, 15)
+                    .map((p) => (
+                      <tr
+                        key={p.surveyId}
+                        className="border-b border-border last:border-0 hover:bg-brand-soft"
+                      >
+                        <td className="py-2 pr-3 font-medium">
+                          <Link href={`/archiv/${p.surveyId}`} className="hover:underline">
+                            {p.institute}
+                          </Link>
+                        </td>
+                        <td className="whitespace-nowrap py-2 pr-3 text-muted">
+                          {formatDate(p.date)}
+                        </td>
+                        <td className="py-2 pr-3 text-right font-mono tabular-nums">
+                          {p.percent.toFixed(1)}
+                        </td>
+                      </tr>
+                    ))}
+                </tbody>
+              </table>
+            </div>
+          </section>
+
+          <SeoSection title={`${party.name} in der Sonntagsfrage`}>
+            <p>
+              Diese Seite bündelt die Umfragewerte für {party.name} zur
+              Bundestagswahl. Der aktuelle Schnitt ist ein gewichteter
+              Poll-of-Polls-Wert über die Umfragen der letzten 30 Tage –
+              aktuellere und größere Erhebungen zählen stärker. Höchst- und
+              Tiefstwert beziehen sich auf alle seit 2017 erfassten Umfragen.
+              Die Werte sind eine aggregierte Darstellung öffentlicher Umfragen
+              und keine Wahlprognose.
+            </p>
+          </SeoSection>
+        </>
+      )}
+    </div>
+  );
+}
+
+function Stat({
+  label,
+  hint,
+  children,
+}: {
+  label: string;
+  hint?: string;
+  children: React.ReactNode;
+}) {
+  return (
+    <div>
+      <dt className="text-xs font-semibold uppercase tracking-wide text-muted">
+        {label}
+      </dt>
+      <dd className="mt-0.5 font-display text-xl font-bold">{children}</dd>
+      {hint ? <p className="mt-0.5 text-[0.65rem] text-muted">{hint}</p> : null}
+    </div>
+  );
+}

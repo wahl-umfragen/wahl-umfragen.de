@@ -120,6 +120,11 @@ export const PAGE_META = {
     description:
       "Amtliche Endergebnisse der Bundestagswahl (Zweitstimmen je Partei) von Die Bundeswahlleiterin – als Tabelle zum Vergleich mit der aktuellen Sonntagsfrage.",
   },
+  parteien: {
+    title: "Parteien in der Sonntagsfrage – Umfragewerte je Partei",
+    description:
+      "Aktuelle Umfragewerte aller Bundestagsparteien (CDU/CSU, SPD, Grüne, AfD, Linke, BSW, FDP, FW): gewichteter Schnitt, Verlauf und Höchst-/Tiefstwerte der Sonntagsfrage.",
+  },
   impressum: {
     title: "Impressum",
     description: "Impressum und Anbieterkennzeichnung von Wahlumfragen.",

@@ -1,6 +1,8 @@
+import Link from "next/link";
 import { t } from "@/i18n";
 import { NON_PARTISAN, type PartyAverage } from "@/lib/dawum/aggregate";
 import { partyColorVar } from "@/lib/dawum/colors";
+import { partyByShortcut } from "@/lib/parties";
 
 /** Strongest scale value so bars use the available width without a fixed 100%. */
 function scaleMax(parties: PartyAverage[]): number {
@@ -37,9 +39,19 @@ export function PollOfPolls({
       </div>
       <p className="-mt-2 mb-4 text-xs text-muted">{t("pollOfPolls.hint")}</p>
       <ul className="space-y-1.5">
-        {parties.map((p) => (
+        {parties.map((p) => {
+          const info = partyByShortcut(p.shortcut);
+          return (
           <li key={p.shortcut} className="flex items-center gap-3">
-            <span className="w-16 shrink-0 text-sm font-medium">{p.shortcut}</span>
+            <span className="w-16 shrink-0 text-sm font-medium">
+              {info ? (
+                <Link href={`/partei/${info.slug}`} className="hover:underline">
+                  {p.shortcut}
+                </Link>
+              ) : (
+                p.shortcut
+              )}
+            </span>
             <div className="h-5 flex-1 overflow-hidden rounded bg-border/40">
               <div
                 className="h-full rounded"
@@ -53,7 +65,8 @@ export function PollOfPolls({
               {p.percent.toFixed(1)}
             </span>
           </li>
-        ))}
+          );
+        })}
       </ul>
     </section>
   );

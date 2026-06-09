@@ -6,6 +6,7 @@ import { t } from "@/i18n";
 
 const LINKS = [
   { href: "/", label: t("nav.surveys") },
+  { href: "/partei", label: t("nav.parties") },
   { href: "/archiv", label: t("nav.archive") },
   { href: "/trend", label: t("nav.trend") },
   { href: "/laender", label: t("nav.laender") },

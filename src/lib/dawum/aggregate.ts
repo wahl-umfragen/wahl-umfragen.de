@@ -113,6 +113,60 @@ export function instituteDeltas(
   return out;
 }
 
+export interface PartyDataPoint {
+  date: string;
+  percent: number;
+  institute: string;
+  surveyId: string;
+}
+
+export interface PartySeries {
+  /** One point per survey reporting the party, ascending by date. */
+  points: PartyDataPoint[];
+  /** Most recent point. */
+  latest?: PartyDataPoint;
+  /** All-time strongest reported value. */
+  high?: PartyDataPoint;
+  /** All-time weakest reported value. */
+  low?: PartyDataPoint;
+}
+
+/**
+ * Extract one party's history from a set of surveys: every survey that reports a
+ * matching shortcut becomes a point, ascending by date, plus the latest, all-time
+ * high and all-time low. `matches` decides which result shortcut belongs to the
+ * party (parties change shortcuts over time — see the party registry's aliases).
+ * Pure and deterministic; ties on date break by survey id.
+ */
+export function partySeries(
+  surveys: NormalizedSurvey[],
+  matches: (shortcut: string) => boolean,
+): PartySeries {
+  const points: PartyDataPoint[] = [];
+  for (const s of surveys) {
+    const hit = s.results.find((r) => matches(r.shortcut));
+    if (hit) {
+      points.push({
+        date: s.date,
+        percent: hit.percent,
+        institute: s.institute.name,
+        surveyId: s.id,
+      });
+    }
+  }
+  points.sort((a, b) => a.date.localeCompare(b.date) || a.surveyId.localeCompare(b.surveyId));
+
+  if (points.length === 0) return { points };
+
+  let high = points[0];
+  let low = points[0];
+  for (const p of points) {
+    if (p.percent > high.percent) high = p;
+    if (p.percent < low.percent) low = p;
+  }
+  return { points, latest: points[points.length - 1], high, low };
+}
+
 export interface WeightedAverageOptions {
   /** Recency half-life in days: a survey this many days older than the newest
    * one in the set counts half as much. Smaller = more weight on fresh polls. */

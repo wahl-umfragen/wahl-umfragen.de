@@ -5,6 +5,7 @@ import {
   houseEffects,
   instituteComparison,
   instituteDeltas,
+  partySeries,
   seatDistribution,
   weightedAverage,
   type PartyAverage,
@@ -77,6 +78,34 @@ describe("instituteDeltas", () => {
     ]);
     expect(out.a2).toEqual({ CDU: 2 });
     expect(out.b2).toEqual({ CDU: -1 });
+  });
+});
+
+describe("partySeries", () => {
+  const surveys = [
+    dated("c", "a", "2026-03-01", { Grüne: 12 }),
+    dated("a", "a", "2026-01-01", { Grüne: 14 }),
+    dated("b", "b", "2026-02-01", { "Bündnis 90/Die Grünen": 11 }),
+    dated("d", "c", "2026-02-15", { CDU: 30 }), // no Grüne → excluded
+  ];
+  const matches = (s: string) => s === "Grüne" || s === "Bündnis 90/Die Grünen";
+
+  it("collects matching points ascending by date", () => {
+    const { points } = partySeries(surveys, matches);
+    expect(points.map((p) => p.surveyId)).toEqual(["a", "b", "c"]);
+  });
+
+  it("reports latest, high and low", () => {
+    const { latest, high, low } = partySeries(surveys, matches);
+    expect(latest?.surveyId).toBe("c");
+    expect(high?.percent).toBe(14);
+    expect(low?.percent).toBe(11);
+  });
+
+  it("returns empty stats when no survey reports the party", () => {
+    const out = partySeries(surveys, (s) => s === "FDP");
+    expect(out.points).toEqual([]);
+    expect(out.latest).toBeUndefined();
   });
 });
 

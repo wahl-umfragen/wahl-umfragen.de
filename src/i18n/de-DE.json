@@ -8,7 +8,8 @@
     "koalition": "Koalitionsrechner",
     "archive": "Archiv",
     "elections": "Wahlen",
-    "laender": "Länder"
+    "laender": "Länder",
+    "parties": "Parteien"
   },
   "theme": {
     "label": "Farbschema",
@@ -163,6 +164,23 @@
     "title": "Poll of Polls",
     "hint": "Gewichteter Schnitt aller Umfragen der letzten 30 Tage – nach Aktualität und Stichprobengröße.",
     "basis": "Aus {count} Umfragen"
+  },
+  "partyPage": {
+    "current": "Aktueller Schnitt",
+    "currentHint": "Gewichteter Poll-of-Polls-Wert (letzte 30 Tage)",
+    "latest": "Letzte Umfrage",
+    "high": "Höchstwert",
+    "low": "Tiefstwert",
+    "surveysCount": "Umfragen",
+    "trendTitle": "Verlauf",
+    "recentTitle": "Letzte Umfragen",
+    "back": "← Alle Parteien",
+    "noData": "Für diese Partei liegen noch keine Umfragen vor.",
+    "overviewTitle": "Parteien",
+    "overviewSubtitle": "Sonntagsfrage je Partei: aktueller Schnitt, Verlauf und Höchst-/Tiefstwerte.",
+    "tableInstitute": "Institut",
+    "tableDate": "Datum",
+    "tableValue": "Wert"
   },
   "report": {
     "trigger": "Problem melden",
