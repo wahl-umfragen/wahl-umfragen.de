@@ -73,6 +73,46 @@ export function currentAverage(surveys: NormalizedSurvey[]): PartyAverage[] {
     .sort((a, b) => b.percent - a.percent);
 }
 
+/**
+ * For each survey, the change (in points) of every party's share versus the
+ * **same institute's** immediately-preceding survey by date. Lets the UI show a
+ * ▲/▼ delta next to each value. A party only gets a delta when the prior survey
+ * also reported it. Returns a plain object keyed by survey id (JSON-serialisable
+ * across the server→client boundary), each value a `shortcut → delta` record.
+ * Pure: order-independent, anchored on the data, no wall-clock.
+ */
+export function instituteDeltas(
+  surveys: NormalizedSurvey[],
+): Record<string, Record<string, number>> {
+  const byInstitute = new Map<string, NormalizedSurvey[]>();
+  for (const s of surveys) {
+    const list = byInstitute.get(s.institute.id) ?? [];
+    list.push(s);
+    byInstitute.set(s.institute.id, list);
+  }
+
+  const out: Record<string, Record<string, number>> = {};
+  for (const list of byInstitute.values()) {
+    // Oldest → newest, breaking date ties by id for determinism.
+    const sorted = [...list].sort(
+      (a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id),
+    );
+    for (let i = 1; i < sorted.length; i++) {
+      const prev = new Map(sorted[i - 1].results.map((r) => [r.shortcut, r.percent]));
+      const deltas: Record<string, number> = {};
+      for (const r of sorted[i].results) {
+        const before = prev.get(r.shortcut);
+        if (before !== undefined) {
+          // Round to one decimal to avoid float noise like 0.30000000000004.
+          deltas[r.shortcut] = Math.round((r.percent - before) * 10) / 10;
+        }
+      }
+      out[sorted[i].id] = deltas;
+    }
+  }
+  return out;
+}
+
 export interface SeatEntry {
   shortcut: string;
   name: string;

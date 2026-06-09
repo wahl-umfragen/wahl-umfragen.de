@@ -4,6 +4,7 @@ import {
   currentAverage,
   houseEffects,
   instituteComparison,
+  instituteDeltas,
   seatDistribution,
   type PartyAverage,
 } from "./aggregate";
@@ -35,6 +36,48 @@ function survey(
 function latestBundestag() {
   return latestPerInstitute(selectBundestagSurveys(SAMPLE_DB));
 }
+
+/** Like `survey` but with an explicit date (instituteDeltas needs ordering). */
+function dated(
+  id: string,
+  instituteId: string,
+  date: string,
+  results: Record<string, number>,
+): NormalizedSurvey {
+  return { ...survey(id, instituteId, instituteId, results), date };
+}
+
+describe("instituteDeltas", () => {
+  it("computes per-party change vs the same institute's previous survey", () => {
+    const surveys = [
+      dated("s2", "insa", "2026-02-01", { CDU: 31, SPD: 15 }),
+      dated("s1", "insa", "2026-01-01", { CDU: 30, SPD: 16 }),
+    ];
+    const out = instituteDeltas(surveys);
+    expect(out.s2).toEqual({ CDU: 1, SPD: -1 });
+    // The earliest survey has no predecessor → no entry.
+    expect(out.s1).toBeUndefined();
+  });
+
+  it("omits a delta for a party the previous survey didn't report", () => {
+    const out = instituteDeltas([
+      dated("a", "x", "2026-01-01", { CDU: 30 }),
+      dated("b", "x", "2026-02-01", { CDU: 31, BSW: 5 }),
+    ]);
+    expect(out.b).toEqual({ CDU: 1 });
+  });
+
+  it("keeps institutes independent", () => {
+    const out = instituteDeltas([
+      dated("a1", "a", "2026-01-01", { CDU: 30 }),
+      dated("a2", "a", "2026-02-01", { CDU: 32 }),
+      dated("b1", "b", "2026-01-15", { CDU: 28 }),
+      dated("b2", "b", "2026-02-15", { CDU: 27 }),
+    ]);
+    expect(out.a2).toEqual({ CDU: 2 });
+    expect(out.b2).toEqual({ CDU: -1 });
+  });
+});
 
 describe("currentAverage", () => {
   it("averages each party across the latest survey per institute", () => {

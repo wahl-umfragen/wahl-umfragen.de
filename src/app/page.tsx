@@ -6,7 +6,11 @@ import { RecentSurveys } from "@/components/recent-surveys";
 import { FaqSection, SeoSection } from "@/components/seo-section";
 import { t } from "@/i18n";
 import { loadBundestagData } from "@/lib/data";
-import { latestPerInstitute, surveysWithinDays } from "@/lib/dawum";
+import {
+  instituteDeltas,
+  latestPerInstitute,
+  surveysWithinDays,
+} from "@/lib/dawum";
 import { formatDateTime } from "@/lib/format";
 import { PAGE_INTRO, websiteLd } from "@/lib/seo";
 
@@ -36,6 +40,8 @@ async function Surveys() {
   const { bundestag, lastUpdate } = await loadBundestagData();
   // Only institutes that polled within the last year — drop ones that stopped.
   const latest = latestPerInstitute(surveysWithinDays(bundestag, RECENT_DAYS));
+  // Per-row change vs each institute's previous poll (computed over full history).
+  const deltas = instituteDeltas(bundestag);
 
   return (
     <>
@@ -54,7 +60,7 @@ async function Surveys() {
         </p>
       ) : (
         <>
-          <InstituteTable surveys={latest} />
+          <InstituteTable surveys={latest} deltas={deltas} />
           <div className="mt-10">
             <RecentSurveys surveys={bundestag} />
           </div>

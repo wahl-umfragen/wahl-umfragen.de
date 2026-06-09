@@ -16,7 +16,32 @@ function sameKey(a: SortKey, b: SortKey): boolean {
   return a.party === b.party;
 }
 
-export function InstituteTable({ surveys }: { surveys: NormalizedSurvey[] }) {
+/** A tiny ▲/▼ delta vs the institute's previous poll, in points. */
+function DeltaBadge({ value }: { value: number | undefined }) {
+  if (value === undefined || value === 0) return null;
+  const up = value > 0;
+  return (
+    <span
+      className={`ml-1 text-[0.65rem] font-semibold tabular-nums ${
+        up ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"
+      }`}
+      title={`${up ? "+" : ""}${value.toFixed(1)} ggü. vorheriger Umfrage des Instituts`}
+    >
+      {up ? "▲" : "▼"}
+      {Math.abs(value).toFixed(1)}
+    </span>
+  );
+}
+
+export function InstituteTable({
+  surveys,
+  deltas,
+}: {
+  surveys: NormalizedSurvey[];
+  /** Per-survey, per-party change vs the institute's previous poll (see
+   *  `instituteDeltas`). Optional — when omitted, no change badges are shown. */
+  deltas?: Record<string, Record<string, number>>;
+}) {
   // Column order: every party that appears in any survey, ranked by its
   // average share across surveys so the strongest parties sit on the left.
   // Average only counts surveys that reported the party (not biased by appearance count).
@@ -149,15 +174,19 @@ export function InstituteTable({ surveys }: { surveys: NormalizedSurvey[] }) {
                 </td>
                 {parties.map((shortcut) => {
                   const percent = byShortcut.get(shortcut);
+                  const delta = deltas?.[survey.id]?.[shortcut];
                   return (
                     <td
                       key={shortcut}
-                      className="py-2 px-2 text-right font-mono tabular-nums tracking-tight"
+                      className="whitespace-nowrap py-2 px-2 text-right font-mono tabular-nums tracking-tight"
                     >
                       {percent === undefined ? (
                         <span className="text-border-strong">–</span>
                       ) : (
-                        percent.toFixed(1)
+                        <>
+                          {percent.toFixed(1)}
+                          <DeltaBadge value={delta} />
+                        </>
                       )}
                     </td>
                   );
