@@ -2,11 +2,13 @@ import type { Metadata } from "next";
 import { Suspense } from "react";
 import { CoalitionBuilder } from "@/components/coalition-builder";
 import { JsonLd } from "@/components/json-ld";
+import { MajorityCoalitions } from "@/components/majority-coalitions";
 import { PageHeader } from "@/components/page-header";
 import { t } from "@/i18n";
 import { loadBundestagData } from "@/lib/data";
 import {
   currentAverage,
+  findMajorityCoalitions,
   latestPerInstitute,
   surveysWithinDays,
 } from "@/lib/dawum";
@@ -83,6 +85,11 @@ async function Koalition() {
           institutes: latest.length,
           date: asOf ? formatDate(asOf) : "—",
         })}
+      />
+      <MajorityCoalitions
+        coalitions={findMajorityCoalitions(
+          average.map((p) => ({ shortcut: p.shortcut, percent: p.percent })),
+        )}
       />
     </>
   );

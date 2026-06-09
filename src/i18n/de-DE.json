@@ -71,7 +71,11 @@
   "koalitionPage": {
     "title": "Koalitionsrechner",
     "subtitle": "Parteien auf Basis des aktuellen Durchschnitts zu einer Koalition kombinieren.",
-    "basisAverage": "Durchschnitt aus {institutes} Instituten · Stand {date}"
+    "basisAverage": "Durchschnitt aus {institutes} Instituten · Stand {date}",
+    "majoritiesTitle": "Mögliche Mehrheiten",
+    "majoritiesHint": "Alle kleinstmöglichen Bündnisse mit Mehrheit auf Basis des aktuellen Durchschnitts (über der 5-%-Hürde).",
+    "majoritiesNone": "Auf Basis des aktuellen Durchschnitts ergibt sich keine kleine Mehrheitskoalition.",
+    "majorityShare": "{share} % der Sitze"
   },
   "laenderPage": {
     "title": "Landtagswahlen",

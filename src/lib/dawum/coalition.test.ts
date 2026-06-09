@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { coalitionMath } from "./coalition";
+import { coalitionMath, findMajorityCoalitions } from "./coalition";
 
 const parties = [
   { shortcut: "AfD", percent: 27 },
@@ -50,5 +50,39 @@ describe("coalitionMath", () => {
     const r = coalitionMath(parties, new Set(["FDP", "CDU/CSU"]), 3);
     expect(r.excludedBelowThreshold).toEqual([]);
     expect(r.selectedSum).toBe(23 + 4);
+  });
+});
+
+describe("findMajorityCoalitions", () => {
+  it("returns minimal winning coalitions (no supersets)", () => {
+    const out = findMajorityCoalitions(parties);
+    // Every result must have a majority of the eligible pool.
+    expect(out.length).toBeGreaterThan(0);
+    for (const c of out) expect(c.share).toBeGreaterThan(0.5);
+    // No result is a superset of another result (minimality).
+    for (const a of out) {
+      for (const b of out) {
+        if (a === b) continue;
+        const aSet = new Set(a.parties);
+        const bIsSubset = b.parties.every((p) => aSet.has(p));
+        if (bIsSubset) expect(b.parties.length).toBe(a.parties.length);
+      }
+    }
+  });
+
+  it("excludes below-threshold and non-partisan parties", () => {
+    const out = findMajorityCoalitions(parties);
+    const all = new Set(out.flatMap((c) => c.parties));
+    expect(all.has("FDP")).toBe(false); // 4% < 5%
+    expect(all.has("Sonstige")).toBe(false);
+  });
+
+  it("sorts by size ascending then share descending", () => {
+    const out = findMajorityCoalitions(parties);
+    for (let i = 1; i < out.length; i++) {
+      const prev = out[i - 1];
+      const cur = out[i];
+      expect(prev.parties.length).toBeLessThanOrEqual(cur.parties.length);
+    }
   });
 });
