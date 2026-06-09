@@ -7,11 +7,16 @@ import { PartySparkline } from "@/components/party-sparkline";
 import { SeoSection } from "@/components/seo-section";
 import { t } from "@/i18n";
 import { loadBundestagData } from "@/lib/data";
-import { partySeries, surveysWithinDays, weightedAverage } from "@/lib/dawum";
+import {
+  partySeries,
+  seatDistribution,
+  surveysWithinDays,
+  weightedAverage,
+} from "@/lib/dawum";
 import { partyColorVar } from "@/lib/dawum/colors";
 import { formatDate } from "@/lib/format";
 import { PARTIES, partyBySlug } from "@/lib/parties";
-import { breadcrumbLd, buildMetadata } from "@/lib/seo";
+import { absoluteUrl, breadcrumbLd, buildMetadata } from "@/lib/seo";
 
 /** Pre-render every registered party page at build time (small, known set). */
 export function generateStaticParams() {
@@ -47,10 +52,14 @@ export default async function PartyPage({
   const series = partySeries(bundestag, matches);
 
   // Weighted poll-of-polls value for this party (last 30 days), else latest.
-  const weighted = weightedAverage(surveysWithinDays(bundestag, 30)).find((p) =>
-    party.aliases.includes(p.shortcut),
-  );
+  const weightedAll = weightedAverage(surveysWithinDays(bundestag, 30));
+  const weighted = weightedAll.find((p) => party.aliases.includes(p.shortcut));
   const current = weighted?.percent ?? series.latest?.percent;
+  // Projected Bundestag seats from the same weighted poll of polls.
+  const seats = seatDistribution(weightedAll);
+  const partySeats = seats.entries.find((e) =>
+    party.aliases.includes(e.shortcut),
+  )?.seats;
 
   return (
     <div className="mx-auto max-w-4xl px-6 py-10">
@@ -60,6 +69,17 @@ export default async function PartyPage({
           { name: t("partyPage.overviewTitle"), path: "/partei" },
           { name: party.name, path: `/partei/${slug}` },
         ])}
+      />
+      {/* Entity link so search engines connect this page to the party's
+          Wikipedia entity (helps the Knowledge Graph). */}
+      <JsonLd
+        data={{
+          "@context": "https://schema.org",
+          "@type": "Organization",
+          name: party.name,
+          url: absoluteUrl(`/partei/${slug}`),
+          sameAs: [party.wikipedia],
+        }}
       />
       <Link
         href="/partei"
@@ -81,9 +101,12 @@ export default async function PartyPage({
         <p className="text-sm text-muted">{t("partyPage.noData")}</p>
       ) : (
         <>
-          <dl className="mb-10 grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-4">
+          <dl className="mb-10 grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-5">
             <Stat label={t("partyPage.current")} hint={t("partyPage.currentHint")}>
               {current !== undefined ? `${current.toFixed(1)} %` : "—"}
+            </Stat>
+            <Stat label={t("partyPage.seats")} hint={t("partyPage.seatsHint")}>
+              {partySeats ?? "—"}
             </Stat>
             <Stat label={t("partyPage.latest")}>
               {series.latest ? `${series.latest.percent.toFixed(1)} %` : "—"}
@@ -121,7 +144,24 @@ export default async function PartyPage({
           </section>
 
           <section className="mb-10">
-            <h2 className="eyebrow mb-3">{t("partyPage.recentTitle")}</h2>
+            <div className="mb-3 flex items-baseline justify-between gap-3">
+              <h2 className="eyebrow">{t("partyPage.recentTitle")}</h2>
+              <span className="flex items-center gap-2 text-xs text-muted">
+                {t("partyPage.export")}
+                <a
+                  href={`/api/surveys?format=csv&partei=${slug}`}
+                  className="font-medium underline underline-offset-2 hover:text-foreground"
+                >
+                  CSV
+                </a>
+                <a
+                  href={`/api/surveys?partei=${slug}`}
+                  className="font-medium underline underline-offset-2 hover:text-foreground"
+                >
+                  JSON
+                </a>
+              </span>
+            </div>
             <div className="overflow-x-auto">
               <table className="w-full border-collapse text-sm">
                 <thead>
