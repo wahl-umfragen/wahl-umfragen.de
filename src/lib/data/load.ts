@@ -1,5 +1,5 @@
 import { gunzipSync, gzipSync } from "node:zlib";
-import { and, desc, eq, isNotNull } from "drizzle-orm";
+import { and, count, desc, eq, isNotNull } from "drizzle-orm";
 import { unstable_cache } from "next/cache";
 import { cache } from "react";
 import { db } from "@/db/client";
@@ -342,6 +342,56 @@ export const loadSurveyById = unstable_cache(
     return mapSurveyRows(surveyRows, resultRows)[0] ?? null;
   },
   ["survey-by-id"],
+  { tags: [SURVEYS_TAG], revalidate: false },
+);
+
+export interface IngestStatus {
+  /** Completion timestamp of the newest finished ingest run, ISO, or null. */
+  lastRunAt: string | null;
+  /** dawum `last_update` of that run, ISO, or null. */
+  lastDawumUpdate: string | null;
+  /** New / updated survey counts from that run. */
+  lastNew: number;
+  lastUpdated: number;
+  /** Total surveys stored across all parliaments. */
+  surveysTotal: number;
+}
+
+/**
+ * Ingest health snapshot for the public "Datenstand" page: the newest completed
+ * ingest run plus the total stored survey count. Cached under the shared
+ * `surveys` tag (a real ingest writes a run row *and* triggers revalidation), so
+ * the page reflects the latest sync without a per-request DB hit.
+ */
+export const loadIngestStatus = unstable_cache(
+  async (): Promise<IngestStatus> => {
+    const [run] = await db
+      .select({
+        completedAt: schema.ingestRuns.completedAt,
+        dawumLastUpdate: schema.ingestRuns.dawumLastUpdate,
+        surveysNew: schema.ingestRuns.surveysNew,
+        surveysUpdated: schema.ingestRuns.surveysUpdated,
+      })
+      .from(schema.ingestRuns)
+      .where(isNotNull(schema.ingestRuns.completedAt))
+      .orderBy(desc(schema.ingestRuns.completedAt))
+      .limit(1);
+
+    const [{ total }] = await db
+      .select({ total: count() })
+      .from(schema.surveys);
+
+    return {
+      lastRunAt: run?.completedAt ? run.completedAt.toISOString() : null,
+      lastDawumUpdate: run?.dawumLastUpdate
+        ? run.dawumLastUpdate.toISOString()
+        : null,
+      lastNew: run?.surveysNew ?? 0,
+      lastUpdated: run?.surveysUpdated ?? 0,
+      surveysTotal: total,
+    };
+  },
+  ["ingest-status"],
   { tags: [SURVEYS_TAG], revalidate: false },
 );
 

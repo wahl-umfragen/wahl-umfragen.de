@@ -25,6 +25,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: absoluteUrl("/wahlen"), changeFrequency: "yearly", priority: 0.6 },
     { url: absoluteUrl("/laender"), lastModified: now, changeFrequency: "daily", priority: 0.7 },
     { url: absoluteUrl("/partei"), lastModified: now, changeFrequency: "daily", priority: 0.8 },
+    { url: absoluteUrl("/datenstand"), lastModified: now, changeFrequency: "hourly", priority: 0.4 },
     ...PARTIES.map((p) => ({
       url: absoluteUrl(`/partei/${p.slug}`),
       lastModified: now,

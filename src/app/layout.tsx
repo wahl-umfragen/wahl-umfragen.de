@@ -178,6 +178,12 @@ export default function RootLayout({
                 >
                   {t("footer.datenschutz")}
                 </Link>
+                <Link
+                  href="/datenstand"
+                  className="font-medium text-brand-foreground underline underline-offset-2"
+                >
+                  {t("footer.datenstand")}
+                </Link>
               </nav>
             </div>
           </footer>

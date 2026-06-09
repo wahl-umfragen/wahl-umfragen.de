@@ -125,6 +125,11 @@ export const PAGE_META = {
     description:
       "Aktuelle Umfragewerte aller Bundestagsparteien (CDU/CSU, SPD, Grüne, AfD, Linke, BSW, FDP, FW): gewichteter Schnitt, Verlauf und Höchst-/Tiefstwerte der Sonntagsfrage.",
   },
+  datenstand: {
+    title: "Datenstand – Aktualität und Abdeckung der Umfragen",
+    description:
+      "Datenstand von Wahlumfragen: Zeitpunkt des letzten Abgleichs mit dawum.de, Anzahl gespeicherter Umfragen und Abdeckung je Meinungsforschungsinstitut.",
+  },
   impressum: {
     title: "Impressum",
     description: "Impressum und Anbieterkennzeichnung von Wahlumfragen.",

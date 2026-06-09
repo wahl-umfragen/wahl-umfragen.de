@@ -23,7 +23,22 @@
     "noWarranty": "Wir erheben keine eigenen Umfragen. Alle Angaben ohne Gewähr.",
     "impressum": "Impressum",
     "datenschutz": "Datenschutz",
+    "datenstand": "Datenstand",
     "github": "Quellcode auf GitHub"
+  },
+  "statusPage": {
+    "title": "Datenstand",
+    "subtitle": "Stand der Datenerfassung: letzter Abgleich mit dawum.de, Umfang und Abdeckung.",
+    "lastRun": "Letzter Abgleich",
+    "dawumUpdate": "dawum-Stand",
+    "totalSurveys": "Umfragen gespeichert",
+    "lastChanges": "Beim letzten Abgleich",
+    "newUpdated": "{new} neu · {updated} aktualisiert",
+    "coverageTitle": "Abdeckung je Institut (Bundestag)",
+    "coverageHint": "Gespeicherte Umfragen und letzte Umfrage je Institut.",
+    "institute": "Institut",
+    "count": "Umfragen",
+    "latest": "Letzte Umfrage"
   },
   "cookie": {
     "text": "Diese Seite nutzt datensparsame, cookielose Reichweitenmessung (countless) – ohne Cookies und ohne personenbezogene Daten.",
