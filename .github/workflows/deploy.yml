@@ -1,0 +1,58 @@
+name: Deploy
+
+# Deploys to the self-hosted server over SSH. Fires when a GitHub Release is
+# published (release-please cuts these from conventional commits) and can also
+# be run manually for a chosen ref. Nothing deploys on a plain push to main.
+on:
+  release:
+    types: [published]
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "Git ref (tag/branch/sha) to deploy"
+        required: true
+        default: main
+
+# Never run two deploys at once.
+concurrency:
+  group: deploy-production
+  cancel-in-progress: false
+
+permissions:
+  contents: read
+
+jobs:
+  deploy:
+    name: SSH deploy
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    # Gate behind a GitHub Environment so deploys can require approval and the
+    # secrets are scoped to it. Create the "production" environment in repo
+    # settings and add the secrets there (see below).
+    environment: production
+    steps:
+      - name: Resolve ref
+        id: ref
+        run: |
+          REF="${{ github.event.inputs.ref || github.event.release.tag_name }}"
+          echo "value=$REF" >> "$GITHUB_OUTPUT"
+          echo "Deploying ref: $REF"
+
+      - name: Deploy over SSH
+        uses: appleboy/ssh-action@v1
+        with:
+          host: ${{ secrets.DEPLOY_HOST }}
+          username: ${{ secrets.DEPLOY_USER }}
+          key: ${{ secrets.DEPLOY_SSH_KEY }}
+          port: ${{ secrets.DEPLOY_PORT || 22 }}
+          # Fail the job if any remote command fails.
+          script_stop: true
+          # Check out the target ref, then hand off to the in-repo deploy script
+          # (the just-checked-out version of it).
+          script: |
+            set -euo pipefail
+            cd "${{ secrets.DEPLOY_PATH || '/opt/wahlumfragen' }}"
+            git fetch --tags --prune origin
+            git checkout --force "${{ steps.ref.outputs.value }}"
+            export DEPLOY_PATH="${{ secrets.DEPLOY_PATH || '/opt/wahlumfragen' }}"
+            bash deploy/remote-deploy.sh

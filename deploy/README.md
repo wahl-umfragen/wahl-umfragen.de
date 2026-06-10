@@ -137,3 +137,25 @@ gunzip -c backups/wahlumfragen-YYYYmmdd-HHMMSS.dump.gz \
   | docker exec -i wahlumfragen-postgres pg_restore -U wahlumfragen \
       --clean --if-exists -d wahlumfragen
 ```
+
+## Automated deploy (GitHub Actions over SSH)
+
+`.github/workflows/deploy.yml` deploys to this server when a GitHub Release is
+published (release-please cuts those) or via a manual run. It SSHes in, checks
+out the target ref, and runs `deploy/remote-deploy.sh` (npm ci → migrate →
+build ingest → rebuild+restart the app container).
+
+One-time setup: create a **`production`** environment in the repo settings
+(optionally require approval) and add these secrets to it:
+
+| Secret           | Purpose                                            |
+| ---------------- | -------------------------------------------------- |
+| `DEPLOY_HOST`    | server hostname / IP                               |
+| `DEPLOY_USER`    | SSH user (in the `docker` group, owns the repo)    |
+| `DEPLOY_SSH_KEY` | private key whose public half is in the user's `authorized_keys` |
+| `DEPLOY_PATH`    | repo path on the server (optional, default `/opt/wahlumfragen`) |
+| `DEPLOY_PORT`    | SSH port (optional, default `22`)                  |
+
+The SSH user needs passwordless access to the listed steps (npm, docker
+compose, the migrate command). Set `APP_DEPLOY=0` in the repo `.env` to skip the
+container rebuild if you serve the app some other way.
