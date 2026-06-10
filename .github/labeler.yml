@@ -1,0 +1,51 @@
+# Path-based PR auto-labels (actions/labeler@v5 format).
+ingest:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "src/lib/ingest/**"
+          - "scripts/ingest.ts"
+          - "src/lib/dawum/client.ts"
+
+database:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "src/db/**"
+          - "drizzle/**"
+          - "drizzle.config.ts"
+
+frontend:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "src/app/**"
+          - "src/components/**"
+          - "src/app/globals.css"
+
+tests:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "e2e/**"
+          - "**/*.test.ts"
+          - "**/*.spec.ts"
+
+ci:
+  - changed-files:
+      - any-glob-to-any-file:
+          - ".github/**"
+
+ops:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "deploy/**"
+          - "docker-compose.yml"
+          - "Dockerfile"
+
+dependencies:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "package.json"
+          - "package-lock.json"
+
+documentation:
+  - changed-files:
+      - any-glob-to-any-file:
+          - "**/*.md"
