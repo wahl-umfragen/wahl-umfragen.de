@@ -1,6 +1,10 @@
 import type { NextRequest } from "next/server";
 import { loadBundestagData } from "@/lib/data";
-import { seatDistribution, surveysWithinDays, weightedAverage } from "@/lib/dawum";
+import {
+  seatDistribution,
+  surveysWithinDays,
+  weightedAverage,
+} from "@/lib/dawum";
 
 /**
  * Public "poll of polls" endpoint: the recency- and sample-size-weighted average
@@ -37,7 +41,10 @@ export async function GET(req: NextRequest) {
 
   const etag = `W/"${lastUpdate ?? "0"}-pp${days}"`;
   if (req.headers?.get("if-none-match") === etag) {
-    return new Response(null, { status: 304, headers: { etag, ...LICENSE_HEADERS } });
+    return new Response(null, {
+      status: 304,
+      headers: { etag, ...LICENSE_HEADERS },
+    });
   }
 
   const recent = surveysWithinDays(bundestag, days);
@@ -55,7 +62,8 @@ export async function GET(req: NextRequest) {
     },
     {
       headers: {
-        "cache-control": "public, max-age=300, s-maxage=300, stale-while-revalidate=60",
+        "cache-control":
+          "public, max-age=300, s-maxage=300, stale-while-revalidate=60",
         etag,
         ...LICENSE_HEADERS,
       },

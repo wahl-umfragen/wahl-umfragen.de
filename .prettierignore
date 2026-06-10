@@ -14,3 +14,8 @@ package-lock.json
 
 # Generated SQL migrations — Drizzle owns their formatting
 drizzle/
+
+# Hand-authored Markdown docs (AGENTS.md, deploy notes, READMEs) keep their
+# deliberate wrapping/emphasis — Prettier should not churn them.
+*.md
+**/*.md

@@ -6,7 +6,10 @@ import { PageHeader } from "@/components/page-header";
 import { RecentSurveys } from "@/components/recent-surveys";
 import { TrendChartClient } from "@/components/trend-chart-client";
 import { t } from "@/i18n";
-import { loadSurveysByInstitute, loadSurveysByInstituteAndParliament } from "@/lib/data";
+import {
+  loadSurveysByInstitute,
+  loadSurveysByInstituteAndParliament,
+} from "@/lib/data";
 import {
   buildBundestagTrend,
   smoothTrendData,

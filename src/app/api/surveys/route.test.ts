@@ -51,7 +51,9 @@ beforeEach(() => {
 });
 
 function makeRequest(search = "") {
-  return { nextUrl: { searchParams: new URLSearchParams(search) } } as Parameters<typeof GET>[0];
+  return {
+    nextUrl: { searchParams: new URLSearchParams(search) },
+  } as Parameters<typeof GET>[0];
 }
 
 describe("GET /api/surveys — attribution & license", () => {
@@ -62,7 +64,9 @@ describe("GET /api/surveys — attribution & license", () => {
     expect(body.attribution).toEqual(ATTRIBUTION);
     expect(body.attribution.license).toBe("ODbL-1.0");
     expect(body.attribution.source).toBe("dawum.de");
-    expect(body.attribution.licenseUrl).toBe("https://opendatacommons.org/licenses/odbl/1-0/");
+    expect(body.attribution.licenseUrl).toBe(
+      "https://opendatacommons.org/licenses/odbl/1-0/",
+    );
   });
 
   it("JSON response keeps existing envelope fields intact", async () => {
@@ -78,7 +82,7 @@ describe("GET /api/surveys — attribution & license", () => {
   it("JSON response sets Link rel=license and X-Data-Source headers", async () => {
     const res = await GET(makeRequest());
 
-    expect(res.headers.get("link")).toContain("rel=\"license\"");
+    expect(res.headers.get("link")).toContain('rel="license"');
     expect(res.headers.get("link")).toContain(ATTRIBUTION.licenseUrl);
     expect(res.headers.get("x-data-source")).toBe(ATTRIBUTION.source);
   });
@@ -86,7 +90,7 @@ describe("GET /api/surveys — attribution & license", () => {
   it("CSV response sets Link rel=license and X-Data-Source headers", async () => {
     const res = await GET(makeRequest("format=csv"));
 
-    expect(res.headers.get("link")).toContain("rel=\"license\"");
+    expect(res.headers.get("link")).toContain('rel="license"');
     expect(res.headers.get("x-data-source")).toBe(ATTRIBUTION.source);
   });
 
@@ -117,9 +121,13 @@ describe("GET /api/surveys — attribution & license", () => {
 
     expect(lines[0]).toMatch(/^# Source: dawum\.de/);
     expect(lines[0]).toContain("ODbL-1.0");
-    expect(lines[0]).toContain("https://opendatacommons.org/licenses/odbl/1-0/");
+    expect(lines[0]).toContain(
+      "https://opendatacommons.org/licenses/odbl/1-0/",
+    );
     expect(lines[1]).toMatch(/^#/);
-    expect(lines[2]).toBe("survey_id,date,period_start,period_end,institute,method,tasker,surveyed_persons,party,percent");
+    expect(lines[2]).toBe(
+      "survey_id,date,period_start,period_end,institute,method,tasker,surveyed_persons,party,percent",
+    );
   });
 
   it("CSV column layout is unchanged for data rows", async () => {
@@ -309,7 +317,11 @@ describe("GET /api/surveys — filtering by institut/from/to", () => {
     const res = await GET(makeRequest("institut=inst-a"));
     const body = await res.json();
     expect(body.total).toBe(2);
-    expect(body.surveys.every((s: { institute: { id: string } }) => s.institute.id === "inst-a")).toBe(true);
+    expect(
+      body.surveys.every(
+        (s: { institute: { id: string } }) => s.institute.id === "inst-a",
+      ),
+    ).toBe(true);
   });
 
   it("unknown institut yields zero rows (not a 500)", async () => {
@@ -324,18 +336,24 @@ describe("GET /api/surveys — filtering by institut/from/to", () => {
     const res = await GET(makeRequest("from=2024-06-01"));
     const body = await res.json();
     expect(body.total).toBe(2);
-    expect(body.surveys.every((s: { date: string }) => s.date >= "2024-06-01")).toBe(true);
+    expect(
+      body.surveys.every((s: { date: string }) => s.date >= "2024-06-01"),
+    ).toBe(true);
   });
 
   it("to filter returns only surveys on or before the date", async () => {
     const res = await GET(makeRequest("to=2024-06-01"));
     const body = await res.json();
     expect(body.total).toBe(2);
-    expect(body.surveys.every((s: { date: string }) => s.date <= "2024-06-01")).toBe(true);
+    expect(
+      body.surveys.every((s: { date: string }) => s.date <= "2024-06-01"),
+    ).toBe(true);
   });
 
   it("combined institut + from + to filter narrows results correctly", async () => {
-    const res = await GET(makeRequest("institut=inst-a&from=2024-01-01&to=2024-12-31"));
+    const res = await GET(
+      makeRequest("institut=inst-a&from=2024-01-01&to=2024-12-31"),
+    );
     const body = await res.json();
     expect(body.total).toBe(1);
     expect(body.surveys[0].id).toBe("1");

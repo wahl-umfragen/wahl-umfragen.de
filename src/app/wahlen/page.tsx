@@ -47,18 +47,12 @@ export default function WahlenPage() {
       />
 
       {table.rows.length === 0 ? (
-        <p
-          data-testid="empty-state"
-          className="text-sm text-muted"
-        >
+        <p data-testid="empty-state" className="text-sm text-muted">
           {t("common.noData")}
         </p>
       ) : (
         <div className="overflow-x-auto rounded-xl border border-border bg-surface">
-          <table
-            data-testid="election-results"
-            className="w-full text-sm"
-          >
+          <table data-testid="election-results" className="w-full text-sm">
             <thead>
               <tr className="border-b-2 border-border-strong bg-surface-2 text-left">
                 <th className="px-4 py-3 text-xs font-bold uppercase tracking-wide">
@@ -83,10 +77,7 @@ export default function WahlenPage() {
                   key={row.shortcut}
                   className="border-b border-border last:border-0 hover:bg-brand-soft"
                 >
-                  <th
-                    scope="row"
-                    className="px-4 py-2.5 text-left font-medium"
-                  >
+                  <th scope="row" className="px-4 py-2.5 text-left font-medium">
                     <span className="flex items-center gap-2">
                       <span
                         aria-hidden="true"

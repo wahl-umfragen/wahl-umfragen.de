@@ -61,7 +61,11 @@ export interface MajorityCoalition {
 }
 
 /** Non-partisan buckets that can't be coalition members. */
-const NON_PARTISAN_SHORTCUTS = new Set(["Sonstige", "Sonstige Parteien", "Andere"]);
+const NON_PARTISAN_SHORTCUTS = new Set([
+  "Sonstige",
+  "Sonstige Parteien",
+  "Andere",
+]);
 
 /**
  * Enumerate all **minimal winning coalitions**: combinations of above-threshold
@@ -82,7 +86,11 @@ export function findMajorityCoalitions(
   }: { thresholdPercent?: number; maxParties?: number; maxSize?: number } = {},
 ): MajorityCoalition[] {
   const eligible = parties
-    .filter((p) => p.percent >= thresholdPercent && !NON_PARTISAN_SHORTCUTS.has(p.shortcut))
+    .filter(
+      (p) =>
+        p.percent >= thresholdPercent &&
+        !NON_PARTISAN_SHORTCUTS.has(p.shortcut),
+    )
     .sort((a, b) => b.percent - a.percent)
     .slice(0, maxParties);
 
@@ -108,7 +116,8 @@ export function findMajorityCoalitions(
 
   // Minimal = no winning coalition is a strict subset of this one.
   const minimal = winning.filter(
-    (w) => !winning.some((o) => o.mask !== w.mask && (o.mask & w.mask) === o.mask),
+    (w) =>
+      !winning.some((o) => o.mask !== w.mask && (o.mask & w.mask) === o.mask),
   );
 
   return minimal

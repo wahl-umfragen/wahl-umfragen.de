@@ -13,10 +13,13 @@ for (const path of PAGES) {
   test(`no CSP violation on ${path}`, async ({ page }) => {
     const violations: string[] = [];
     const isCsp = (text: string) =>
-      /content security policy|refused to (execute|load|apply|connect)/i.test(text);
+      /content security policy|refused to (execute|load|apply|connect)/i.test(
+        text,
+      );
 
     page.on("console", (msg) => {
-      if (msg.type() === "error" && isCsp(msg.text())) violations.push(msg.text());
+      if (msg.type() === "error" && isCsp(msg.text()))
+        violations.push(msg.text());
     });
     page.on("pageerror", (err) => {
       if (isCsp(err.message)) violations.push(err.message);

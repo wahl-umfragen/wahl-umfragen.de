@@ -28,9 +28,7 @@ type Messages = typeof deDE;
 // Dot-paths into the catalog, e.g. "home.title" — gives autocomplete and
 // compile-time errors on typos.
 type LeafPaths<T> = {
-  [K in keyof T & string]: T[K] extends string
-    ? K
-    : `${K}.${LeafPaths<T[K]>}`;
+  [K in keyof T & string]: T[K] extends string ? K : `${K}.${LeafPaths<T[K]>}`;
 }[keyof T & string];
 
 export type TranslationKey = LeafPaths<Messages>;

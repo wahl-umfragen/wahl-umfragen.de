@@ -152,10 +152,14 @@ export const PAGE_META = {
  */
 export const PAGE_INTRO: Record<string, string> = {
   home: "Diese Seite bündelt die Sonntagsfrage zur Bundestagswahl: Für jedes große Meinungsforschungsinstitut zeigt die Tabelle dessen jüngste Umfrage, sodass sich der aktuelle Stand der Parteien auf einen Blick vergleichen lässt. Die Daten werden stündlich mit dawum.de abgeglichen und dauerhaft archiviert.",
-  trend: "Der Wahltrend fasst die einzelnen Umfragen zu einem geglätteten Verlauf je Partei zusammen und federt so die Schwankungen zwischen den Instituten (House-Effects) ab. Ergänzt wird er um eine Sitzverteilung nach dem Hare-/Niemeyer-Verfahren mit 5-%-Hürde und einen direkten Institutsvergleich.",
-  koalition: "Der Koalitionsrechner kombiniert Parteien auf Basis der aktuellsten Umfrage zu möglichen Bündnissen und zeigt, ob sie zusammen eine Mehrheit im Bundestag erreichen. Parteien unter der 5-%-Hürde bleiben dabei unberücksichtigt, da sie ohne Grundmandate nicht in den Bundestag einziehen würden.",
-  archiv: "Das Archiv enthält alle erfassten Bundestags-Umfragen seit 2017 – weit über das rund 90-tägige Fenster von dawum.de hinaus, weil wir die Umfragen fortlaufend speichern. Du kannst nach Institut und Zeitraum filtern, nach jeder Partei sortieren, einzelne Umfragen im Detail öffnen und den gesamten Datensatz als CSV oder JSON exportieren.",
-  wahlen: "Diese Übersicht zeigt die amtlichen Endergebnisse der Bundestagswahl (Zweitstimmenanteile je Partei), festgestellt von Die Bundeswahlleiterin. Anders als die Sonntagsfrage sind das keine Umfragen, sondern das tatsächliche Wahlergebnis – die Bezugsgröße, an der sich die Umfragen messen lassen. Im Wahltrend sind dieselben Werte zusätzlich als Markierung am Wahltag eingezeichnet.",
+  trend:
+    "Der Wahltrend fasst die einzelnen Umfragen zu einem geglätteten Verlauf je Partei zusammen und federt so die Schwankungen zwischen den Instituten (House-Effects) ab. Ergänzt wird er um eine Sitzverteilung nach dem Hare-/Niemeyer-Verfahren mit 5-%-Hürde und einen direkten Institutsvergleich.",
+  koalition:
+    "Der Koalitionsrechner kombiniert Parteien auf Basis der aktuellsten Umfrage zu möglichen Bündnissen und zeigt, ob sie zusammen eine Mehrheit im Bundestag erreichen. Parteien unter der 5-%-Hürde bleiben dabei unberücksichtigt, da sie ohne Grundmandate nicht in den Bundestag einziehen würden.",
+  archiv:
+    "Das Archiv enthält alle erfassten Bundestags-Umfragen seit 2017 – weit über das rund 90-tägige Fenster von dawum.de hinaus, weil wir die Umfragen fortlaufend speichern. Du kannst nach Institut und Zeitraum filtern, nach jeder Partei sortieren, einzelne Umfragen im Detail öffnen und den gesamten Datensatz als CSV oder JSON exportieren.",
+  wahlen:
+    "Diese Übersicht zeigt die amtlichen Endergebnisse der Bundestagswahl (Zweitstimmenanteile je Partei), festgestellt von Die Bundeswahlleiterin. Anders als die Sonntagsfrage sind das keine Umfragen, sondern das tatsächliche Wahlergebnis – die Bezugsgröße, an der sich die Umfragen messen lassen. Im Wahltrend sind dieselben Werte zusätzlich als Markierung am Wahltag eingezeichnet.",
 };
 
 export interface FaqItem {

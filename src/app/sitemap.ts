@@ -18,15 +18,55 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const now = lastUpdate ? new Date(lastUpdate) : undefined;
 
   const staticEntries: MetadataRoute.Sitemap = [
-    { url: absoluteUrl("/"), lastModified: now, changeFrequency: "hourly", priority: 1 },
-    { url: absoluteUrl("/trend"), lastModified: now, changeFrequency: "hourly", priority: 0.9 },
-    { url: absoluteUrl("/archiv"), lastModified: now, changeFrequency: "hourly", priority: 0.8 },
-    { url: absoluteUrl("/koalition"), lastModified: now, changeFrequency: "daily", priority: 0.7 },
+    {
+      url: absoluteUrl("/"),
+      lastModified: now,
+      changeFrequency: "hourly",
+      priority: 1,
+    },
+    {
+      url: absoluteUrl("/trend"),
+      lastModified: now,
+      changeFrequency: "hourly",
+      priority: 0.9,
+    },
+    {
+      url: absoluteUrl("/archiv"),
+      lastModified: now,
+      changeFrequency: "hourly",
+      priority: 0.8,
+    },
+    {
+      url: absoluteUrl("/koalition"),
+      lastModified: now,
+      changeFrequency: "daily",
+      priority: 0.7,
+    },
     { url: absoluteUrl("/wahlen"), changeFrequency: "yearly", priority: 0.6 },
-    { url: absoluteUrl("/laender"), lastModified: now, changeFrequency: "daily", priority: 0.7 },
-    { url: absoluteUrl("/partei"), lastModified: now, changeFrequency: "daily", priority: 0.8 },
-    { url: absoluteUrl("/datenstand"), lastModified: now, changeFrequency: "hourly", priority: 0.4 },
-    { url: absoluteUrl("/vergleich"), lastModified: now, changeFrequency: "daily", priority: 0.6 },
+    {
+      url: absoluteUrl("/laender"),
+      lastModified: now,
+      changeFrequency: "daily",
+      priority: 0.7,
+    },
+    {
+      url: absoluteUrl("/partei"),
+      lastModified: now,
+      changeFrequency: "daily",
+      priority: 0.8,
+    },
+    {
+      url: absoluteUrl("/datenstand"),
+      lastModified: now,
+      changeFrequency: "hourly",
+      priority: 0.4,
+    },
+    {
+      url: absoluteUrl("/vergleich"),
+      lastModified: now,
+      changeFrequency: "daily",
+      priority: 0.6,
+    },
     ...PARTIES.map((p) => ({
       url: absoluteUrl(`/partei/${p.slug}`),
       lastModified: now,
@@ -75,5 +115,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       priority: 0.4,
     }));
 
-  return [...staticEntries, ...instituteEntries, ...surveyEntries, ...landtagSurveyEntries];
+  return [
+    ...staticEntries,
+    ...instituteEntries,
+    ...surveyEntries,
+    ...landtagSurveyEntries,
+  ];
 }

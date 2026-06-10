@@ -22,17 +22,15 @@ export default async function OpengraphImage({
     : null;
 
   return new ImageResponse(
-    (
-      <OgCard
-        eyebrow="Umfragen-Institut"
-        title={name}
-        subtitle={
-          sinceYear
-            ? `${surveys.length} Bundestags-Umfragen seit ${sinceYear}`
-            : "Bundestags-Umfragen"
-        }
-      />
-    ),
+    <OgCard
+      eyebrow="Umfragen-Institut"
+      title={name}
+      subtitle={
+        sinceYear
+          ? `${surveys.length} Bundestags-Umfragen seit ${sinceYear}`
+          : "Bundestags-Umfragen"
+      }
+    />,
     { ...size },
   );
 }

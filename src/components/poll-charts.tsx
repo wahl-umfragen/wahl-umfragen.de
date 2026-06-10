@@ -24,8 +24,7 @@ import type {
 import { SrOnlyTable } from "./sr-table";
 import { useColorScheme } from "./use-color-scheme";
 
-const CARD =
-  "w-full rounded-xl border border-border bg-surface p-2";
+const CARD = "w-full rounded-xl border border-border bg-surface p-2";
 
 const fmt1 = (v: number) => v.toFixed(1);
 
@@ -47,65 +46,86 @@ export function CurrentStandingChart({ data }: { data: PartyAverage[] }) {
         aria-label="Aktueller Stand der Sonntagsfrage als Balkendiagramm"
         className="h-full w-full"
       >
-      <ResponsiveContainer
-        width="100%"
-        height="100%"
-        initialDimension={{ width: 600, height: 280 }}
-      >
-        <BarChart
-          layout="vertical"
-          data={data}
-          margin={{ top: 4, right: 44, bottom: 4, left: 8 }}
+        <ResponsiveContainer
+          width="100%"
+          height="100%"
+          initialDimension={{ width: 600, height: 280 }}
         >
-          <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.4} horizontal={false} />
-          <XAxis
-            type="number"
-            domain={[0, "dataMax"]}
-            tickFormatter={(v: number) => `${v}%`}
-            stroke="currentColor"
-            tick={{ fontSize: 12 }}
-          />
-          <YAxis
-            type="category"
-            dataKey="shortcut"
-            stroke="currentColor"
-            tick={{ fontSize: 12 }}
-            width={72}
-          />
-          <Tooltip
-            cursor={{ fillOpacity: 0.06 }}
-            content={({ active, payload }) => {
-              if (!active || !payload?.length) return null;
-              const p = payload[0].payload as PartyAverage;
-              return (
-                <ChartTooltip
-                  title={p.name}
-                  rows={[
-                    { label: t("charts.average"), value: `${fmt1(p.percent)}%` },
-                    { label: t("charts.institutes"), value: String(p.institutes) },
-                  ]}
-                />
-              );
-            }}
-          />
-          <Bar dataKey="percent" radius={[0, 4, 4, 0]} isAnimationActive={false}>
-            {data.map((p) => (
-              <Cell key={p.shortcut} fill={partyColor(p.shortcut, { scheme })} />
-            ))}
-            <LabelList
-              dataKey="percent"
-              position="right"
-              formatter={(v) => (typeof v === "number" ? `${fmt1(v)}%` : "")}
-              style={{ fontSize: 12, fill: "currentColor" }}
+          <BarChart
+            layout="vertical"
+            data={data}
+            margin={{ top: 4, right: 44, bottom: 4, left: 8 }}
+          >
+            <CartesianGrid
+              strokeDasharray="3 3"
+              strokeOpacity={0.4}
+              horizontal={false}
             />
-          </Bar>
-        </BarChart>
-      </ResponsiveContainer>
+            <XAxis
+              type="number"
+              domain={[0, "dataMax"]}
+              tickFormatter={(v: number) => `${v}%`}
+              stroke="currentColor"
+              tick={{ fontSize: 12 }}
+            />
+            <YAxis
+              type="category"
+              dataKey="shortcut"
+              stroke="currentColor"
+              tick={{ fontSize: 12 }}
+              width={72}
+            />
+            <Tooltip
+              cursor={{ fillOpacity: 0.06 }}
+              content={({ active, payload }) => {
+                if (!active || !payload?.length) return null;
+                const p = payload[0].payload as PartyAverage;
+                return (
+                  <ChartTooltip
+                    title={p.name}
+                    rows={[
+                      {
+                        label: t("charts.average"),
+                        value: `${fmt1(p.percent)}%`,
+                      },
+                      {
+                        label: t("charts.institutes"),
+                        value: String(p.institutes),
+                      },
+                    ]}
+                  />
+                );
+              }}
+            />
+            <Bar
+              dataKey="percent"
+              radius={[0, 4, 4, 0]}
+              isAnimationActive={false}
+            >
+              {data.map((p) => (
+                <Cell
+                  key={p.shortcut}
+                  fill={partyColor(p.shortcut, { scheme })}
+                />
+              ))}
+              <LabelList
+                dataKey="percent"
+                position="right"
+                formatter={(v) => (typeof v === "number" ? `${fmt1(v)}%` : "")}
+                style={{ fontSize: 12, fill: "currentColor" }}
+              />
+            </Bar>
+          </BarChart>
+        </ResponsiveContainer>
       </div>
       <SrOnlyTable
         caption="Aktueller Stand der Sonntagsfrage"
         head={["Partei", "Schnitt", "Institute"]}
-        rows={data.map((p) => [p.shortcut, `${fmt1(p.percent)} %`, p.institutes])}
+        rows={data.map((p) => [
+          p.shortcut,
+          `${fmt1(p.percent)} %`,
+          p.institutes,
+        ])}
       />
     </div>
   );
@@ -145,19 +165,26 @@ export function SeatDistributionChart({ data }: { data: SeatDistribution }) {
               isAnimationActive={false}
             >
               {data.entries.map((e) => (
-                <Cell key={e.shortcut} fill={partyColor(e.shortcut, { scheme })} />
+                <Cell
+                  key={e.shortcut}
+                  fill={partyColor(e.shortcut, { scheme })}
+                />
               ))}
             </Pie>
             <Tooltip
               content={({ active, payload }) => {
                 if (!active || !payload?.length) return null;
-                const e = payload[0].payload as SeatDistribution["entries"][number];
+                const e = payload[0]
+                  .payload as SeatDistribution["entries"][number];
                 return (
                   <ChartTooltip
                     title={e.name}
                     rows={[
                       { label: t("charts.seats"), value: String(e.seats) },
-                      { label: t("charts.average"), value: `${fmt1(e.percent)}%` },
+                      {
+                        label: t("charts.average"),
+                        value: `${fmt1(e.percent)}%`,
+                      },
                     ]}
                   />
                 );
@@ -181,9 +208,7 @@ export function SeatDistributionChart({ data }: { data: SeatDistribution }) {
               style={{ backgroundColor: partyColor(e.shortcut, { scheme }) }}
             />
             <span className="font-medium">{e.shortcut}</span>
-            <span className="font-mono tabular-nums text-muted">
-              {e.seats}
-            </span>
+            <span className="font-mono tabular-nums text-muted">{e.seats}</span>
           </li>
         ))}
       </ul>
@@ -209,60 +234,67 @@ export function InstituteComparisonChart({
         aria-label="Institutsvergleich: gleiche Parteien je Institut als Balkendiagramm"
         className="h-full w-full"
       >
-      <ResponsiveContainer
-        width="100%"
-        height="100%"
-        initialDimension={{ width: 600, height: 384 }}
-      >
-        <BarChart data={data.rows} margin={{ top: 8, right: 16, bottom: 48, left: 0 }}>
-          <CartesianGrid strokeDasharray="3 3" strokeOpacity={0.4} vertical={false} />
-          <XAxis
-            dataKey="institute"
-            stroke="currentColor"
-            tick={{ fontSize: 11 }}
-            interval={0}
-            angle={-30}
-            textAnchor="end"
-            height={48}
-          />
-          <YAxis
-            tickFormatter={(v: number) => `${v}%`}
-            stroke="currentColor"
-            tick={{ fontSize: 12 }}
-            width={40}
-          />
-          <Tooltip
-            cursor={{ fillOpacity: 0.06 }}
-            content={({ active, payload, label }) => {
-              if (!active || !payload?.length) return null;
-              return (
-                <ChartTooltip
-                  title={String(label)}
-                  rows={payload
-                    .filter((p) => typeof p.value === "number")
-                    .sort((a, b) => (b.value as number) - (a.value as number))
-                    .map((p) => ({
-                      label: String(p.name),
-                      value: `${fmt1(p.value as number)}%`,
-                      color: p.color,
-                    }))}
-                />
-              );
-            }}
-          />
-          <Legend wrapperStyle={{ fontSize: 12 }} />
-          {data.parties.map((shortcut) => (
-            <Bar
-              key={shortcut}
-              dataKey={shortcut}
-              name={shortcut}
-              fill={partyColor(shortcut, { scheme })}
-              radius={[2, 2, 0, 0]}
-              isAnimationActive={false}
+        <ResponsiveContainer
+          width="100%"
+          height="100%"
+          initialDimension={{ width: 600, height: 384 }}
+        >
+          <BarChart
+            data={data.rows}
+            margin={{ top: 8, right: 16, bottom: 48, left: 0 }}
+          >
+            <CartesianGrid
+              strokeDasharray="3 3"
+              strokeOpacity={0.4}
+              vertical={false}
             />
-          ))}
-        </BarChart>
-      </ResponsiveContainer>
+            <XAxis
+              dataKey="institute"
+              stroke="currentColor"
+              tick={{ fontSize: 11 }}
+              interval={0}
+              angle={-30}
+              textAnchor="end"
+              height={48}
+            />
+            <YAxis
+              tickFormatter={(v: number) => `${v}%`}
+              stroke="currentColor"
+              tick={{ fontSize: 12 }}
+              width={40}
+            />
+            <Tooltip
+              cursor={{ fillOpacity: 0.06 }}
+              content={({ active, payload, label }) => {
+                if (!active || !payload?.length) return null;
+                return (
+                  <ChartTooltip
+                    title={String(label)}
+                    rows={payload
+                      .filter((p) => typeof p.value === "number")
+                      .sort((a, b) => (b.value as number) - (a.value as number))
+                      .map((p) => ({
+                        label: String(p.name),
+                        value: `${fmt1(p.value as number)}%`,
+                        color: p.color,
+                      }))}
+                  />
+                );
+              }}
+            />
+            <Legend wrapperStyle={{ fontSize: 12 }} />
+            {data.parties.map((shortcut) => (
+              <Bar
+                key={shortcut}
+                dataKey={shortcut}
+                name={shortcut}
+                fill={partyColor(shortcut, { scheme })}
+                radius={[2, 2, 0, 0]}
+                isAnimationActive={false}
+              />
+            ))}
+          </BarChart>
+        </ResponsiveContainer>
       </div>
       <SrOnlyTable
         caption="Institutsvergleich der Sonntagsfrage"
@@ -310,9 +342,5 @@ function ChartTooltip({
 }
 
 function Empty() {
-  return (
-    <p className="text-sm text-muted">
-      {t("common.noData")}
-    </p>
-  );
+  return <p className="text-sm text-muted">{t("common.noData")}</p>;
 }

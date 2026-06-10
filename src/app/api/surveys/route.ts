@@ -33,7 +33,8 @@ export const ATTRIBUTION = {
   source: "dawum.de",
   license: "ODbL-1.0",
   licenseUrl: "https://opendatacommons.org/licenses/odbl/1-0/",
-  attributionText: "Data sourced from dawum.de, licensed under ODbL-1.0. Share-alike required for derived databases.",
+  attributionText:
+    "Data sourced from dawum.de, licensed under ODbL-1.0. Share-alike required for derived databases.",
 } as const;
 
 /** HTTP headers added to every response so the license is discoverable without parsing the body. */
@@ -52,7 +53,10 @@ export async function GET(req: NextRequest) {
   // re-downloading the (potentially large) body.
   const etag = `W/"${lastUpdate ?? "0"}-${djb2(params.toString())}"`;
   if (req.headers?.get("if-none-match") === etag) {
-    return new Response(null, { status: 304, headers: { etag, ...LICENSE_HEADERS } });
+    return new Response(null, {
+      status: 304,
+      headers: { etag, ...LICENSE_HEADERS },
+    });
   }
 
   const { limit, offset, error } = parsePaging(params);
@@ -63,12 +67,15 @@ export async function GET(req: NextRequest) {
   // When no limit is given return everything from offset onward (full export
   // use case); a given limit is clamped to [1, MAX_LIMIT].
   const page =
-    limit === undefined ? filtered.slice(offset) : filtered.slice(offset, offset + limit);
+    limit === undefined
+      ? filtered.slice(offset)
+      : filtered.slice(offset, offset + limit);
 
   const headers = {
     // Cache at the browser (max-age) and the edge (s-maxage), and let the edge
     // serve stale while it revalidates so bursts don't pile onto the origin.
-    "cache-control": "public, max-age=300, s-maxage=300, stale-while-revalidate=60",
+    "cache-control":
+      "public, max-age=300, s-maxage=300, stale-while-revalidate=60",
     etag,
     ...LICENSE_HEADERS,
   };
@@ -84,7 +91,13 @@ export async function GET(req: NextRequest) {
   }
 
   return Response.json(
-    { lastUpdate, total, count: page.length, attribution: ATTRIBUTION, surveys: page },
+    {
+      lastUpdate,
+      total,
+      count: page.length,
+      attribution: ATTRIBUTION,
+      surveys: page,
+    },
     { headers },
   );
 }
@@ -115,7 +128,10 @@ function applyFilters(
     if (institut && s.institute.id !== institut) return false;
     if (from && s.date < from) return false;
     if (to && s.date > to) return false;
-    if (partyAliases && !s.results.some((r) => partyAliases.includes(r.shortcut)))
+    if (
+      partyAliases &&
+      !s.results.some((r) => partyAliases.includes(r.shortcut))
+    )
       return false;
     return true;
   });
@@ -124,7 +140,8 @@ function applyFilters(
 /** Small, stable string hash for weak ETags (not security-sensitive). */
 function djb2(input: string): string {
   let h = 5381;
-  for (let i = 0; i < input.length; i++) h = ((h << 5) + h + input.charCodeAt(i)) | 0;
+  for (let i = 0; i < input.length; i++)
+    h = ((h << 5) + h + input.charCodeAt(i)) | 0;
   return (h >>> 0).toString(36);
 }
 
@@ -144,7 +161,11 @@ function parsePaging(params: URLSearchParams): {
   if (rawLimit !== null) {
     const n = Number(rawLimit);
     if (!Number.isInteger(n) || n < 1) {
-      return { limit: undefined, offset: 0, error: "limit must be a positive integer" };
+      return {
+        limit: undefined,
+        offset: 0,
+        error: "limit must be a positive integer",
+      };
     }
     limit = Math.min(n, MAX_LIMIT);
   }
@@ -153,7 +174,11 @@ function parsePaging(params: URLSearchParams): {
   if (rawOffset !== null) {
     const n = Number(rawOffset);
     if (!Number.isInteger(n) || n < 0) {
-      return { limit, offset: 0, error: "offset must be a non-negative integer" };
+      return {
+        limit,
+        offset: 0,
+        error: "offset must be a non-negative integer",
+      };
     }
     offset = n;
   }

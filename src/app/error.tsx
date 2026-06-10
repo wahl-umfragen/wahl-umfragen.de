@@ -17,13 +17,16 @@ export default function Error({
 }) {
   return (
     <div className="mx-auto max-w-2xl px-6 py-20 text-center">
-      <div aria-hidden="true" className="mx-auto mb-4 h-1 w-12 rounded-full bg-accent" />
+      <div
+        aria-hidden="true"
+        className="mx-auto mb-4 h-1 w-12 rounded-full bg-accent"
+      />
       <h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
         Etwas ist schiefgelaufen
       </h1>
       <p className="mx-auto mt-3 max-w-md text-muted">
-        Die Daten konnten gerade nicht geladen werden. Bitte versuche es erneut –
-        bleibt das Problem bestehen, schau später noch einmal vorbei.
+        Die Daten konnten gerade nicht geladen werden. Bitte versuche es erneut
+        – bleibt das Problem bestehen, schau später noch einmal vorbei.
       </p>
       <div className="mt-6 flex flex-wrap justify-center gap-3">
         <button

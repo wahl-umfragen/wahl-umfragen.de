@@ -23,7 +23,9 @@ function DeltaBadge({ value }: { value: number | undefined }) {
   return (
     <span
       className={`ml-1 text-[0.65rem] font-semibold tabular-nums ${
-        up ? "text-emerald-600 dark:text-emerald-400" : "text-red-600 dark:text-red-400"
+        up
+          ? "text-emerald-600 dark:text-emerald-400"
+          : "text-red-600 dark:text-red-400"
       }`}
       title={`${up ? "+" : ""}${value.toFixed(1)} ggü. vorheriger Umfrage des Instituts`}
     >
@@ -92,7 +94,10 @@ export function InstituteTable({
 
   return (
     <div className="overflow-x-auto">
-      <table data-testid="survey-list" className="w-full border-collapse text-sm">
+      <table
+        data-testid="survey-list"
+        className="w-full border-collapse text-sm"
+      >
         <thead>
           <tr className="border-b-2 border-border-strong">
             <th
@@ -223,4 +228,3 @@ function SortButton({
     </button>
   );
 }
-

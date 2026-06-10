@@ -22,13 +22,11 @@ export default async function OpengraphImage({
   }
 
   return new ImageResponse(
-    (
-      <OgCard
-        eyebrow="Landtagswahl"
-        title={`Umfragen ${p.name}`}
-        subtitle={p.parliamentName}
-      />
-    ),
+    <OgCard
+      eyebrow="Landtagswahl"
+      title={`Umfragen ${p.name}`}
+      subtitle={p.parliamentName}
+    />,
     { ...size },
   );
 }

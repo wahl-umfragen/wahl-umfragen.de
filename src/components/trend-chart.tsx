@@ -23,7 +23,10 @@ import { t } from "@/i18n";
 import { partyColor } from "@/lib/dawum/colors";
 import type { TrendData, TrendPoint, TrendSeries } from "@/lib/dawum/trend";
 import { electionMarkers } from "@/lib/elections/markers";
-import { BUNDESTAG_ELECTIONS, type ElectionResult } from "@/lib/elections/results";
+import {
+  BUNDESTAG_ELECTIONS,
+  type ElectionResult,
+} from "@/lib/elections/results";
 import { SrOnlyTable } from "./sr-table";
 import { useColorScheme } from "./use-color-scheme";
 
@@ -96,10 +99,7 @@ export function TrendChart({
 
   if (data.points.length === 0) {
     return (
-      <p
-        data-testid="trend-empty"
-        className="text-sm text-muted"
-      >
+      <p data-testid="trend-empty" className="text-sm text-muted">
         {t("charts.trendEmpty")}
       </p>
     );

@@ -22,9 +22,7 @@ export function SiteNav() {
     <nav data-testid="site-nav" className="flex flex-wrap gap-1 text-sm">
       {LINKS.map((link) => {
         const active =
-          link.href === "/"
-            ? pathname === "/"
-            : pathname.startsWith(link.href);
+          link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
         return (
           <Link
             key={link.href}

@@ -106,7 +106,9 @@ export async function sendReportEmail(
  * SMTP is configured). Best-effort like `sendReportEmail`: never throws, returns
  * false when skipped or failed.
  */
-export async function sendReportConfirmation(report: ValidReport): Promise<boolean> {
+export async function sendReportConfirmation(
+  report: ValidReport,
+): Promise<boolean> {
   if (!report.email) return false;
   const config = readConfig();
   if (!config) return false;

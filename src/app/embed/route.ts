@@ -69,7 +69,10 @@ function shell(title: string, subtitle: string, body: string): string {
 }
 
 function barsBody(parties: { shortcut: string; percent: number }[]): string {
-  const max = Math.max(5, Math.ceil(parties.reduce((m, p) => Math.max(m, p.percent), 0) / 5) * 5);
+  const max = Math.max(
+    5,
+    Math.ceil(parties.reduce((m, p) => Math.max(m, p.percent), 0) / 5) * 5,
+  );
   const rows = parties
     .map((p) => {
       const width = Math.min(100, (p.percent / max) * 100);
@@ -88,7 +91,10 @@ function barsBody(parties: { shortcut: string; percent: number }[]): string {
 function trendBody(
   bundestag: Awaited<ReturnType<typeof loadBundestagData>>["bundestag"],
 ): string {
-  const trend = smoothTrendData(buildBundestagTrend(bundestag, { windowDays: 365 }), 11);
+  const trend = smoothTrendData(
+    buildBundestagTrend(bundestag, { windowDays: 365 }),
+    11,
+  );
   const series = trend.series
     .filter((s) => !NON_PARTISAN.has(s.shortcut))
     .slice(0, TREND_SERIES);
@@ -118,8 +124,10 @@ function trendBody(
       const pts = trend.points
         .filter((p) => typeof p[s.shortcut] === "number")
         .map((p) => {
-          const x = pad + (((p.date as number) - minX) / rangeX) * (w - 2 * pad);
-          const y = pad + (1 - (p[s.shortcut] as number) / yMax) * (h - 2 * pad);
+          const x =
+            pad + (((p.date as number) - minX) / rangeX) * (w - 2 * pad);
+          const y =
+            pad + (1 - (p[s.shortcut] as number) / yMax) * (h - 2 * pad);
           return `${x.toFixed(1)},${y.toFixed(1)}`;
         })
         .join(" ");
@@ -162,7 +170,8 @@ export async function GET(req: NextRequest) {
   return new Response(shell(title, subtitle, body), {
     headers: {
       "content-type": "text/html; charset=utf-8",
-      "cache-control": "public, max-age=600, s-maxage=600, stale-while-revalidate=300",
+      "cache-control":
+        "public, max-age=600, s-maxage=600, stale-while-revalidate=300",
     },
   });
 }

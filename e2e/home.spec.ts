@@ -24,10 +24,9 @@ test.describe("home page", () => {
 
     const footer = page.getByTestId("site-footer");
     await expect(footer).toBeVisible();
-    await expect(footer.getByRole("link", { name: "dawum.de" })).toHaveAttribute(
-      "href",
-      "https://dawum.de/",
-    );
+    await expect(
+      footer.getByRole("link", { name: "dawum.de" }),
+    ).toHaveAttribute("href", "https://dawum.de/");
     await expect(footer.getByRole("link", { name: "ODbL" })).toBeVisible();
   });
 
@@ -154,9 +153,7 @@ test.describe("archive page", () => {
 
     // Filtering by an institute narrows the result count.
     const before = await page.getByTestId("archive-count").textContent();
-    await page
-      .getByTestId("archive-institute")
-      .selectOption({ index: 1 });
+    await page.getByTestId("archive-institute").selectOption({ index: 1 });
     await expect(page.getByTestId("archive-count")).not.toHaveText(
       before ?? "",
     );

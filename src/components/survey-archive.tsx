@@ -29,7 +29,12 @@ function parseSort(raw: string | null): SortKey {
   return "date";
 }
 
-function buildExportUrl(format: string, institut: string, from: string, to: string): string {
+function buildExportUrl(
+  format: string,
+  institut: string,
+  from: string,
+  to: string,
+): string {
   const q = new URLSearchParams();
   if (format) q.set("format", format);
   if (institut) q.set("institut", institut);
@@ -294,7 +299,9 @@ export function SurveyArchive({ surveys }: { surveys: NormalizedSurvey[] }) {
                             <span
                               aria-hidden="true"
                               className="inline-block h-2.5 w-2.5 rounded-full"
-                              style={{ backgroundColor: partyColorVar(shortcut) }}
+                              style={{
+                                backgroundColor: partyColorVar(shortcut),
+                              }}
                             />
                             {shortcut}
                           </span>

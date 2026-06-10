@@ -42,32 +42,35 @@ export function PollOfPolls({
         {parties.map((p) => {
           const info = partyByShortcut(p.shortcut);
           return (
-          <li key={p.shortcut} className="flex items-center gap-3">
-            <span className="w-16 shrink-0 text-sm font-medium">
-              {info ? (
-                <Link href={`/partei/${info.slug}`} className="hover:underline">
-                  {p.shortcut}
-                </Link>
-              ) : (
-                p.shortcut
-              )}
-            </span>
-            <div
-              aria-hidden="true"
-              className="h-5 flex-1 overflow-hidden rounded bg-border/40"
-            >
+            <li key={p.shortcut} className="flex items-center gap-3">
+              <span className="w-16 shrink-0 text-sm font-medium">
+                {info ? (
+                  <Link
+                    href={`/partei/${info.slug}`}
+                    className="hover:underline"
+                  >
+                    {p.shortcut}
+                  </Link>
+                ) : (
+                  p.shortcut
+                )}
+              </span>
               <div
-                className="h-full rounded"
-                style={{
-                  width: `${Math.min(100, (p.percent / max) * 100)}%`,
-                  backgroundColor: partyColorVar(p.shortcut),
-                }}
-              />
-            </div>
-            <span className="w-14 shrink-0 text-right font-mono text-sm tabular-nums">
-              {p.percent.toFixed(1)}
-            </span>
-          </li>
+                aria-hidden="true"
+                className="h-5 flex-1 overflow-hidden rounded bg-border/40"
+              >
+                <div
+                  className="h-full rounded"
+                  style={{
+                    width: `${Math.min(100, (p.percent / max) * 100)}%`,
+                    backgroundColor: partyColorVar(p.shortcut),
+                  }}
+                />
+              </div>
+              <span className="w-14 shrink-0 text-right font-mono text-sm tabular-nums">
+                {p.percent.toFixed(1)}
+              </span>
+            </li>
           );
         })}
       </ul>

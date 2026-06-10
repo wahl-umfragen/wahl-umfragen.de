@@ -5,7 +5,11 @@ import { PageHeader } from "@/components/page-header";
 import { SeoSection } from "@/components/seo-section";
 import { t, type TranslationKey } from "@/i18n";
 import { loadBundestagData } from "@/lib/data";
-import { comparePartyAverages, NON_PARTISAN, weightedAverage } from "@/lib/dawum";
+import {
+  comparePartyAverages,
+  NON_PARTISAN,
+  weightedAverage,
+} from "@/lib/dawum";
 import { partyColorVar } from "@/lib/dawum/colors";
 import type { NormalizedSurvey } from "@/lib/dawum/types";
 import { breadcrumbLd, buildMetadata, PAGE_META } from "@/lib/seo";
@@ -97,15 +101,26 @@ export default async function ComparePage({
           <table className="w-full border-collapse text-sm">
             <thead>
               <tr className="border-b-2 border-border-strong text-left text-xs font-bold uppercase tracking-wide text-muted">
-                <th scope="col" className="py-2 pr-3">{t("comparePage.party")}</th>
-                <th scope="col" className="py-2 pr-3 text-right">{t("comparePage.then")}</th>
-                <th scope="col" className="py-2 pr-3 text-right">{t("comparePage.now")}</th>
-                <th scope="col" className="py-2 pr-3 text-right">{t("comparePage.delta")}</th>
+                <th scope="col" className="py-2 pr-3">
+                  {t("comparePage.party")}
+                </th>
+                <th scope="col" className="py-2 pr-3 text-right">
+                  {t("comparePage.then")}
+                </th>
+                <th scope="col" className="py-2 pr-3 text-right">
+                  {t("comparePage.now")}
+                </th>
+                <th scope="col" className="py-2 pr-3 text-right">
+                  {t("comparePage.delta")}
+                </th>
               </tr>
             </thead>
             <tbody>
               {rows.map((r) => (
-                <tr key={r.shortcut} className="border-b border-border last:border-0">
+                <tr
+                  key={r.shortcut}
+                  className="border-b border-border last:border-0"
+                >
                   <th scope="row" className="py-2 pr-3 text-left font-medium">
                     <span className="inline-flex items-center gap-1.5">
                       <span
@@ -148,10 +163,10 @@ export default async function ComparePage({
       <SeoSection title="Wie sich die Umfragen verändert haben">
         <p>
           Diese Gegenüberstellung vergleicht den aktuellen gewichteten Schnitt
-          der Sonntagsfrage (letzte 30 Tage) mit dem Stand zum gewählten früheren
-          Zeitpunkt. Die Veränderung ist die Differenz in Prozentpunkten. Die
-          Werte sind eine aggregierte Darstellung öffentlicher Umfragen und keine
-          Wahlprognose.
+          der Sonntagsfrage (letzte 30 Tage) mit dem Stand zum gewählten
+          früheren Zeitpunkt. Die Veränderung ist die Differenz in
+          Prozentpunkten. Die Werte sind eine aggregierte Darstellung
+          öffentlicher Umfragen und keine Wahlprognose.
         </p>
       </SeoSection>
     </div>

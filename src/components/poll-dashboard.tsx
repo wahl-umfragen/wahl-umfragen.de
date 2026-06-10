@@ -305,7 +305,10 @@ export function PollDashboard({
         }
       >
         {houseEffects[heWindow].rows.length > 0 ? (
-          <HouseEffectsTable data={houseEffects[heWindow]} parliamentId={parliamentId} />
+          <HouseEffectsTable
+            data={houseEffects[heWindow]}
+            parliamentId={parliamentId}
+          />
         ) : (
           <p className="text-sm text-muted">{t("common.noData")}</p>
         )}
@@ -331,9 +334,7 @@ function Section({
         <h3 className="eyebrow">{title}</h3>
         {action}
       </div>
-      {hint ? (
-        <p className="-mt-2 mb-3 text-xs text-muted">{hint}</p>
-      ) : null}
+      {hint ? <p className="-mt-2 mb-3 text-xs text-muted">{hint}</p> : null}
       {children}
     </section>
   );

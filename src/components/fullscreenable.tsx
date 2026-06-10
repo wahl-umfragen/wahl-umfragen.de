@@ -50,7 +50,9 @@ export function Fullscreenable({ children }: { children: React.ReactNode }) {
           {isFullscreen ? <CollapseIcon /> : <ExpandIcon />}
         </button>
       </div>
-      <div className={isFullscreen ? "min-h-0 flex-1 [&>*]:!h-full" : "contents"}>
+      <div
+        className={isFullscreen ? "min-h-0 flex-1 [&>*]:!h-full" : "contents"}
+      >
         {children}
       </div>
     </div>

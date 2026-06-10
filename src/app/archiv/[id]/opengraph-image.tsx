@@ -27,13 +27,11 @@ export default async function OpengraphImage({
     .join("    ");
 
   return new ImageResponse(
-    (
-      <OgCard
-        eyebrow={`${survey.institute.name} · ${formatDate(survey.date)}`}
-        title="Sonntagsfrage"
-        subtitle={top}
-      />
-    ),
+    <OgCard
+      eyebrow={`${survey.institute.name} · ${formatDate(survey.date)}`}
+      title="Sonntagsfrage"
+      subtitle={top}
+    />,
     { ...size },
   );
 }

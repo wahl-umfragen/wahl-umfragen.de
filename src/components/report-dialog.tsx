@@ -95,7 +95,8 @@ export function ReportDialog() {
   }
 
   function resetCaptcha() {
-    if (widgetIdRef.current != null) window.turnstile?.reset(widgetIdRef.current);
+    if (widgetIdRef.current != null)
+      window.turnstile?.reset(widgetIdRef.current);
     setToken("");
   }
 
@@ -298,10 +299,15 @@ export function ReportDialog() {
             </div>
 
             {/* Cloudflare Turnstile widget mount point (only when configured). */}
-            {siteKey && <div ref={widgetContainerRef} className="min-h-[65px]" />}
+            {siteKey && (
+              <div ref={widgetContainerRef} className="min-h-[65px]" />
+            )}
 
             {status === "error" && (
-              <p role="alert" className="text-sm text-red-600 dark:text-red-400">
+              <p
+                role="alert"
+                className="text-sm text-red-600 dark:text-red-400"
+              >
                 {error}
               </p>
             )}

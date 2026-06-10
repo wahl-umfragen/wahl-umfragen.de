@@ -279,7 +279,10 @@ describe("houseEffects", () => {
       survey("3", "C", "Gamma", { CDU: 25, SPD: 25 }),
     ]);
     for (const party of ["CDU", "SPD"]) {
-      const sum = he.rows.reduce((acc, r) => acc + (r.deviations[party] ?? 0), 0);
+      const sum = he.rows.reduce(
+        (acc, r) => acc + (r.deviations[party] ?? 0),
+        0,
+      );
       expect(sum).toBeCloseTo(0);
     }
   });
@@ -294,7 +297,9 @@ describe("houseEffects", () => {
     const a = he.rows.find((r) => r.instituteId === "A")!;
     expect(a.surveys).toBe(2);
     expect(a.deviations.CDU).toBeCloseTo(2);
-    expect(he.rows.find((r) => r.instituteId === "B")!.deviations.CDU).toBeCloseTo(-2);
+    expect(
+      he.rows.find((r) => r.instituteId === "B")!.deviations.CDU,
+    ).toBeCloseTo(-2);
   });
 
   it("omits parties an institute didn't report and excludes non-partisan buckets", () => {

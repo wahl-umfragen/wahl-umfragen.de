@@ -60,7 +60,12 @@ export function OgCard({
           {ACCENT.slice(0, 4).map((c, i) => (
             <div
               key={i}
-              style={{ width: 22, height: 22, borderRadius: 999, background: c }}
+              style={{
+                width: 22,
+                height: 22,
+                borderRadius: 999,
+                background: c,
+              }}
             />
           ))}
         </div>

@@ -29,10 +29,7 @@ export function SeoSection({
 /** Home-page FAQ: visible accordion-free list plus FAQPage JSON-LD. */
 export function FaqSection() {
   return (
-    <section
-      data-testid="faq"
-      className="mt-12 border-t border-border pt-8"
-    >
+    <section data-testid="faq" className="mt-12 border-t border-border pt-8">
       <h2 className="eyebrow">Häufige Fragen</h2>
       <dl className="mt-4 max-w-3xl space-y-5">
         {FAQ.map((f) => (

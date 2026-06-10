@@ -50,16 +50,21 @@ describe("verifyTurnstile", () => {
     it("returns true when siteverify reports success", async () => {
       vi.stubGlobal(
         "fetch",
-        vi.fn().mockResolvedValue({ json: () => Promise.resolve({ success: true }) }),
+        vi.fn().mockResolvedValue({
+          json: () => Promise.resolve({ success: true }),
+        }),
       );
-      await expect(verifyTurnstile("good-token", "1.2.3.4")).resolves.toBe(true);
+      await expect(verifyTurnstile("good-token", "1.2.3.4")).resolves.toBe(
+        true,
+      );
     });
 
     it("returns false when siteverify reports failure", async () => {
       vi.stubGlobal(
         "fetch",
         vi.fn().mockResolvedValue({
-          json: () => Promise.resolve({ success: false, "error-codes": ["bad"] }),
+          json: () =>
+            Promise.resolve({ success: false, "error-codes": ["bad"] }),
         }),
       );
       await expect(verifyTurnstile("bad-token")).resolves.toBe(false);

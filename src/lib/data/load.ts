@@ -71,14 +71,12 @@ export const loadParliamentData = cache(
   },
 );
 
-export const loadBundestagData = cache(
-  async (): Promise<BundestagData> => {
-    const { surveys, lastUpdate } = await loadParliamentData(
-      BUNDESTAG_PARLIAMENT_ID,
-    );
-    return { bundestag: surveys, lastUpdate };
-  },
-);
+export const loadBundestagData = cache(async (): Promise<BundestagData> => {
+  const { surveys, lastUpdate } = await loadParliamentData(
+    BUNDESTAG_PARLIAMENT_ID,
+  );
+  return { bundestag: surveys, lastUpdate };
+});
 
 /** Column selection for a survey joined with its lookup names. */
 const surveyColumns = {
@@ -268,7 +266,10 @@ export const loadSurveysByInstitute = unstable_cache(
  * so ingest revalidation reaches it.
  */
 export const loadSurveysByInstituteAndParliament = unstable_cache(
-  async (instituteId: string, parliamentId: string): Promise<NormalizedSurvey[]> => {
+  async (
+    instituteId: string,
+    parliamentId: string,
+  ): Promise<NormalizedSurvey[]> => {
     const where = and(
       eq(schema.surveys.parliamentId, parliamentId),
       eq(schema.surveys.instituteId, instituteId),

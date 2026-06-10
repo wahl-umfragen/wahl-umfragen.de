@@ -12,7 +12,10 @@ export interface CoalitionBuilderProps {
   surveyLabel: string;
 }
 
-export function CoalitionBuilder({ parties, surveyLabel }: CoalitionBuilderProps) {
+export function CoalitionBuilder({
+  parties,
+  surveyLabel,
+}: CoalitionBuilderProps) {
   const eligible = useMemo(
     () => parties.filter((p) => !NON_PARTISAN.has(p.shortcut)),
     [parties],
@@ -86,9 +89,7 @@ export function CoalitionBuilder({ parties, surveyLabel }: CoalitionBuilderProps
           </span>
         </div>
         <div>
-          <span className="text-muted">
-            {t("coalition.shareInBundestag")}{" "}
-          </span>
+          <span className="text-muted">{t("coalition.shareInBundestag")} </span>
           <span
             data-testid="coalition-share"
             className="font-mono tabular-nums font-semibold"

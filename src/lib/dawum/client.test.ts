@@ -34,7 +34,9 @@ describe("dawum client", () => {
   it("fetchDawumNewestRaw hits the newest_surveys endpoint", async () => {
     const fetchMock = vi
       .fn()
-      .mockResolvedValue(new Response(JSON.stringify(SAMPLE_DB), { status: 200 }));
+      .mockResolvedValue(
+        new Response(JSON.stringify(SAMPLE_DB), { status: 200 }),
+      );
     vi.stubGlobal("fetch", fetchMock);
 
     await fetchDawumNewestRaw();
@@ -47,7 +49,9 @@ describe("dawum client", () => {
   it("fetchDawumLastUpdateRaw parses ISO text into a Date", async () => {
     const fetchMock = vi
       .fn()
-      .mockResolvedValue(new Response("2026-06-01T10:00:00Z\n", { status: 200 }));
+      .mockResolvedValue(
+        new Response("2026-06-01T10:00:00Z\n", { status: 200 }),
+      );
     vi.stubGlobal("fetch", fetchMock);
 
     const d = await fetchDawumLastUpdateRaw();
@@ -63,6 +67,8 @@ describe("dawum client", () => {
     );
     vi.stubGlobal("fetch", fetchMock);
 
-    await expect(fetchDawumDatabaseRaw()).rejects.toBeInstanceOf(DawumFetchError);
+    await expect(fetchDawumDatabaseRaw()).rejects.toBeInstanceOf(
+      DawumFetchError,
+    );
   });
 });

@@ -60,7 +60,9 @@ async function rateLimited(ip: string): Promise<boolean> {
           THEN now() ELSE report_rate_limit.window_start END
       RETURNING count
     `);
-    const count = Number((rows[0] as { count: number } | undefined)?.count ?? 0);
+    const count = Number(
+      (rows[0] as { count: number } | undefined)?.count ?? 0,
+    );
     return count > RATE_LIMIT;
   } catch (err) {
     console.error("[report] rate-limit check failed:", err);
@@ -124,7 +126,8 @@ export async function POST(req: NextRequest) {
     typeof raw.pageUrl === "string" && raw.pageUrl.length <= MAX_PAGE_URL_LENGTH
       ? raw.pageUrl
       : null;
-  const userAgent = req.headers.get("user-agent")?.slice(0, MAX_EMAIL_LENGTH * 2) ?? null;
+  const userAgent =
+    req.headers.get("user-agent")?.slice(0, MAX_EMAIL_LENGTH * 2) ?? null;
   const id = randomUUID();
 
   try {

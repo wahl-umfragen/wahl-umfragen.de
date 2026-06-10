@@ -46,12 +46,13 @@ test.describe("current-standing transparency", () => {
 
     const sources = page.getByTestId("current-sources");
     // The disclosure only exists when at least one survey contributed.
-    test.skip(!(await sources.isVisible()), "no contributing surveys (empty DB)");
+    test.skip(
+      !(await sources.isVisible()),
+      "no contributing surveys (empty DB)",
+    );
 
     await expect(sources).toContainText("Berücksichtigte Umfragen");
     await sources.locator("summary").click();
-    await expect(
-      sources.locator("a[href^='/archiv/']").first(),
-    ).toBeVisible();
+    await expect(sources.locator("a[href^='/archiv/']").first()).toBeVisible();
   });
 });

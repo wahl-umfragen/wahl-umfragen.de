@@ -40,7 +40,11 @@ export function detectAnomalies(rows: IngestRows): Anomaly[] {
   for (const s of rows.surveys) {
     const n = counts.get(s.id) ?? 0;
     if (n === 0) {
-      anomalies.push({ surveyId: s.id, kind: "empty", detail: "survey has no party results" });
+      anomalies.push({
+        surveyId: s.id,
+        kind: "empty",
+        detail: "survey has no party results",
+      });
       continue;
     }
     const sum = sums.get(s.id) ?? 0;

@@ -49,10 +49,7 @@ async function Archive() {
 
   if (bundestag.length === 0) {
     return (
-      <p
-        data-testid="empty-state"
-        className="text-sm text-muted"
-      >
+      <p data-testid="empty-state" className="text-sm text-muted">
         {t("common.noSurveys")}
       </p>
     );
@@ -60,16 +57,11 @@ async function Archive() {
 
   return (
     <>
-      <p
-        data-testid="data-freshness"
-        className="mb-4 text-xs text-muted"
-      >
+      <p data-testid="data-freshness" className="mb-4 text-xs text-muted">
         {t("common.asOf")} {lastUpdate ? formatDateTime(lastUpdate) : "—"}
       </p>
       <SurveyArchive surveys={bundestag} />
-      <JsonLd
-        data={datasetLd({ lastUpdate, count: bundestag.length })}
-      />
+      <JsonLd data={datasetLd({ lastUpdate, count: bundestag.length })} />
     </>
   );
 }

@@ -12,7 +12,11 @@ export const SAMPLE_DB: DawumDatabase = {
     Last_Update: "2026-06-01T10:00:00Z",
   },
   Parliaments: {
-    "0": { Shortcut: "Bundestag", Name: "Bundestag", Election: "Bundestagswahl" },
+    "0": {
+      Shortcut: "Bundestag",
+      Name: "Bundestag",
+      Election: "Bundestagswahl",
+    },
     "13": {
       Shortcut: "Sachsen",
       Name: "Sächsischer Landtag",

@@ -18,7 +18,9 @@ export async function GET() {
   const { bundestag, lastUpdate } = await loadBundestagData();
   const items = bundestag.slice(0, FEED_LIMIT);
 
-  const lastBuild = (lastUpdate ? new Date(lastUpdate) : new Date(0)).toUTCString();
+  const lastBuild = (
+    lastUpdate ? new Date(lastUpdate) : new Date(0)
+  ).toUTCString();
   const selfUrl = absoluteUrl("/feed.xml");
 
   const itemXml = items
@@ -61,7 +63,8 @@ export async function GET() {
   return new Response(xml, {
     headers: {
       "content-type": "application/rss+xml; charset=utf-8",
-      "cache-control": "public, max-age=600, s-maxage=600, stale-while-revalidate=300",
+      "cache-control":
+        "public, max-age=600, s-maxage=600, stale-while-revalidate=300",
     },
   });
 }

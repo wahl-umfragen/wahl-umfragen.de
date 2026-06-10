@@ -20,7 +20,8 @@ export function normalizeSurvey(
   if (!survey) throw new DawumLookupError("survey", id);
 
   const parliament = db.Parliaments[survey.Parliament_ID];
-  if (!parliament) throw new DawumLookupError("parliament", survey.Parliament_ID);
+  if (!parliament)
+    throw new DawumLookupError("parliament", survey.Parliament_ID);
 
   const institute = db.Institutes[survey.Institute_ID];
   if (!institute) throw new DawumLookupError("institute", survey.Institute_ID);

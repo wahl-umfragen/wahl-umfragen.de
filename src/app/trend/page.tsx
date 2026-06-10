@@ -46,10 +46,7 @@ async function Dashboard() {
 
   return (
     <>
-      <p
-        data-testid="data-freshness"
-        className="mb-6 text-xs text-muted"
-      >
+      <p data-testid="data-freshness" className="mb-6 text-xs text-muted">
         {t("common.asOf")} {lastUpdate ? formatDateTime(lastUpdate) : "—"}
       </p>
       <PollDashboardClient

@@ -15,10 +15,14 @@ export function MajorityCoalitions({
   return (
     <section data-testid="majority-coalitions" className="mt-12">
       <h2 className="eyebrow mb-1">{t("koalitionPage.majoritiesTitle")}</h2>
-      <p className="mb-4 text-xs text-muted">{t("koalitionPage.majoritiesHint")}</p>
+      <p className="mb-4 text-xs text-muted">
+        {t("koalitionPage.majoritiesHint")}
+      </p>
 
       {coalitions.length === 0 ? (
-        <p className="text-sm text-muted">{t("koalitionPage.majoritiesNone")}</p>
+        <p className="text-sm text-muted">
+          {t("koalitionPage.majoritiesNone")}
+        </p>
       ) : (
         <ul className="grid gap-2 sm:grid-cols-2">
           {coalitions.map((c) => (

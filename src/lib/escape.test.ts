@@ -20,9 +20,9 @@ describe("escapeXml", () => {
 });
 
 describe("escapeHtml", () => {
-  it("escapes &, <, >, \" but not apostrophes", () => {
+  it('escapes &, <, >, " but not apostrophes', () => {
     expect(escapeHtml(`x & y < z > w "q"`)).toBe(
-      'x &amp; y &lt; z &gt; w &quot;q&quot;',
+      "x &amp; y &lt; z &gt; w &quot;q&quot;",
     );
   });
 

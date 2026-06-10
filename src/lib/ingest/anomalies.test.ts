@@ -30,11 +30,14 @@ function rows(
 describe("detectAnomalies", () => {
   it("passes a normal survey summing to ~100", () => {
     const out = detectAnomalies(
-      rows([{ id: "s" }], [
-        { surveyId: "s", partyId: "1", percent: 30 },
-        { surveyId: "s", partyId: "2", percent: 18 },
-        { surveyId: "s", partyId: "3", percent: 52 },
-      ]),
+      rows(
+        [{ id: "s" }],
+        [
+          { surveyId: "s", partyId: "1", percent: 30 },
+          { surveyId: "s", partyId: "2", percent: 18 },
+          { surveyId: "s", partyId: "3", percent: 52 },
+        ],
+      ),
     );
     expect(out).toEqual([]);
   });
@@ -49,16 +52,21 @@ describe("detectAnomalies", () => {
 
   it("flags an out-of-range percent", () => {
     const out = detectAnomalies(
-      rows([{ id: "s" }], [
-        { surveyId: "s", partyId: "1", percent: 130 },
-        { surveyId: "s", partyId: "2", percent: -30 },
-      ]),
+      rows(
+        [{ id: "s" }],
+        [
+          { surveyId: "s", partyId: "1", percent: 130 },
+          { surveyId: "s", partyId: "2", percent: -30 },
+        ],
+      ),
     );
     expect(out.filter((a) => a.kind === "range")).toHaveLength(2);
   });
 
   it("flags a survey with no results", () => {
     const out = detectAnomalies(rows([{ id: "empty" }], []));
-    expect(out).toEqual([{ surveyId: "empty", kind: "empty", detail: expect.any(String) }]);
+    expect(out).toEqual([
+      { surveyId: "empty", kind: "empty", detail: expect.any(String) },
+    ]);
   });
 });

@@ -98,7 +98,9 @@ export function instituteDeltas(
       (a, b) => a.date.localeCompare(b.date) || a.id.localeCompare(b.id),
     );
     for (let i = 1; i < sorted.length; i++) {
-      const prev = new Map(sorted[i - 1].results.map((r) => [r.shortcut, r.percent]));
+      const prev = new Map(
+        sorted[i - 1].results.map((r) => [r.shortcut, r.percent]),
+      );
       const deltas: Record<string, number> = {};
       for (const r of sorted[i].results) {
         const before = prev.get(r.shortcut);
@@ -154,7 +156,10 @@ export function partySeries(
       });
     }
   }
-  points.sort((a, b) => a.date.localeCompare(b.date) || a.surveyId.localeCompare(b.surveyId));
+  points.sort(
+    (a, b) =>
+      a.date.localeCompare(b.date) || a.surveyId.localeCompare(b.surveyId),
+  );
 
   if (points.length === 0) return { points };
 
@@ -199,7 +204,10 @@ export function weightedAverage(
     if (t > newest) newest = t;
   }
 
-  const acc = new Map<string, { name: string; wSum: number; wpSum: number; n: number }>();
+  const acc = new Map<
+    string,
+    { name: string; wSum: number; wpSum: number; n: number }
+  >();
   for (const s of surveys) {
     const ageDays = (newest - new Date(s.date).getTime()) / 86_400_000;
     const wRecency = Math.pow(0.5, ageDays / halfLifeDays);
@@ -214,7 +222,12 @@ export function weightedAverage(
         prev.wpSum += w * r.percent;
         prev.n += 1;
       } else {
-        acc.set(r.shortcut, { name: r.name, wSum: w, wpSum: w * r.percent, n: 1 });
+        acc.set(r.shortcut, {
+          name: r.name,
+          wSum: w,
+          wpSum: w * r.percent,
+          n: 1,
+        });
       }
     }
   }
@@ -250,12 +263,21 @@ export function comparePartyAverages(
 ): PartyComparisonRow[] {
   const byShortcut = new Map<string, PartyComparisonRow>();
   for (const p of current) {
-    byShortcut.set(p.shortcut, { shortcut: p.shortcut, name: p.name, current: p.percent });
+    byShortcut.set(p.shortcut, {
+      shortcut: p.shortcut,
+      name: p.name,
+      current: p.percent,
+    });
   }
   for (const p of previous) {
     const row = byShortcut.get(p.shortcut);
     if (row) row.previous = p.percent;
-    else byShortcut.set(p.shortcut, { shortcut: p.shortcut, name: p.name, previous: p.percent });
+    else
+      byShortcut.set(p.shortcut, {
+        shortcut: p.shortcut,
+        name: p.name,
+        previous: p.percent,
+      });
   }
   for (const row of byShortcut.values()) {
     if (row.current !== undefined && row.previous !== undefined) {
@@ -328,7 +350,11 @@ export function seatDistribution(
 
 export interface InstituteComparison {
   /** One row per institute: party shortcut → reported percent. */
-  rows: Array<{ institute: string; date: string; [shortcut: string]: number | string }>;
+  rows: Array<{
+    institute: string;
+    date: string;
+    [shortcut: string]: number | string;
+  }>;
   /** Party shortcuts charted as grouped bars, strongest first. */
   parties: string[];
 }

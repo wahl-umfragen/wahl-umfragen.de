@@ -26,8 +26,8 @@ export default async function OpengraphImage({
   let subtitle = "Sonntagsfrage zur Bundestagswahl";
   if (party) {
     const { bundestag } = await loadBundestagData();
-    const weighted = weightedAverage(surveysWithinDays(bundestag, 30)).find((p) =>
-      party.aliases.includes(p.shortcut),
+    const weighted = weightedAverage(surveysWithinDays(bundestag, 30)).find(
+      (p) => party.aliases.includes(p.shortcut),
     );
     const value =
       weighted?.percent ??
@@ -38,7 +38,11 @@ export default async function OpengraphImage({
   }
 
   return new ImageResponse(
-    <OgCard eyebrow="Sonntagsfrage Bundestag" title={name} subtitle={subtitle} />,
+    <OgCard
+      eyebrow="Sonntagsfrage Bundestag"
+      title={name}
+      subtitle={subtitle}
+    />,
     { ...size },
   );
 }

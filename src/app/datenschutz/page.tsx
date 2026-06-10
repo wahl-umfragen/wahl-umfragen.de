@@ -22,7 +22,10 @@ export const metadata: Metadata = buildMetadata({
 export default function DatenschutzPage() {
   return (
     <div className="mx-auto max-w-3xl px-6 py-10">
-      <div aria-hidden="true" className="mb-3 h-1 w-12 rounded-full bg-accent" />
+      <div
+        aria-hidden="true"
+        className="mb-3 h-1 w-12 rounded-full bg-accent"
+      />
       <h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
         {t("datenschutzPage.title")}
       </h1>
@@ -83,8 +86,8 @@ export default function DatenschutzPage() {
             Zur statistischen Auswertung der Besuche nutzen wir{" "}
             <strong className="font-medium text-foreground">countless</strong>,
             eine von uns selbst betriebene, cookielose Analyselösung. Die
-            Auswertung erfolgt ausschließlich auf unserer eigenen Infrastruktur –
-            es ist{" "}
+            Auswertung erfolgt ausschließlich auf unserer eigenen Infrastruktur
+            – es ist{" "}
             <strong className="font-medium text-foreground">
               kein externer Analyse-Dienstleister
             </strong>{" "}
@@ -113,10 +116,10 @@ export default function DatenschutzPage() {
           <p className="mt-2">
             Da hierbei keine personenbezogenen Daten verarbeitet und keine
             Informationen auf Ihrem Endgerät gespeichert oder ausgelesen werden,
-            ist hierfür keine Einwilligung erforderlich. Soweit eine Verarbeitung
-            erfolgt, beruht sie auf unserem berechtigten Interesse an einer
-            datensparsamen Analyse des Nutzungsverhaltens (Art. 6 Abs. 1 lit. f
-            DSGVO).
+            ist hierfür keine Einwilligung erforderlich. Soweit eine
+            Verarbeitung erfolgt, beruht sie auf unserem berechtigten Interesse
+            an einer datensparsamen Analyse des Nutzungsverhaltens (Art. 6 Abs.
+            1 lit. f DSGVO).
           </p>
         </section>
 
@@ -125,11 +128,11 @@ export default function DatenschutzPage() {
             5. Cookies
           </h3>
           <p className="mt-2">
-            Diese Website setzt keine Tracking- oder Marketing-Cookies. Lediglich
-            technisch notwendige lokale Einstellungen (z. B. Ihre Auswahl des
-            Farbschemas sowie die Bestätigung des Hinweisbanners) werden im
-            lokalen Speicher (localStorage) Ihres Browsers abgelegt und nicht an
-            uns übertragen.
+            Diese Website setzt keine Tracking- oder Marketing-Cookies.
+            Lediglich technisch notwendige lokale Einstellungen (z. B. Ihre
+            Auswahl des Farbschemas sowie die Bestätigung des Hinweisbanners)
+            werden im lokalen Speicher (localStorage) Ihres Browsers abgelegt
+            und nicht an uns übertragen.
           </p>
         </section>
 
@@ -138,8 +141,8 @@ export default function DatenschutzPage() {
             6. Ihre Rechte
           </h3>
           <p className="mt-2">
-            Sie haben im Rahmen der gesetzlichen Vorgaben jederzeit das Recht auf
-            Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16 DSGVO), Löschung
+            Sie haben im Rahmen der gesetzlichen Vorgaben jederzeit das Recht
+            auf Auskunft (Art. 15 DSGVO), Berichtigung (Art. 16 DSGVO), Löschung
             (Art. 17 DSGVO), Einschränkung der Verarbeitung (Art. 18 DSGVO),
             Datenübertragbarkeit (Art. 20 DSGVO) sowie auf Widerspruch gegen die
             Verarbeitung (Art. 21 DSGVO). Wenden Sie sich hierzu an die im
@@ -154,8 +157,8 @@ export default function DatenschutzPage() {
           <p className="mt-2">
             Unbeschadet anderweitiger Rechtsbehelfe steht Ihnen ein
             Beschwerderecht bei einer Datenschutz-Aufsichtsbehörde zu, wenn Sie
-            der Ansicht sind, dass die Verarbeitung Ihrer personenbezogenen Daten
-            gegen die DSGVO verstößt.
+            der Ansicht sind, dass die Verarbeitung Ihrer personenbezogenen
+            Daten gegen die DSGVO verstößt.
           </p>
         </section>
 

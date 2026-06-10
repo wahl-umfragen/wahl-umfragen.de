@@ -14,7 +14,12 @@ test.describe("party pages", () => {
 
     // With data, party cards link to /partei/<slug>; tolerate an empty DB.
     const cards = page.locator('a[href^="/partei/"]');
-    if (await cards.first().isVisible().catch(() => false)) {
+    if (
+      await cards
+        .first()
+        .isVisible()
+        .catch(() => false)
+    ) {
       await cards.first().click();
       await expect(page).toHaveURL(/\/partei\/.+/);
     }
@@ -46,7 +51,9 @@ test.describe("datenstand page", () => {
 });
 
 test.describe("compare page", () => {
-  test("renders and lets the look-back period be switched", async ({ page }) => {
+  test("renders and lets the look-back period be switched", async ({
+    page,
+  }) => {
     await page.goto("/vergleich");
     await expect(
       page.getByRole("heading", { name: "Umfrage-Vergleich", level: 1 }),

@@ -5,7 +5,10 @@ import { BackLink } from "@/components/back-link";
 import { JsonLd } from "@/components/json-ld";
 import { t } from "@/i18n";
 import { partyColorVar } from "@/lib/dawum/colors";
-import { BUNDESTAG_PARLIAMENT_ID, type NormalizedSurvey } from "@/lib/dawum/types";
+import {
+  BUNDESTAG_PARLIAMENT_ID,
+  type NormalizedSurvey,
+} from "@/lib/dawum/types";
 import { loadSurveyById } from "@/lib/data";
 import { formatDate } from "@/lib/format";
 import { STATE_PARLIAMENTS } from "@/lib/parliaments";

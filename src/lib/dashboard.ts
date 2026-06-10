@@ -42,9 +42,12 @@ export function buildDashboardData(surveys: NormalizedSurvey[]) {
   // Precompute house effects per look-back window so the client can switch
   // between them without a server round-trip (mirrors the trend windows).
   const houseEffectsWindows = Object.fromEntries(
-    (Object.entries(HOUSE_EFFECT_WINDOWS) as [HouseEffectWindowKey, number][]).map(
-      ([key, days]) => [key, houseEffects(surveysWithinDays(surveys, days))],
-    ),
+    (
+      Object.entries(HOUSE_EFFECT_WINDOWS) as [HouseEffectWindowKey, number][]
+    ).map(([key, days]) => [
+      key,
+      houseEffects(surveysWithinDays(surveys, days)),
+    ]),
   ) as HouseEffectWindows;
 
   const contributingSurveys = latest
@@ -58,7 +61,10 @@ export function buildDashboardData(surveys: NormalizedSurvey[]) {
 
   const trends = Object.fromEntries(
     (Object.entries(TREND_WINDOW_DAYS) as [TrendWindowKey, number][]).map(
-      ([key, days]) => [key, buildBundestagTrend(surveys, { windowDays: days })],
+      ([key, days]) => [
+        key,
+        buildBundestagTrend(surveys, { windowDays: days }),
+      ],
     ),
   ) as TrendWindows;
 

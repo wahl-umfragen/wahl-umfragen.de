@@ -8,13 +8,11 @@ export const contentType = OG_CONTENT_TYPE;
 /** Default social-share card for all routes without their own OG image. */
 export default function OpengraphImage() {
   return new ImageResponse(
-    (
-      <OgCard
-        eyebrow="Bundestagswahl"
-        title="Sonntagsfrage Bundestag"
-        subtitle="Aktuelle Umfragen, Wahltrend, Sitzverteilung & Koalitionsrechner"
-      />
-    ),
+    <OgCard
+      eyebrow="Bundestagswahl"
+      title="Sonntagsfrage Bundestag"
+      subtitle="Aktuelle Umfragen, Wahltrend, Sitzverteilung & Koalitionsrechner"
+    />,
     { ...size },
   );
 }

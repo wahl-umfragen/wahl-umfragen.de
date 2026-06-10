@@ -43,9 +43,10 @@ export async function GET(req: NextRequest) {
     : DEFAULT_LIMIT;
 
   const base = db.select().from(problemReports);
-  const rows = await (status && (STATUSES as readonly string[]).includes(status)
-    ? base.where(eq(problemReports.status, status))
-    : base
+  const rows = await (
+    status && (STATUSES as readonly string[]).includes(status)
+      ? base.where(eq(problemReports.status, status))
+      : base
   )
     .orderBy(desc(problemReports.createdAt))
     .limit(limit);
@@ -74,7 +75,10 @@ export async function PATCH(req: NextRequest) {
   if (typeof id !== "string" || !id) {
     return Response.json({ error: "id required" }, { status: 400 });
   }
-  if (typeof status !== "string" || !(STATUSES as readonly string[]).includes(status)) {
+  if (
+    typeof status !== "string" ||
+    !(STATUSES as readonly string[]).includes(status)
+  ) {
     return Response.json(
       { error: `status must be one of: ${STATUSES.join(", ")}` },
       { status: 400 },

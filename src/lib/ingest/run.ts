@@ -75,7 +75,9 @@ export async function runIngest(
     // Flag implausible data (don't drop it — still upsert; the caller alerts).
     const anomalies = detectAnomalies(rows);
     for (const a of anomalies) {
-      console.warn(`[ingest] anomaly (${a.kind}) survey=${a.surveyId}: ${a.detail}`);
+      console.warn(
+        `[ingest] anomaly (${a.kind}) survey=${a.surveyId}: ${a.detail}`,
+      );
     }
 
     const existing = await database

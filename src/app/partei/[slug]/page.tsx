@@ -102,7 +102,10 @@ export default async function PartyPage({
       ) : (
         <>
           <dl className="mb-10 grid grid-cols-2 gap-x-6 gap-y-4 sm:grid-cols-5">
-            <Stat label={t("partyPage.current")} hint={t("partyPage.currentHint")}>
+            <Stat
+              label={t("partyPage.current")}
+              hint={t("partyPage.currentHint")}
+            >
               {current !== undefined ? `${current.toFixed(1)} %` : "—"}
             </Stat>
             <Stat label={t("partyPage.seats")} hint={t("partyPage.seatsHint")}>
@@ -166,9 +169,15 @@ export default async function PartyPage({
               <table className="w-full border-collapse text-sm">
                 <thead>
                   <tr className="border-b-2 border-border-strong text-left text-xs font-bold uppercase tracking-wide text-muted">
-                    <th scope="col" className="py-2 pr-3">{t("partyPage.tableInstitute")}</th>
-                    <th scope="col" className="py-2 pr-3">{t("partyPage.tableDate")}</th>
-                    <th scope="col" className="py-2 pr-3 text-right">{t("partyPage.tableValue")}</th>
+                    <th scope="col" className="py-2 pr-3">
+                      {t("partyPage.tableInstitute")}
+                    </th>
+                    <th scope="col" className="py-2 pr-3">
+                      {t("partyPage.tableDate")}
+                    </th>
+                    <th scope="col" className="py-2 pr-3 text-right">
+                      {t("partyPage.tableValue")}
+                    </th>
                   </tr>
                 </thead>
                 <tbody>
@@ -181,7 +190,10 @@ export default async function PartyPage({
                         className="border-b border-border last:border-0 hover:bg-brand-soft"
                       >
                         <td className="py-2 pr-3 font-medium">
-                          <Link href={`/archiv/${p.surveyId}`} className="hover:underline">
+                          <Link
+                            href={`/archiv/${p.surveyId}`}
+                            className="hover:underline"
+                          >
                             {p.institute}
                           </Link>
                         </td>
