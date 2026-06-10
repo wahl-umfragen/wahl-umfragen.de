@@ -87,7 +87,7 @@ jobs:
 
       - name: Cache Playwright browsers
         id: pw-cache
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: ~/.cache/ms-playwright
           key: playwright-${{ runner.os }}-${{ steps.pw.outputs.version }}
@@ -101,7 +101,7 @@ jobs:
         run: npx playwright install-deps chromium
 
       - name: Cache Next build
-        uses: actions/cache@v4
+        uses: actions/cache@v5
         with:
           path: .next/cache
           # Re-use the incremental Next build cache across runs; bust it when
