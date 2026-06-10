@@ -106,3 +106,34 @@ npm run db:migrate      # no-op if no new migrations
 npm run build:ingest    # rebuild dist/ingest.cjs
 # the timer picks up the new bundle on its next run; no systemctl change needed
 ```
+
+## Database backups
+
+The DB accumulates polling history **beyond dawum's ~90-day window**, so it is
+not reproducible — a lost `pgdata` volume loses data for good. `backup-db.sh`
+dumps Postgres (custom format, gzipped) and prunes old dumps; a systemd timer
+runs it daily.
+
+```bash
+# Install (alongside the ingest units)
+sudo cp deploy/wahlumfragen-backup.service deploy/wahlumfragen-backup.timer /etc/systemd/system/
+sudo systemctl daemon-reload
+sudo systemctl enable --now wahlumfragen-backup.timer
+
+# Run one backup right now
+sudo systemctl start wahlumfragen-backup.service
+journalctl -u wahlumfragen-backup.service -n 20 --no-pager
+```
+
+Defaults: dumps to `/opt/wahlumfragen/backups`, keeps 14 days. Override via the
+repo `.env` (`BACKUP_DIR`, `BACKUP_KEEP_DAYS`). **Copy the dumps off-box** (rsync
+to another host / object storage) for real durability — a backup on the same
+disk dies with it.
+
+Restore a dump:
+
+```bash
+gunzip -c backups/wahlumfragen-YYYYmmdd-HHMMSS.dump.gz \
+  | docker exec -i wahlumfragen-postgres pg_restore -U wahlumfragen \
+      --clean --if-exists -d wahlumfragen
+```
