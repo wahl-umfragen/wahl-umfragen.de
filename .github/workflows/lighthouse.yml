@@ -1,0 +1,57 @@
+name: Lighthouse
+
+# Performance / SEO / accessibility budgets against the BUILT app. Like the e2e
+# job, the built app needs a reachable, migrated Postgres at build + runtime
+# (the DB stays empty here — pages still render, budgets still apply).
+on:
+  pull_request:
+    branches: [main]
+  push:
+    branches: [main]
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  lighthouse:
+    name: Lighthouse budgets
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    services:
+      postgres:
+        image: postgres:16-alpine
+        env:
+          POSTGRES_USER: wahlumfragen
+          POSTGRES_PASSWORD: wahlumfragen
+          POSTGRES_DB: wahlumfragen
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U wahlumfragen -d wahlumfragen"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      DATABASE_URL: postgresql://wahlumfragen:wahlumfragen@localhost:5432/wahlumfragen
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run migrations
+        run: npm run db:migrate
+
+      - name: Build
+        run: npm run build
+
+      - name: Run Lighthouse CI
+        uses: treosh/lighthouse-ci-action@v12
+        with:
+          configPath: ./lighthouserc.json
