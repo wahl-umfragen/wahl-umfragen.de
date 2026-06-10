@@ -1,0 +1,14 @@
+# Normalize all text files to LF in the repository. Without this, files
+# committed from Windows could land with CRLF, which Prettier's format:check
+# (endOfLine: "lf") would then reject on the Linux CI runner.
+* text=auto eol=lf
+
+# Binary assets — never touch line endings.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.ico binary
+*.webp binary
+*.woff binary
+*.woff2 binary
