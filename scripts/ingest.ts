@@ -1,5 +1,6 @@
 import { pool } from "@/db/client";
 import { sendIngestAlert } from "@/lib/ingest/alert";
+import { pingHeartbeat } from "@/lib/ingest/heartbeat";
 import { runIngest } from "@/lib/ingest/run";
 
 async function main() {
@@ -28,6 +29,9 @@ async function main() {
       // New data landed — tell the running app to rebuild its cached pages.
       await triggerRevalidate();
     }
+    // The run completed (ingest or skip) → the worker is alive. Send the
+    // dead-man's-switch heartbeat so an external monitor knows we're polling.
+    await pingHeartbeat(true);
   } finally {
     await pool.end();
   }
@@ -69,6 +73,9 @@ async function triggerRevalidate() {
 
 main().catch(async (err) => {
   console.error("[ingest] failed:", err);
+  // Signal the dead-man's switch so the external monitor flips to "down" right
+  // away instead of waiting for the heartbeat to time out.
+  await pingHeartbeat(false).catch(() => {});
   // Alert on a hard failure so a broken hourly worker doesn't fail silently.
   await sendIngestAlert(
     "Ingest fehlgeschlagen",
