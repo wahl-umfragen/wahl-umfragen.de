@@ -16,5 +16,39 @@ services:
       timeout: 5s
       retries: 10
 
+  # The Next app. Opt-in via the `app` profile so the default
+  # `docker compose up` / `npm run db:up` still bring up only Postgres.
+  #   docker compose --profile app up --build
+  # The build reaches the host-published Postgres port at build time (the app
+  # statically renders DB-backed pages) via host.docker.internal, which the
+  # host-gateway mapping makes resolvable on both Docker Desktop and Linux. Run
+  # `npm run db:migrate` against that DB BEFORE building.
+  app:
+    build:
+      context: .
+      extra_hosts:
+        - "host.docker.internal:host-gateway"
+      args:
+        DATABASE_URL: postgresql://wahlumfragen:wahlumfragen@host.docker.internal:5432/wahlumfragen
+        NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-}
+        NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${NEXT_PUBLIC_TURNSTILE_SITE_KEY:-}
+        NEXT_PUBLIC_COUNTLESS_SITE: ${NEXT_PUBLIC_COUNTLESS_SITE:-}
+        NEXT_PUBLIC_COUNTLESS_SRC: ${NEXT_PUBLIC_COUNTLESS_SRC:-}
+    container_name: wahlumfragen-app
+    profiles: [app]
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      # Runtime uses the compose network hostname, not localhost.
+      DATABASE_URL: postgresql://wahlumfragen:wahlumfragen@postgres:5432/wahlumfragen
+      NODE_ENV: production
+    env_file:
+      - path: .env
+        required: false
+    ports:
+      - "3000:3000"
+    restart: unless-stopped
+
 volumes:
   pgdata:
