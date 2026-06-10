@@ -1,0 +1,27 @@
+name: Release please
+
+# Maintains a rolling "release PR" from the conventional-commit history. When
+# that PR is merged it tags a version and writes CHANGELOG.md. Nothing is
+# released until you merge the release PR, so this is safe to enable.
+on:
+  push:
+    branches: [main]
+
+permissions:
+  contents: write
+  pull-requests: write
+
+concurrency:
+  group: ${{ github.workflow }}
+  cancel-in-progress: false
+
+jobs:
+  release-please:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: googleapis/release-please-action@v4
+        with:
+          # Uses release-please-config.json + .release-please-manifest.json.
+          config-file: release-please-config.json
+          manifest-file: .release-please-manifest.json
