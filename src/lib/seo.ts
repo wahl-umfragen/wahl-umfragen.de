@@ -15,8 +15,11 @@ import type { Metadata } from "next";
  */
 export const SITE_NAME = "Wahlumfragen";
 
+// Treat an empty/whitespace value as unset, not as a valid origin — otherwise
+// `NEXT_PUBLIC_SITE_URL=` (as in .env.example) or an empty Docker build-arg
+// yields SITE_URL="" and every `new URL()` against it throws "Invalid URL".
 export const SITE_URL = (
-  process.env.NEXT_PUBLIC_SITE_URL ?? "http://localhost:3000"
+  process.env.NEXT_PUBLIC_SITE_URL?.trim() || "http://localhost:3000"
 ).replace(/\/+$/, "");
 
 /** Absolute URL for a path, e.g. absoluteUrl("/trend"). */
