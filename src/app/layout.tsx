@@ -4,6 +4,7 @@ import Link from "next/link";
 import { Archivo, IBM_Plex_Mono, Inter } from "next/font/google";
 import { Analytics } from "@/components/analytics";
 import { Logo } from "@/components/logo";
+import { MobileNav } from "@/components/mobile-nav";
 import { ReportDialog } from "@/components/report-dialog";
 import { SiteNav } from "@/components/site-nav";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -111,7 +112,7 @@ export default async function RootLayout({
           >
             Zum Inhalt springen
           </a>
-          <header className="sticky top-0 z-40 border-b border-brand-hover/40 bg-brand text-brand-foreground">
+          <header className="sticky top-0 z-40 border-b border-brand-hover/40 bg-brand text-brand-foreground relative">
             <div className="mx-auto flex max-w-6xl flex-wrap items-center justify-between gap-3 px-6 py-3">
               {/* Wordmark + home link. Intentionally NOT an <h1>: it repeats
                   on every page, so each page's own <h1> (PageHeader) stays the
@@ -130,9 +131,10 @@ export default async function RootLayout({
                 <SiteNav />
                 <span
                   aria-hidden="true"
-                  className="mx-1 hidden h-5 w-px bg-brand-foreground/20 sm:block"
+                  className="mx-1 hidden h-5 w-px bg-brand-foreground/20 lg:block"
                 />
                 <ThemeToggle />
+                <MobileNav />
               </div>
             </div>
           </header>

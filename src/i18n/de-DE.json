@@ -10,7 +10,9 @@
     "elections": "Wahlen",
     "laender": "Länder",
     "parties": "Parteien",
-    "compare": "Vergleich"
+    "compare": "Vergleich",
+    "menu": "Menü",
+    "close": "Menü schließen"
   },
   "theme": {
     "label": "Farbschema",

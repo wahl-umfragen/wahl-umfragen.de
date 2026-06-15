@@ -2,27 +2,23 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
-import { t } from "@/i18n";
+import { isActive, NAV_LINKS } from "./nav-links";
 
-const LINKS = [
-  { href: "/", label: t("nav.surveys") },
-  { href: "/partei", label: t("nav.parties") },
-  { href: "/archiv", label: t("nav.archive") },
-  { href: "/trend", label: t("nav.trend") },
-  { href: "/vergleich", label: t("nav.compare") },
-  { href: "/laender", label: t("nav.laender") },
-  { href: "/wahlen", label: t("nav.elections") },
-  { href: "/koalition", label: t("nav.koalition") },
-] as const;
-
+/**
+ * Desktop primary navigation: the full inline link row. Hidden below `lg`,
+ * where the header switches to the hamburger MobileNav — eight links don't fit
+ * a phone width without wrapping into several rows.
+ */
 export function SiteNav() {
   const pathname = usePathname();
 
   return (
-    <nav data-testid="site-nav" className="flex flex-wrap gap-1 text-sm">
-      {LINKS.map((link) => {
-        const active =
-          link.href === "/" ? pathname === "/" : pathname.startsWith(link.href);
+    <nav
+      data-testid="site-nav"
+      className="hidden flex-wrap gap-1 text-sm lg:flex"
+    >
+      {NAV_LINKS.map((link) => {
+        const active = isActive(pathname, link.href);
         return (
           <Link
             key={link.href}

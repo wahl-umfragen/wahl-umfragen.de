@@ -10,7 +10,9 @@
     "elections": "Elections",
     "laender": "States",
     "parties": "Parties",
-    "compare": "Compare"
+    "compare": "Compare",
+    "menu": "Menu",
+    "close": "Close menu"
   },
   "theme": {
     "label": "Colour scheme",
