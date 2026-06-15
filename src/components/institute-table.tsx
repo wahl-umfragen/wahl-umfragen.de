@@ -22,7 +22,7 @@ function DeltaBadge({ value }: { value: number | undefined }) {
   const up = value > 0;
   return (
     <span
-      className={`ml-1 text-[0.65rem] font-semibold tabular-nums ${
+      className={`mr-1 text-[0.65rem] font-semibold tabular-nums ${
         up
           ? "text-emerald-600 dark:text-emerald-400"
           : "text-red-600 dark:text-red-400"
@@ -189,8 +189,8 @@ export function InstituteTable({
                         <span className="text-border-strong">–</span>
                       ) : (
                         <>
-                          {percent.toFixed(1)}
                           <DeltaBadge value={delta} />
+                          {percent.toFixed(1)}
                         </>
                       )}
                     </td>
