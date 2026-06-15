@@ -104,12 +104,12 @@ export const PAGE_META = {
     description: DEFAULT_DESCRIPTION,
   },
   trend: {
-    title: "Wahltrend Bundestag – Verlauf der Sonntagsfrage",
+    title: "Wahltrend Bundestag – Sonntagsfrage-Verlauf",
     description:
       "Interaktiver Wahltrend zur Bundestagswahl: Umfrageverlauf je Partei über 90 Tage, 1 Jahr oder gesamt, Sitzverteilung mit 5-%-Hürde und Institutsvergleich.",
   },
   koalition: {
-    title: "Koalitionsrechner Bundestag – Mehrheiten prüfen",
+    title: "Koalitionsrechner – Mehrheiten im Bundestag",
     description:
       "Koalitionsrechner für den Bundestag: Parteien auf Basis der aktuellsten Umfrage kombinieren und Mehrheiten unter der 5-%-Hürde durchrechnen.",
   },
@@ -119,14 +119,14 @@ export const PAGE_META = {
       "Durchsuchbares Archiv aller Bundestags-Umfragen seit 2017: nach Institut und Zeitraum filtern, nach Partei sortieren und als CSV oder JSON exportieren.",
   },
   wahlen: {
-    title: "Bundestagswahl-Ergebnisse – amtliche Zweitstimmen",
+    title: "Bundestagswahl-Ergebnisse – Zweitstimmen",
     description:
       "Amtliche Endergebnisse der Bundestagswahl (Zweitstimmen je Partei) von Die Bundeswahlleiterin – als Tabelle zum Vergleich mit der aktuellen Sonntagsfrage.",
   },
   parteien: {
-    title: "Parteien in der Sonntagsfrage – Umfragewerte je Partei",
+    title: "Umfragewerte je Partei – Sonntagsfrage",
     description:
-      "Aktuelle Umfragewerte aller Bundestagsparteien (CDU/CSU, SPD, Grüne, AfD, Linke, BSW, FDP, FW): gewichteter Schnitt, Verlauf und Höchst-/Tiefstwerte der Sonntagsfrage.",
+      "Aktuelle Umfragewerte aller Bundestagsparteien (CDU/CSU, SPD, Grüne, AfD, Linke, BSW, FDP): gewichteter Schnitt, Verlauf und Höchst-/Tiefstwerte der Sonntagsfrage.",
   },
   vergleich: {
     title: "Umfrage-Vergleich – Veränderung über die Zeit",
@@ -134,7 +134,7 @@ export const PAGE_META = {
       "Vergleiche die aktuelle Sonntagsfrage mit dem Stand vor 1, 3, 6 oder 12 Monaten: gewichteter Schnitt je Partei mit der Veränderung in Prozentpunkten.",
   },
   datenstand: {
-    title: "Datenstand – Aktualität und Abdeckung der Umfragen",
+    title: "Datenstand – Aktualität der Umfragedaten",
     description:
       "Datenstand von Wahlumfragen: Zeitpunkt des letzten Abgleichs mit dawum.de, Anzahl gespeicherter Umfragen und Abdeckung je Meinungsforschungsinstitut.",
   },
