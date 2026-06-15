@@ -18,6 +18,15 @@ export default defineConfig({
     {
       name: "chromium",
       use: { ...devices["Desktop Chrome"] },
+      // Desktop suite; the mobile-only spec runs in the `mobile` project below.
+      testIgnore: "**/mobile.spec.ts",
+    },
+    {
+      // Phone viewport regression guard. Pixel 5 is chromium-based, so it needs
+      // no extra browser download beyond the chromium the desktop suite uses.
+      name: "mobile",
+      use: { ...devices["Pixel 5"] },
+      testMatch: "**/mobile.spec.ts",
     },
   ],
   webServer: process.env.E2E_BASE_URL
