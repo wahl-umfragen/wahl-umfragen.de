@@ -9,6 +9,7 @@ import {
   type NormalizedPartyResult,
   type NormalizedSurvey,
 } from "@/lib/dawum/types";
+import { HIDDEN_PARTY_SHORTCUTS } from "@/lib/parties";
 import { SURVEYS_TAG } from "./tags";
 
 export interface BundestagData {
@@ -128,6 +129,9 @@ function mapSurveyRows(
 ): NormalizedSurvey[] {
   const resultsBySurvey = new Map<string, NormalizedPartyResult[]>();
   for (const r of resultRows) {
+    // Hidden parties (e.g. Freie Wähler) are dropped from the assembled view
+    // model so they vanish from every frontend surface at once. DB untouched.
+    if (HIDDEN_PARTY_SHORTCUTS.has(r.shortcut)) continue;
     const list = resultsBySurvey.get(r.surveyId) ?? [];
     list.push({
       partyId: r.partyId,

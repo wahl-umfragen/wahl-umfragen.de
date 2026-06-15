@@ -21,6 +21,16 @@ export interface PartyInfo {
 
 const WP = "https://de.wikipedia.org/wiki/";
 
+/**
+ * Party shortcuts hidden from the entire frontend read path. Freie Wähler is
+ * polled for the Bundestag by effectively a single institute, so its series is
+ * sparse and unrepresentative. We drop it while assembling the view model (see
+ * `mapSurveyRows` in `@/lib/data/load`) rather than from the DB — the raw rows
+ * stay ingested and the decision is reversible by emptying this set. Matches
+ * both the dawum shortcut and the long name to be safe.
+ */
+export const HIDDEN_PARTY_SHORTCUTS = new Set(["FW", "Freie Wähler"]);
+
 export const PARTIES: PartyInfo[] = [
   {
     slug: "union",
@@ -70,13 +80,6 @@ export const PARTIES: PartyInfo[] = [
     name: "FDP",
     aliases: ["FDP"],
     wikipedia: `${WP}Freie_Demokratische_Partei`,
-  },
-  {
-    slug: "freie-waehler",
-    shortcut: "FW",
-    name: "Freie Wähler",
-    aliases: ["FW", "Freie Wähler"],
-    wikipedia: `${WP}Freie_W%C3%A4hler`,
   },
 ];
 
