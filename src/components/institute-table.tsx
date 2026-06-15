@@ -7,6 +7,7 @@ import { archivePartyOrder } from "@/lib/dawum/aggregate";
 import { partyColorVar } from "@/lib/dawum/colors";
 import { formatDate } from "@/lib/format";
 import type { NormalizedSurvey } from "@/lib/dawum/types";
+import { Tooltip } from "./tooltip";
 
 type SortKey = "institute" | "date" | { party: string };
 type SortDir = "asc" | "desc";
@@ -16,22 +17,34 @@ function sameKey(a: SortKey, b: SortKey): boolean {
   return a.party === b.party;
 }
 
-/** A tiny ▲/▼ delta vs the institute's previous poll, in points. */
+/**
+ * A tiny ▲/▼/= indicator vs the institute's previous poll. The point change is
+ * disclosed only in the tooltip, never inline. Returns null when there is no
+ * previous poll to compare against (`undefined`); `0` renders the "unchanged"
+ * indicator.
+ */
 function DeltaBadge({ value }: { value: number | undefined }) {
-  if (value === undefined || value === 0) return null;
-  const up = value > 0;
+  if (value === undefined) return null;
+
+  const icon = value > 0 ? "▲" : value < 0 ? "▼" : "=";
+  const color =
+    value > 0
+      ? "text-emerald-600 dark:text-emerald-400"
+      : value < 0
+        ? "text-red-600 dark:text-red-400"
+        : "text-muted";
+  const label =
+    value === 0
+      ? "unverändert ggü. vorheriger Umfrage des Instituts"
+      : `${value > 0 ? "+" : ""}${value.toFixed(1)} ggü. vorheriger Umfrage des Instituts`;
+
   return (
-    <span
-      className={`mr-1 text-[0.65rem] font-semibold tabular-nums ${
-        up
-          ? "text-emerald-600 dark:text-emerald-400"
-          : "text-red-600 dark:text-red-400"
-      }`}
-      title={`${up ? "+" : ""}${value.toFixed(1)} ggü. vorheriger Umfrage des Instituts`}
+    <Tooltip
+      label={label}
+      className={`mr-1 text-[0.65rem] font-semibold tabular-nums ${color}`}
     >
-      {up ? "▲" : "▼"}
-      {Math.abs(value).toFixed(1)}
-    </span>
+      {icon}
+    </Tooltip>
   );
 }
 
