@@ -41,11 +41,6 @@
     "count": "Surveys",
     "latest": "Latest survey"
   },
-  "cookie": {
-    "text": "This site uses privacy-friendly, cookieless analytics (countless) – no cookies and no personal data.",
-    "more": "More in the privacy policy",
-    "accept": "Got it"
-  },
   "impressumPage": {
     "title": "Legal notice"
   },

@@ -5,14 +5,8 @@ import { expect, test } from "@playwright/test";
  * writes to the database (e2e runs against the real app + DB).
  */
 test.describe("report dialog", () => {
-  // The report trigger lives in the footer; the fixed cookie banner overlaps it,
-  // so dismiss the banner first.
   test.beforeEach(async ({ page }) => {
     await page.goto("/");
-    const accept = page
-      .getByTestId("cookie-banner")
-      .getByRole("button", { name: "Verstanden" });
-    if (await accept.isVisible().catch(() => false)) await accept.click();
   });
 
   test("opens from the footer and shows the form with a hidden honeypot", async ({

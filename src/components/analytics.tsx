@@ -3,7 +3,7 @@ import Script from "next/script";
 /**
  * countless — our own cookieless, self-hosted analytics. Loads the beacon from
  * our countless instance: no third party, no cookies, no personal data, so it
- * needs no consent gate (see CookieBanner, which is informational only).
+ * needs no consent gate and no cookie banner.
  *
  * Configured via env, so it stays off in dev/preview unless explicitly set:
  *   NEXT_PUBLIC_COUNTLESS_SITE — the site id registered in countless

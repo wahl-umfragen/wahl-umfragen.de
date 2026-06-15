@@ -3,7 +3,6 @@ import { headers } from "next/headers";
 import Link from "next/link";
 import { Archivo, IBM_Plex_Mono, Inter } from "next/font/google";
 import { Analytics } from "@/components/analytics";
-import { CookieBanner } from "@/components/cookie-banner";
 import { Logo } from "@/components/logo";
 import { ReportDialog } from "@/components/report-dialog";
 import { SiteNav } from "@/components/site-nav";
@@ -198,7 +197,6 @@ export default async function RootLayout({
               </nav>
             </div>
           </footer>
-          <CookieBanner />
           <Analytics />
         </ThemeProvider>
       </body>
