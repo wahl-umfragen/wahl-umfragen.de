@@ -167,7 +167,7 @@ export default async function RootLayout({
                 </a>
                 . {t("footer.noWarranty")}
               </span>
-              <nav className="flex items-center gap-4">
+              <nav className="flex flex-wrap items-center gap-x-4 gap-y-2">
                 <a
                   href="https://github.com/mike96841/wahlumfragen"
                   target="_blank"
