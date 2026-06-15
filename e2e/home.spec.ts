@@ -82,14 +82,19 @@ test.describe("auswertung page", () => {
     await page.goto("/trend");
 
     const windowCtl = page.getByTestId("trend-window");
+    const chart = page.getByTestId("trend-chart");
     const empty = page.getByTestId("trend-empty");
-    await expect(windowCtl.or(empty).first()).toBeVisible({ timeout: 15_000 });
+    // The trend chart is lazy (ssr:false) and resolves to either the chart or
+    // its empty state. Wait on that resolution — not on the window control,
+    // which always renders and would race ahead of the empty-state decision,
+    // making the skip below miss on an empty DB.
+    await expect(chart.or(empty).first()).toBeVisible({ timeout: 15_000 });
     test.skip(await empty.first().isVisible(), "no survey data in DB");
 
     const all = windowCtl.getByRole("button", { name: "Gesamt" });
     await all.click();
     await expect(all).toHaveAttribute("aria-pressed", "true");
-    await expect(page.getByTestId("trend-chart")).toBeVisible();
+    await expect(chart).toBeVisible();
     // The smoothed line is disclosed as such (methodology transparency).
     await expect(page.getByTestId("trend-smoothing-note")).toBeVisible();
     // House-effects table is present (quantified pollster bias) and its
