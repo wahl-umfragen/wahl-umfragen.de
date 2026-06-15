@@ -130,9 +130,8 @@ export default function DatenschutzPage() {
           <p className="mt-2">
             Diese Website setzt keine Tracking- oder Marketing-Cookies.
             Lediglich technisch notwendige lokale Einstellungen (z. B. Ihre
-            Auswahl des Farbschemas sowie die Bestätigung des Hinweisbanners)
-            werden im lokalen Speicher (localStorage) Ihres Browsers abgelegt
-            und nicht an uns übertragen.
+            Auswahl des Farbschemas) werden im lokalen Speicher (localStorage)
+            Ihres Browsers abgelegt und nicht an uns übertragen.
           </p>
         </section>
 
