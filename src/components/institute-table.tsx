@@ -7,6 +7,7 @@ import { archivePartyOrder } from "@/lib/dawum/aggregate";
 import { partyColorVar } from "@/lib/dawum/colors";
 import { formatDate } from "@/lib/format";
 import type { NormalizedSurvey } from "@/lib/dawum/types";
+import { ScrollableX } from "./scrollable-x";
 import { Tooltip } from "./tooltip";
 
 type SortKey = "institute" | "date" | { party: string };
@@ -106,7 +107,7 @@ export function InstituteTable({
   }
 
   return (
-    <div className="overflow-x-auto">
+    <ScrollableX>
       <table
         data-testid="survey-list"
         className="w-full border-collapse text-sm"
@@ -214,7 +215,7 @@ export function InstituteTable({
           })}
         </tbody>
       </table>
-    </div>
+    </ScrollableX>
   );
 }
 

@@ -8,6 +8,7 @@ import { archivePartyOrder } from "@/lib/dawum/aggregate";
 import { partyColorVar } from "@/lib/dawum/colors";
 import type { NormalizedSurvey } from "@/lib/dawum/types";
 import { formatDate } from "@/lib/format";
+import { ScrollableX } from "./scrollable-x";
 
 const PAGE_SIZE = 50;
 
@@ -252,7 +253,7 @@ export function SurveyArchive({ surveys }: { surveys: NormalizedSurvey[] }) {
         </p>
       ) : (
         <>
-          <div className="overflow-x-auto">
+          <ScrollableX>
             <table
               data-testid="archive-table"
               className="w-full border-collapse text-sm"
@@ -364,7 +365,7 @@ export function SurveyArchive({ surveys }: { surveys: NormalizedSurvey[] }) {
                 })}
               </tbody>
             </table>
-          </div>
+          </ScrollableX>
 
           <div className="mt-4 flex items-center justify-between gap-3 text-sm">
             <PageButton

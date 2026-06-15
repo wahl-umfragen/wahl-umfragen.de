@@ -3,6 +3,7 @@ import { t } from "@/i18n";
 import type { HouseEffects } from "@/lib/dawum/aggregate";
 import { partyColorVar } from "@/lib/dawum/colors";
 import { BUNDESTAG_PARLIAMENT_ID } from "@/lib/dawum/types";
+import { ScrollableX } from "./scrollable-x";
 
 const SIGNED = new Intl.NumberFormat("de-DE", {
   signDisplay: "exceptZero",
@@ -28,7 +29,7 @@ export function HouseEffectsTable({
   if (data.rows.length === 0 || data.parties.length === 0) return null;
 
   return (
-    <div className="overflow-x-auto rounded-xl border border-border bg-surface">
+    <ScrollableX className="rounded-xl border border-border bg-surface">
       <table data-testid="house-effects" className="w-full text-sm">
         <thead>
           <tr className="border-b-2 border-border-strong bg-surface-2 text-left">
@@ -101,6 +102,6 @@ export function HouseEffectsTable({
           ))}
         </tbody>
       </table>
-    </div>
+    </ScrollableX>
   );
 }
