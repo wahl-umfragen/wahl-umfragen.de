@@ -70,10 +70,23 @@ async function rateLimited(ip: string): Promise<boolean> {
   }
 }
 
+/**
+ * Best-effort client IP for rate limiting. Prefer `cf-connecting-ip`: behind
+ * Cloudflare it's set by the edge and is NOT client-spoofable. `x-forwarded-for`
+ * is only a fallback for non-CF deployments, and even then we take the LAST hop
+ * (appended by our trusted proxy) rather than the first — the first entry is
+ * attacker-controlled, so trusting it would let a client rotate the header to
+ * dodge the per-IP limit (and poison the Turnstile `remoteip`).
+ */
 function clientIp(req: NextRequest): string {
+  const cf = req.headers.get("cf-connecting-ip");
+  if (cf) return cf.trim();
   const fwd = req.headers.get("x-forwarded-for");
-  if (fwd) return fwd.split(",")[0]!.trim();
-  return req.headers.get("cf-connecting-ip") ?? "unknown";
+  if (fwd) {
+    const hops = fwd.split(",");
+    return hops[hops.length - 1]!.trim();
+  }
+  return "unknown";
 }
 
 export async function POST(req: NextRequest) {
