@@ -8,8 +8,11 @@ import {
   instituteDeltas,
   partySeries,
   seatDistribution,
+  smoothPartySeries,
   weightedAverage,
+  weightedAverageBreakdown,
   type PartyAverage,
+  type PartyDataPoint,
 } from "./aggregate";
 import { SAMPLE_DB } from "./fixtures";
 import { latestPerInstitute, selectBundestagSurveys } from "./normalize";
@@ -186,6 +189,40 @@ describe("weightedAverage", () => {
   });
 });
 
+describe("weightedAverageBreakdown", () => {
+  it("returns [] for no surveys", () => {
+    expect(weightedAverageBreakdown([])).toEqual([]);
+  });
+
+  it("shares match the recency weights and sum to 1", () => {
+    // Newest survey weight 1, one half-life older weight 0.5 → shares 2/3, 1/3.
+    const rows = weightedAverageBreakdown(
+      [
+        dated("new", "a", "2026-02-15", { CDU: 30 }),
+        dated("old", "b", "2026-02-01", { CDU: 36 }),
+      ],
+      { halfLifeDays: 14 },
+    );
+    expect(rows.map((r) => r.id)).toEqual(["new", "old"]); // sorted by weight
+    expect(rows[0].share).toBeCloseTo(2 / 3, 6);
+    expect(rows[1].share).toBeCloseTo(1 / 3, 6);
+    expect(rows.reduce((acc, r) => acc + r.share, 0)).toBeCloseTo(1, 6);
+  });
+
+  it("carries through institute, date and sample size", () => {
+    const s = dated("x", "insa", "2026-02-15", { CDU: 28 });
+    s.surveyedPersons = 2000;
+    const [row] = weightedAverageBreakdown([s]);
+    expect(row).toMatchObject({
+      id: "x",
+      institute: "insa",
+      date: "2026-02-15",
+      surveyedPersons: 2000,
+      share: 1,
+    });
+  });
+});
+
 describe("currentAverage", () => {
   it("averages each party across the latest survey per institute", () => {
     const avg = currentAverage(latestBundestag());
@@ -342,5 +379,59 @@ describe("archivePartyOrder", () => {
       survey("2", "B", "Beta", { SPD: 23, CDU: 28, Grüne: 13 }),
     ];
     expect(archivePartyOrder(s)).toEqual(["CDU", "SPD", "Grüne"]);
+  });
+});
+
+describe("smoothPartySeries", () => {
+  const pt = (date: string, percent: number): PartyDataPoint => ({
+    date,
+    percent,
+    institute: "Inst",
+    surveyId: date,
+  });
+
+  it("averages each point with its centered neighbours", () => {
+    const points = [
+      pt("2026-01-01", 10),
+      pt("2026-01-02", 20),
+      pt("2026-01-03", 30),
+    ];
+    const out = smoothPartySeries(points, 3);
+    // window shrinks at the edges: [10,20]→15, [10,20,30]→20, [20,30]→25
+    expect(out.map((p) => p.percent)).toEqual([15, 20, 25]);
+  });
+
+  it("dampens an outlier without shifting it in time", () => {
+    const points = [
+      pt("2026-01-01", 20),
+      pt("2026-01-02", 20),
+      pt("2026-01-03", 40),
+      pt("2026-01-04", 20),
+      pt("2026-01-05", 20),
+    ];
+    const out = smoothPartySeries(points, 3);
+    expect(out[2].percent).toBeLessThan(40);
+    expect(out[2].percent).toBeGreaterThan(20);
+    // dates are preserved 1:1 — no lag introduced.
+    expect(out.map((p) => p.date)).toEqual(points.map((p) => p.date));
+  });
+
+  it("preserves metadata and does not mutate the input", () => {
+    const points = [pt("2026-01-01", 10), pt("2026-01-02", 30)];
+    const out = smoothPartySeries(points, 3);
+    expect(out[0]).toMatchObject({ institute: "Inst", surveyId: "2026-01-01" });
+    expect(points[0].percent).toBe(10);
+    expect(out).not.toBe(points);
+  });
+
+  it("returns a clone unchanged for window <= 1", () => {
+    const points = [pt("2026-01-01", 10), pt("2026-01-02", 30)];
+    const out = smoothPartySeries(points, 1);
+    expect(out).toEqual(points);
+    expect(out).not.toBe(points);
+  });
+
+  it("handles an empty series", () => {
+    expect(smoothPartySeries([], 5)).toEqual([]);
   });
 });

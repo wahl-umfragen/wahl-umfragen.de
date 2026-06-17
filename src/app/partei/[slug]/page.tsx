@@ -144,6 +144,11 @@ export default async function PartyPage({
               shortcut={party.shortcut}
               label={`Umfrageverlauf ${party.name}`}
             />
+            {series.points.length > 2 ? (
+              <p className="mt-2 text-[11px] text-muted">
+                {t("partyPage.trendNote")}
+              </p>
+            ) : null}
           </section>
 
           <section className="mb-10">

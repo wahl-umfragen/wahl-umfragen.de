@@ -180,7 +180,10 @@
   "pollOfPolls": {
     "title": "Poll of polls",
     "hint": "Weighted average of all surveys from the last 30 days – by recency and sample size.",
-    "basis": "From {count} surveys"
+    "basis": "From {count} surveys",
+    "showSurveys": "Which surveys?",
+    "weightLabel": "Weight",
+    "sample": "{count} respondents"
   },
   "partyPage": {
     "current": "Current average",
@@ -192,6 +195,7 @@
     "low": "Lowest value",
     "surveysCount": "Surveys",
     "trendTitle": "Trend",
+    "trendNote": "Smoothed trend (moving average); the individual survey values are shown faintly behind it.",
     "recentTitle": "Recent surveys",
     "export": "Export:",
     "back": "← All parties",

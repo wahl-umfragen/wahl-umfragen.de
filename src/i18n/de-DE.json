@@ -180,7 +180,10 @@
   "pollOfPolls": {
     "title": "Poll of Polls",
     "hint": "Gewichteter Schnitt aller Umfragen der letzten 30 Tage – nach Aktualität und Stichprobengröße.",
-    "basis": "Aus {count} Umfragen"
+    "basis": "Aus {count} Umfragen",
+    "showSurveys": "Welche Umfragen?",
+    "weightLabel": "Gewicht",
+    "sample": "{count} Befragte"
   },
   "partyPage": {
     "current": "Aktueller Schnitt",
@@ -192,6 +195,7 @@
     "low": "Tiefstwert",
     "surveysCount": "Umfragen",
     "trendTitle": "Verlauf",
+    "trendNote": "Geglätteter Verlauf (gleitender Durchschnitt); die einzelnen Umfragewerte sind blass hinterlegt.",
     "recentTitle": "Letzte Umfragen",
     "export": "Export:",
     "back": "← Alle Parteien",

@@ -1,7 +1,12 @@
 import Link from "next/link";
 import { t } from "@/i18n";
-import { NON_PARTISAN, type PartyAverage } from "@/lib/dawum/aggregate";
+import {
+  NON_PARTISAN,
+  type PartyAverage,
+  type SurveyWeight,
+} from "@/lib/dawum/aggregate";
 import { partyColorVar } from "@/lib/dawum/colors";
+import { formatDate } from "@/lib/format";
 import { partyByShortcut } from "@/lib/parties";
 
 /** Strongest scale value so bars use the available width without a fixed 100%. */
@@ -19,11 +24,12 @@ function scaleMax(parties: PartyAverage[]): number {
  */
 export function PollOfPolls({
   average,
-  basisCount,
+  contributors,
 }: {
   average: PartyAverage[];
-  /** Number of surveys feeding the estimate (shown as provenance). */
-  basisCount: number;
+  /** The surveys feeding the estimate with their relative weights (provenance).
+   * Its length is the basis count shown in the header. */
+  contributors: SurveyWeight[];
 }) {
   const parties = average.filter((p) => !NON_PARTISAN.has(p.shortcut));
   if (parties.length === 0) return null;
@@ -34,7 +40,7 @@ export function PollOfPolls({
       <div className="mb-3 flex items-baseline justify-between gap-3">
         <h3 className="eyebrow">{t("pollOfPolls.title")}</h3>
         <span className="text-xs text-muted">
-          {t("pollOfPolls.basis", { count: basisCount })}
+          {t("pollOfPolls.basis", { count: contributors.length })}
         </span>
       </div>
       <p className="-mt-2 mb-4 text-xs text-muted">{t("pollOfPolls.hint")}</p>
@@ -74,6 +80,52 @@ export function PollOfPolls({
           );
         })}
       </ul>
+
+      {contributors.length > 0 ? (
+        <details className="group mt-4">
+          <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-xs font-medium text-muted hover:text-foreground [&::-webkit-details-marker]:hidden">
+            <span
+              aria-hidden="true"
+              className="transition-transform group-open:rotate-90"
+            >
+              ›
+            </span>
+            {t("pollOfPolls.showSurveys")}
+          </summary>
+          <ul className="mt-3 divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface">
+            {contributors.map((c) => (
+              <li key={c.id}>
+                <Link
+                  href={`/archiv/${c.id}`}
+                  className="flex items-center justify-between gap-3 px-3 py-2 text-sm hover:bg-brand-soft"
+                >
+                  <span className="min-w-0 truncate font-medium">
+                    {c.institute}
+                  </span>
+                  <span className="flex shrink-0 items-center gap-3 text-muted">
+                    {c.surveyedPersons ? (
+                      <span className="hidden tabular-nums sm:inline">
+                        {t("pollOfPolls.sample", {
+                          count: c.surveyedPersons.toLocaleString("de-DE"),
+                        })}
+                      </span>
+                    ) : null}
+                    <span className="w-20 text-right tabular-nums">
+                      {formatDate(c.date)}
+                    </span>
+                    <span
+                      className="w-10 text-right font-mono tabular-nums text-foreground"
+                      title={t("pollOfPolls.weightLabel")}
+                    >
+                      {Math.round(c.share * 100)}%
+                    </span>
+                  </span>
+                </Link>
+              </li>
+            ))}
+          </ul>
+        </details>
+      ) : null}
     </section>
   );
 }

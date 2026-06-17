@@ -172,6 +172,32 @@ export function partySeries(
   return { points, latest: points[points.length - 1], high, low };
 }
 
+/**
+ * Smooth a party's point history with a **centered** simple moving average over
+ * `window` samples (≈ half before, half after each point). Centered rather than
+ * trailing, so the line carries no time lag — turning points stay aligned with
+ * when they happened. The window shrinks at the edges where fewer neighbours
+ * exist. Dates and metadata are preserved; only `percent` is averaged. Points
+ * are cloned, the input is not mutated. Mirrors `smoothTrendData` in `trend.ts`
+ * so the party page and the dashboard smooth the same way. Pure.
+ */
+export function smoothPartySeries(
+  points: PartyDataPoint[],
+  window: number,
+): PartyDataPoint[] {
+  if (window <= 1 || points.length === 0) return points.map((p) => ({ ...p }));
+
+  const span = Math.min(window, points.length);
+  const half = Math.floor(span / 2);
+  return points.map((p, j) => {
+    const lo = Math.max(0, j - half);
+    const hi = Math.min(points.length - 1, j + half);
+    let sum = 0;
+    for (let k = lo; k <= hi; k++) sum += points[k].percent;
+    return { ...p, percent: Math.round((sum / (hi - lo + 1)) * 100) / 100 };
+  });
+}
+
 export interface WeightedAverageOptions {
   /** Recency half-life in days: a survey this many days older than the newest
    * one in the set counts half as much. Smaller = more weight on fresh polls. */
@@ -180,6 +206,34 @@ export interface WeightedAverageOptions {
    * 4× larger sample counts ~2× (diminishing returns). Surveys without a sample
    * size get a neutral weight of 1. */
   refSampleSize?: number;
+}
+
+/** Newest survey date in the set as epoch ms, the anchor for recency weights.
+ * Returns 0 for an empty set. */
+function newestTime(surveys: NormalizedSurvey[]): number {
+  let newest = 0;
+  for (const s of surveys) {
+    const t = new Date(s.date).getTime();
+    if (t > newest) newest = t;
+  }
+  return newest;
+}
+
+/** A single survey's poll-of-polls weight: recency decay × sample-size factor,
+ * relative to `newest` (epoch ms). Shared by `weightedAverage` and
+ * `weightedAverageBreakdown` so both use the exact same formula. */
+function surveyWeight(
+  s: NormalizedSurvey,
+  newest: number,
+  halfLifeDays: number,
+  refSampleSize: number,
+): number {
+  const ageDays = (newest - new Date(s.date).getTime()) / 86_400_000;
+  const wRecency = Math.pow(0.5, ageDays / halfLifeDays);
+  const wSize = s.surveyedPersons
+    ? Math.sqrt(s.surveyedPersons / refSampleSize)
+    : 1;
+  return wRecency * wSize;
 }
 
 /**
@@ -198,23 +252,14 @@ export function weightedAverage(
 ): PartyAverage[] {
   if (surveys.length === 0) return [];
 
-  let newest = 0;
-  for (const s of surveys) {
-    const t = new Date(s.date).getTime();
-    if (t > newest) newest = t;
-  }
+  const newest = newestTime(surveys);
 
   const acc = new Map<
     string,
     { name: string; wSum: number; wpSum: number; n: number }
   >();
   for (const s of surveys) {
-    const ageDays = (newest - new Date(s.date).getTime()) / 86_400_000;
-    const wRecency = Math.pow(0.5, ageDays / halfLifeDays);
-    const wSize = s.surveyedPersons
-      ? Math.sqrt(s.surveyedPersons / refSampleSize)
-      : 1;
-    const w = wRecency * wSize;
+    const w = surveyWeight(s, newest, halfLifeDays, refSampleSize);
     for (const r of s.results) {
       const prev = acc.get(r.shortcut);
       if (prev) {
@@ -240,6 +285,49 @@ export function weightedAverage(
       institutes: v.n,
     }))
     .sort((a, b) => b.percent - a.percent);
+}
+
+export interface SurveyWeight {
+  id: string;
+  institute: string;
+  date: string;
+  surveyedPersons?: number;
+  /** Absolute poll-of-polls weight (recency × sample size). */
+  weight: number;
+  /** This survey's share of the total weight across the set, 0–1. */
+  share: number;
+}
+
+/**
+ * The per-survey weights behind a `weightedAverage`, so the UI can show *which*
+ * surveys feed the poll of polls and *how much* each one counts. Uses the exact
+ * same weight formula and `newest`-anchored recency as `weightedAverage`.
+ * `share` is each survey's fraction of the summed weight. Sorted by weight,
+ * descending (ties broken by id for determinism). Pure.
+ */
+export function weightedAverageBreakdown(
+  surveys: NormalizedSurvey[],
+  { halfLifeDays = 14, refSampleSize = 1000 }: WeightedAverageOptions = {},
+): SurveyWeight[] {
+  if (surveys.length === 0) return [];
+
+  const newest = newestTime(surveys);
+  const weighted = surveys.map((s) => ({
+    s,
+    weight: surveyWeight(s, newest, halfLifeDays, refSampleSize),
+  }));
+  const total = weighted.reduce((acc, w) => acc + w.weight, 0);
+
+  return weighted
+    .map(({ s, weight }) => ({
+      id: s.id,
+      institute: s.institute.name,
+      date: s.date,
+      surveyedPersons: s.surveyedPersons,
+      weight,
+      share: total > 0 ? weight / total : 0,
+    }))
+    .sort((a, b) => b.weight - a.weight || a.id.localeCompare(b.id));
 }
 
 export interface PartyComparisonRow {

@@ -12,6 +12,7 @@ import {
   latestPerInstitute,
   surveysWithinDays,
   weightedAverage,
+  weightedAverageBreakdown,
 } from "@/lib/dawum";
 import { formatDateTime } from "@/lib/format";
 import { PAGE_INTRO, websiteLd } from "@/lib/seo";
@@ -44,9 +45,11 @@ async function Surveys() {
   const latest = latestPerInstitute(surveysWithinDays(bundestag, RECENT_DAYS));
   // Per-row change vs each institute's previous poll (computed over full history).
   const deltas = instituteDeltas(bundestag);
-  // Poll of polls: weighted average over the last 30 days of surveys.
+  // Poll of polls: weighted average over the last 30 days of surveys, plus the
+  // per-survey weights so the box can show which surveys feed it and how much.
   const recent = surveysWithinDays(bundestag, 30);
   const pollOfPolls = weightedAverage(recent);
+  const contributors = weightedAverageBreakdown(recent);
 
   return (
     <>
@@ -60,7 +63,7 @@ async function Surveys() {
       ) : (
         <>
           {pollOfPolls.length > 0 ? (
-            <PollOfPolls average={pollOfPolls} basisCount={recent.length} />
+            <PollOfPolls average={pollOfPolls} contributors={contributors} />
           ) : null}
           <InstituteTable surveys={latest} deltas={deltas} />
           <div className="mt-10">
