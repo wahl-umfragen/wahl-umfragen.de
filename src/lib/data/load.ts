@@ -123,15 +123,19 @@ type ResultRow = {
 };
 
 /** Group result rows under their survey and assemble NormalizedSurvey[]. */
-function mapSurveyRows(
+export function mapSurveyRows(
   surveyRows: SurveyRow[],
   resultRows: ResultRow[],
 ): NormalizedSurvey[] {
   const resultsBySurvey = new Map<string, NormalizedPartyResult[]>();
+  let hidden = 0;
   for (const r of resultRows) {
     // Hidden parties (e.g. Freie Wähler) are dropped from the assembled view
     // model so they vanish from every frontend surface at once. DB untouched.
-    if (HIDDEN_PARTY_SHORTCUTS.has(r.shortcut)) continue;
+    if (HIDDEN_PARTY_SHORTCUTS.has(r.shortcut)) {
+      hidden++;
+      continue;
+    }
     const list = resultsBySurvey.get(r.surveyId) ?? [];
     list.push({
       partyId: r.partyId,
@@ -140,6 +144,16 @@ function mapSurveyRows(
       percent: r.percent,
     });
     resultsBySurvey.set(r.surveyId, list);
+  }
+  // Surface the silent drop so a misconfigured HIDDEN_PARTY_SHORTCUTS (e.g. a
+  // shortcut that accidentally hides a major party) is visible in the worker /
+  // build logs instead of just making rows disappear. Runs only on a cache miss.
+  if (hidden > 0) {
+    console.debug(
+      `[data] hid ${hidden} result row(s) for parties ${[
+        ...HIDDEN_PARTY_SHORTCUTS,
+      ].join(", ")}`,
+    );
   }
 
   return surveyRows.map((s) => ({
