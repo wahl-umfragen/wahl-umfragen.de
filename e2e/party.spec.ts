@@ -53,11 +53,10 @@ test.describe("datenstand page", () => {
 test.describe("trend over-time comparison", () => {
   test("lets the look-back period be switched", async ({ page }) => {
     await page.goto("/trend");
-    // The look-back toggle renders regardless of data, so this is safe on the
+    // The look-back select renders regardless of data, so this is safe on the
     // empty CI database (the table itself is data-dependent and may be empty).
-    const toggle = page.locator('[data-testid="compare-window"]');
-    const sixMonths = toggle.getByRole("button", { name: "vor 6 Monaten" });
-    await sixMonths.click();
-    await expect(sixMonths).toHaveAttribute("aria-pressed", "true");
+    const select = page.locator('[data-testid="compare-window"]');
+    await select.selectOption("180"); // 6 months
+    await expect(select).toHaveValue("180");
   });
 });

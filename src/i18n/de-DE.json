@@ -140,6 +140,7 @@
     "partiesAll": "Alle",
     "changeTitle": "Veränderung im Zeitverlauf",
     "changeHint": "Gewichteter Schnitt heute gegenüber einem früheren Zeitpunkt, in Prozentpunkten.",
+    "changePeriod": "Vergleichszeitraum",
     "change1m": "vor 1 Monat",
     "change3m": "vor 3 Monaten",
     "change6m": "vor 6 Monaten",

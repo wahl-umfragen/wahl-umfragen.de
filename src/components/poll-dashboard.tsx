@@ -281,28 +281,23 @@ export function PollDashboard({
         title={t("dashboard.changeTitle")}
         hint={t("dashboard.changeHint")}
         action={
-          <div
+          <select
             data-testid="compare-window"
-            className="flex items-center gap-0.5 rounded-md border border-border p-0.5"
+            value={compareWindow}
+            onChange={(e) =>
+              setCompareWindow(e.target.value as ComparisonWindowKey)
+            }
+            aria-label={t("dashboard.changePeriod")}
+            className="rounded-md border border-border bg-surface px-2 py-1 text-xs font-medium text-foreground"
           >
             {(Object.keys(COMPARISON_WINDOWS) as ComparisonWindowKey[]).map(
               (key) => (
-                <button
-                  key={key}
-                  type="button"
-                  onClick={() => setCompareWindow(key)}
-                  aria-pressed={compareWindow === key}
-                  className={`rounded px-2 py-0.5 text-xs font-semibold normal-case tracking-normal transition-colors ${
-                    compareWindow === key
-                      ? "bg-brand text-brand-foreground"
-                      : "text-muted hover:text-foreground"
-                  }`}
-                >
+                <option key={key} value={key}>
                   {t(COMPARE_WINDOW_LABELS[key])}
-                </button>
+                </option>
               ),
             )}
-          </div>
+          </select>
         }
       >
         {comparisonWindows[compareWindow].length === 0 ? (

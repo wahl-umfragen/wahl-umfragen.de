@@ -140,6 +140,7 @@
     "partiesAll": "All",
     "changeTitle": "Change over time",
     "changeHint": "Weighted average today versus an earlier point in time, in percentage points.",
+    "changePeriod": "Comparison period",
     "change1m": "1 month ago",
     "change3m": "3 months ago",
     "change6m": "6 months ago",
