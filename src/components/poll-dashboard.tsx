@@ -19,6 +19,9 @@ import {
   type TrendWindows,
 } from "@/lib/dawum/trend";
 import {
+  COMPARISON_WINDOWS,
+  type ComparisonWindowKey,
+  type ComparisonWindows,
   HOUSE_EFFECT_WINDOWS,
   type HouseEffectWindowKey,
   type HouseEffectWindows,
@@ -68,6 +71,8 @@ export interface PollDashboardProps {
   trends: TrendWindows;
   seats: SeatDistribution;
   comparison: InstituteComparison;
+  /** Over-time comparison (now vs N days ago), precomputed per look-back. */
+  comparisonWindows: ComparisonWindows;
   houseEffects: HouseEffectWindows;
   /** The surveys averaged into "Aktueller Stand", listed for transparency. */
   contributingSurveys: ContributingSurvey[];
@@ -86,6 +91,13 @@ const WINDOW_LABELS: Record<TrendWindowKey, TranslationKey> = {
   all: "dashboard.windowAll",
 };
 
+const COMPARE_WINDOW_LABELS: Record<ComparisonWindowKey, TranslationKey> = {
+  "30": "dashboard.change1m",
+  "90": "dashboard.change3m",
+  "180": "dashboard.change6m",
+  "365": "dashboard.change12m",
+};
+
 const HE_WINDOW_LABELS: Record<HouseEffectWindowKey, TranslationKey> = {
   "30": "dashboard.heWindow1m",
   "90": "dashboard.heWindow3m",
@@ -99,6 +111,7 @@ export function PollDashboard({
   trends,
   seats,
   comparison,
+  comparisonWindows,
   houseEffects,
   contributingSurveys,
   showElectionMarkers = true,
@@ -108,6 +121,7 @@ export function PollDashboard({
   const [hiddenParties, setHiddenParties] = useState<ReadonlySet<string>>(
     () => new Set(),
   );
+  const [compareWindow, setCompareWindow] = useState<ComparisonWindowKey>("90");
   const [heWindow, setHeWindow] = useState<HouseEffectWindowKey>("365");
   // The trend is always smoothed (there is no toggle); the window scales with
   // the selected range.
@@ -261,6 +275,101 @@ export function PollDashboard({
             onSoloParty={soloParty}
           />
         </Fullscreenable>
+      </Section>
+
+      <Section
+        title={t("dashboard.changeTitle")}
+        hint={t("dashboard.changeHint")}
+        action={
+          <div
+            data-testid="compare-window"
+            className="flex items-center gap-0.5 rounded-md border border-border p-0.5"
+          >
+            {(Object.keys(COMPARISON_WINDOWS) as ComparisonWindowKey[]).map(
+              (key) => (
+                <button
+                  key={key}
+                  type="button"
+                  onClick={() => setCompareWindow(key)}
+                  aria-pressed={compareWindow === key}
+                  className={`rounded px-2 py-0.5 text-xs font-semibold normal-case tracking-normal transition-colors ${
+                    compareWindow === key
+                      ? "bg-brand text-brand-foreground"
+                      : "text-muted hover:text-foreground"
+                  }`}
+                >
+                  {t(COMPARE_WINDOW_LABELS[key])}
+                </button>
+              ),
+            )}
+          </div>
+        }
+      >
+        {comparisonWindows[compareWindow].length === 0 ? (
+          <p className="text-sm text-muted">{t("dashboard.changeNoData")}</p>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full border-collapse text-sm">
+              <thead>
+                <tr className="border-b-2 border-border-strong text-left text-xs font-bold uppercase tracking-wide text-muted">
+                  <th scope="col" className="py-2 pr-3">
+                    {t("dashboard.changeParty")}
+                  </th>
+                  <th scope="col" className="py-2 pr-3 text-right">
+                    {t("dashboard.changeThen")}
+                  </th>
+                  <th scope="col" className="py-2 pr-3 text-right">
+                    {t("dashboard.changeNow")}
+                  </th>
+                  <th scope="col" className="py-2 pr-3 text-right">
+                    {t("dashboard.changeDelta")}
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {comparisonWindows[compareWindow].map((r) => (
+                  <tr
+                    key={r.shortcut}
+                    className="border-b border-border last:border-0"
+                  >
+                    <th scope="row" className="py-2 pr-3 text-left font-medium">
+                      <span className="inline-flex items-center gap-1.5">
+                        <span
+                          aria-hidden="true"
+                          className="inline-block h-2.5 w-2.5 rounded-full"
+                          style={{ backgroundColor: partyColorVar(r.shortcut) }}
+                        />
+                        {r.shortcut}
+                      </span>
+                    </th>
+                    <td className="py-2 pr-3 text-right font-mono tabular-nums text-muted">
+                      {r.previous !== undefined ? r.previous.toFixed(1) : "–"}
+                    </td>
+                    <td className="py-2 pr-3 text-right font-mono tabular-nums">
+                      {r.current !== undefined ? r.current.toFixed(1) : "–"}
+                    </td>
+                    <td className="py-2 pr-3 text-right font-mono tabular-nums">
+                      {r.delta === undefined || r.delta === 0 ? (
+                        <span className="text-muted">±0,0</span>
+                      ) : (
+                        <span
+                          className={
+                            r.delta > 0
+                              ? "text-emerald-600 dark:text-emerald-400"
+                              : "text-red-600 dark:text-red-400"
+                          }
+                        >
+                          {r.delta > 0 ? "+" : "−"}
+                          {Math.abs(r.delta).toFixed(1)}
+                        </span>
+                      )}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </Section>
 
       <Section

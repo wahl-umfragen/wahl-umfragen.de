@@ -7,7 +7,7 @@ import { expect, test } from "@playwright/test";
  * the policy is verified). A violation surfaces as a console error like
  * "Refused to execute inline script because it violates ... Content Security Policy".
  */
-const PAGES = ["/", "/trend", "/koalition", "/partei/union", "/vergleich"];
+const PAGES = ["/", "/trend", "/koalition", "/partei/union"];
 
 for (const path of PAGES) {
   test(`no CSP violation on ${path}`, async ({ page }) => {

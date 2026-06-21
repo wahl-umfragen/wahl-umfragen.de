@@ -94,6 +94,7 @@ async function StateDashboard({
         trends={d.trends}
         seats={seatDistribution(d.average, totalSeats, threshold)}
         comparison={d.comparison}
+        comparisonWindows={d.comparisonWindows}
         houseEffects={d.houseEffects}
         contributingSurveys={d.contributingSurveys}
         showElectionMarkers={false}

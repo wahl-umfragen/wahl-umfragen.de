@@ -11,7 +11,6 @@ const ROUTES = [
   "/partei",
   "/archiv",
   "/trend",
-  "/vergleich",
   "/laender",
   "/wahlen",
   "/koalition",

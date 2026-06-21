@@ -61,12 +61,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       changeFrequency: "hourly",
       priority: 0.4,
     },
-    {
-      url: absoluteUrl("/vergleich"),
-      lastModified: now,
-      changeFrequency: "daily",
-      priority: 0.6,
-    },
     ...PARTIES.map((p) => ({
       url: absoluteUrl(`/partei/${p.slug}`),
       lastModified: now,

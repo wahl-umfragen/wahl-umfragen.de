@@ -106,7 +106,7 @@ export const PAGE_META = {
   trend: {
     title: "Wahltrend Bundestag – Sonntagsfrage-Verlauf",
     description:
-      "Interaktiver Wahltrend zur Bundestagswahl: Umfrageverlauf je Partei über 90 Tage, 1 Jahr oder gesamt, Sitzverteilung mit 5-%-Hürde und Institutsvergleich.",
+      "Interaktiver Wahltrend zur Bundestagswahl: Umfrageverlauf je Partei, Veränderung gegenüber 1 bis 12 Monaten, Sitzverteilung mit 5-%-Hürde und Institutsvergleich.",
   },
   koalition: {
     title: "Koalitionsrechner – Mehrheiten im Bundestag",
@@ -127,11 +127,6 @@ export const PAGE_META = {
     title: "Umfragewerte je Partei – Sonntagsfrage",
     description:
       "Aktuelle Umfragewerte aller Bundestagsparteien (CDU/CSU, SPD, Grüne, AfD, Linke, BSW, FDP): gewichteter Schnitt, Verlauf und Höchst-/Tiefstwerte der Sonntagsfrage.",
-  },
-  vergleich: {
-    title: "Umfrage-Vergleich – Veränderung über die Zeit",
-    description:
-      "Vergleiche die aktuelle Sonntagsfrage mit dem Stand vor 1, 3, 6 oder 12 Monaten: gewichteter Schnitt je Partei mit der Veränderung in Prozentpunkten.",
   },
   datenstand: {
     title: "Datenstand – Aktualität der Umfragedaten",

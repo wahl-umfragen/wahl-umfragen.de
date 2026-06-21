@@ -19,7 +19,6 @@ const PAGES = [
   { path: "/wahlen", h1: "Wahlergebnisse", canonical: /\/wahlen$/ },
   { path: "/koalition", h1: "Koalitionsrechner", canonical: /\/koalition$/ },
   { path: "/partei", h1: "Parteien", canonical: /\/partei$/ },
-  { path: "/vergleich", h1: "Umfrage-Vergleich", canonical: /\/vergleich$/ },
   { path: "/datenstand", h1: "Datenstand", canonical: /\/datenstand$/ },
   { path: "/impressum", h1: "Impressum", canonical: /\/impressum$/ },
   {

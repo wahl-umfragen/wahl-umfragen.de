@@ -54,6 +54,7 @@ async function Dashboard() {
         trends={d.trends}
         seats={seatDistribution(d.average)}
         comparison={d.comparison}
+        comparisonWindows={d.comparisonWindows}
         houseEffects={d.houseEffects}
         contributingSurveys={d.contributingSurveys}
       />

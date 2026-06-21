@@ -7,8 +7,7 @@
       "url": [
         "http://localhost:3000/",
         "http://localhost:3000/trend",
-        "http://localhost:3000/koalition",
-        "http://localhost:3000/vergleich"
+        "http://localhost:3000/koalition"
       ],
       "numberOfRuns": 1,
       "settings": {

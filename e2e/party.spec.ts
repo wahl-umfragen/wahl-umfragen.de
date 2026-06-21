@@ -50,18 +50,14 @@ test.describe("datenstand page", () => {
   });
 });
 
-test.describe("compare page", () => {
-  test("renders and lets the look-back period be switched", async ({
-    page,
-  }) => {
-    await page.goto("/vergleich");
-    await expect(
-      page.getByRole("heading", { name: "Umfrage-Vergleich", level: 1 }),
-    ).toBeVisible();
-
-    const sixMonths = page.getByRole("link", { name: "vor 6 Monaten" });
+test.describe("trend over-time comparison", () => {
+  test("lets the look-back period be switched", async ({ page }) => {
+    await page.goto("/trend");
+    // The look-back toggle renders regardless of data, so this is safe on the
+    // empty CI database (the table itself is data-dependent and may be empty).
+    const toggle = page.locator('[data-testid="compare-window"]');
+    const sixMonths = toggle.getByRole("button", { name: "vor 6 Monaten" });
     await sixMonths.click();
-    await expect(page).toHaveURL(/vor=180/);
-    await expect(sixMonths).toHaveAttribute("aria-current", "true");
+    await expect(sixMonths).toHaveAttribute("aria-pressed", "true");
   });
 });
