@@ -9,6 +9,10 @@ on:
   push:
     branches: [main]
 
+permissions:
+  contents: read
+  pull-requests: write
+
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
@@ -52,6 +56,80 @@ jobs:
         run: npm run build
 
       - name: Run Lighthouse CI
+        id: lighthouse
         uses: treosh/lighthouse-ci-action@v12
         with:
           configPath: ./lighthouserc.json
+
+      # Surface budget shortfalls as a single PR comment. Budgets are `warn`
+      # (non-blocking), so without this they only ever show up buried in the job
+      # log. We keep exactly ONE comment per PR (found via the hidden marker) and
+      # update it in place each run instead of stacking duplicates — and delete
+      # it once every budget passes again, so a green PR carries no stale warning.
+      - name: Comment Lighthouse budget warnings on PR
+        if: ${{ !cancelled() && github.event_name == 'pull_request' }}
+        uses: actions/github-script@v7
+        env:
+          ASSERTIONS: ${{ steps.lighthouse.outputs.assertionResults }}
+          LINKS: ${{ steps.lighthouse.outputs.links }}
+        with:
+          script: |
+            const MARKER = '<!-- lighthouse-budgets -->';
+            const results = JSON.parse(process.env.ASSERTIONS || '[]');
+            const links = JSON.parse(process.env.LINKS || '{}');
+            // assertion-results.json only contains assertions that fired, but
+            // guard on `passed` anyway in case the action ever changes that.
+            const failures = results.filter((r) => r.passed === false);
+
+            const { owner, repo } = context.repo;
+            const issue_number = context.issue.number;
+            const { data: comments } = await github.rest.issues.listComments({
+              owner, repo, issue_number, per_page: 100,
+            });
+            const existing = comments.find(
+              (c) => c.body && c.body.includes(MARKER),
+            );
+
+            // All green → remove any prior warning so the PR ends clean.
+            if (failures.length === 0) {
+              if (existing) {
+                await github.rest.issues.deleteComment({
+                  owner, repo, comment_id: existing.id,
+                });
+              }
+              return;
+            }
+
+            const pct = (n) => `${Math.round(Number(n) * 100)}`;
+            const byUrl = new Map();
+            for (const f of failures) {
+              if (!byUrl.has(f.url)) byUrl.set(f.url, []);
+              byUrl.get(f.url).push(f);
+            }
+
+            let body =
+              `${MARKER}\n### ⚠️ Lighthouse budget warnings\n\n` +
+              `One or more pages scored below the configured budget. These are ` +
+              `**warnings** and do **not** block the merge — treat them as a nudge.\n\n`;
+            for (const [url, fails] of byUrl) {
+              const path = url.replace('http://localhost:3000', '') || '/';
+              const report = links[url];
+              body += `**\`${path}\`**${report ? ` — [full report](${report})` : ''}\n\n`;
+              body += `| Category | Budget | Actual |\n|---|---|---|\n`;
+              for (const f of fails) {
+                const cat = f.auditId || f.auditProperty || f.name;
+                body += `| ${cat} | ≥ ${pct(f.expected)} | **${pct(f.actual)}** |\n`;
+              }
+              body += `\n`;
+            }
+            body += `<sub>Updated in place on each run · auto-removed when budgets pass.</sub>`;
+
+            if (existing) {
+              await github.rest.issues.updateComment({
+                owner, repo, comment_id: existing.id, body,
+              });
+            } else {
+              await github.rest.issues.createComment({
+                owner, repo, issue_number, body,
+              });
+            }
