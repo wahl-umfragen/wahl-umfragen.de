@@ -2,16 +2,22 @@ services:
   postgres:
     image: postgres:16-alpine
     container_name: wahlumfragen-postgres
+    # Credentials come from the environment (.env), defaulting to the dev value
+    # for a throwaway local DB. Set POSTGRES_PASSWORD (and ideally user/db) in
+    # .env for anything that isn't a wipe-anytime local container.
     environment:
-      POSTGRES_USER: wahlumfragen
-      POSTGRES_PASSWORD: wahlumfragen
-      POSTGRES_DB: wahlumfragen
+      POSTGRES_USER: ${POSTGRES_USER:-wahlumfragen}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-wahlumfragen}
+      POSTGRES_DB: ${POSTGRES_DB:-wahlumfragen}
     ports:
       - "5432:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U wahlumfragen -d wahlumfragen"]
+      # $$ escapes compose interpolation so the postgres container expands its
+      # own POSTGRES_USER / POSTGRES_DB env at runtime.
+      test:
+        ["CMD-SHELL", 'pg_isready -U "$${POSTGRES_USER}" -d "$${POSTGRES_DB}"']
       interval: 5s
       timeout: 5s
       retries: 10
@@ -29,7 +35,7 @@ services:
       extra_hosts:
         - "host.docker.internal:host-gateway"
       args:
-        DATABASE_URL: postgresql://wahlumfragen:wahlumfragen@host.docker.internal:5432/wahlumfragen
+        DATABASE_URL: postgresql://${POSTGRES_USER:-wahlumfragen}:${POSTGRES_PASSWORD:-wahlumfragen}@host.docker.internal:5432/${POSTGRES_DB:-wahlumfragen}
         NEXT_PUBLIC_SITE_URL: ${NEXT_PUBLIC_SITE_URL:-}
         NEXT_PUBLIC_TURNSTILE_SITE_KEY: ${NEXT_PUBLIC_TURNSTILE_SITE_KEY:-}
         NEXT_PUBLIC_COUNTLESS_SITE: ${NEXT_PUBLIC_COUNTLESS_SITE:-}
@@ -41,7 +47,7 @@ services:
         condition: service_healthy
     environment:
       # Runtime uses the compose network hostname, not localhost.
-      DATABASE_URL: postgresql://wahlumfragen:wahlumfragen@postgres:5432/wahlumfragen
+      DATABASE_URL: postgresql://${POSTGRES_USER:-wahlumfragen}:${POSTGRES_PASSWORD:-wahlumfragen}@postgres:5432/${POSTGRES_DB:-wahlumfragen}
       NODE_ENV: production
     env_file:
       - path: .env
