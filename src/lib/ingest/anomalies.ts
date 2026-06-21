@@ -12,7 +12,7 @@ import type { IngestRows } from "./transform";
 export const MIN_SUM = 85;
 export const MAX_SUM = 115;
 
-export type AnomalyKind = "empty" | "range" | "sum";
+export type AnomalyKind = "empty" | "range" | "sum" | "sample" | "period";
 
 export interface Anomaly {
   surveyId: string;
@@ -38,6 +38,24 @@ export function detectAnomalies(rows: IngestRows): Anomaly[] {
   }
 
   for (const s of rows.surveys) {
+    // A negative sample size is never valid (dawum may omit it → null is fine).
+    if (s.surveyedPersons != null && s.surveyedPersons < 0) {
+      anomalies.push({
+        surveyId: s.id,
+        kind: "sample",
+        detail: `surveyedPersons ${s.surveyedPersons} is negative`,
+      });
+    }
+    // Field period must not run backwards. Dates are ISO (YYYY-MM-DD), so a
+    // lexicographic compare is a correct chronological compare.
+    if (s.periodStart && s.periodEnd && s.periodStart > s.periodEnd) {
+      anomalies.push({
+        surveyId: s.id,
+        kind: "period",
+        detail: `survey period starts ${s.periodStart} after it ends ${s.periodEnd}`,
+      });
+    }
+
     const n = counts.get(s.id) ?? 0;
     if (n === 0) {
       anomalies.push({
