@@ -76,7 +76,8 @@
   },
   "laenderPage": {
     "title": "Landtagswahlen",
-    "subtitle": "Umfragen, Wahltrend und Sitzverteilung je Bundesland."
+    "subtitle": "Umfragen, Wahltrend und Sitzverteilung je Bundesland.",
+    "back": "← Alle Länder"
   },
   "wahlenPage": {
     "title": "Wahlergebnisse",

@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { notFound } from "next/navigation";
 import { Suspense } from "react";
 import { JsonLd } from "@/components/json-ld";
@@ -49,10 +50,18 @@ export default async function LandPage({
           { name: parliament.name, path: `/laender/${parliament.slug}` },
         ])}
       />
-      <PageHeader
-        title={`Umfragen ${parliament.name}`}
-        subtitle={`Wahltrend, Sitzverteilung und Institutsvergleich für den ${parliament.parliamentName}.`}
-      />
+      <Link
+        href="/laender"
+        className="text-sm font-medium text-muted hover:text-foreground"
+      >
+        {t("laenderPage.back")}
+      </Link>
+      <div className="mt-4">
+        <PageHeader
+          title={`Umfragen ${parliament.name}`}
+          subtitle={`Wahltrend, Sitzverteilung und Institutsvergleich für den ${parliament.parliamentName}.`}
+        />
+      </div>
       <Suspense fallback={<DashboardSkeleton />}>
         <StateDashboard
           id={parliament.id}
