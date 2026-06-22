@@ -169,7 +169,7 @@ export default async function RootLayout({
               </span>
               <nav className="flex flex-wrap items-center gap-x-4 gap-y-2">
                 <a
-                  href="https://github.com/mike96841/wahlumfragen"
+                  href="https://github.com/wahl-umfragen/wahl-umfragen.de"
                   target="_blank"
                   rel="noopener noreferrer"
                   className="flex items-center gap-1.5 font-medium text-brand-foreground underline underline-offset-2"
