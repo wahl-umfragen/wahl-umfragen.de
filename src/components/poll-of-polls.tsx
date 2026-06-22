@@ -1,4 +1,5 @@
 import Link from "next/link";
+import { ContributingSurveys } from "@/components/contributing-surveys";
 import { t } from "@/i18n";
 import {
   NON_PARTISAN,
@@ -6,7 +7,6 @@ import {
   type SurveyWeight,
 } from "@/lib/dawum/aggregate";
 import { partyColorVar } from "@/lib/dawum/colors";
-import { formatDate } from "@/lib/format";
 import { partyByShortcut } from "@/lib/parties";
 
 /** Strongest scale value so bars use the available width without a fixed 100%. */
@@ -81,51 +81,7 @@ export function PollOfPolls({
         })}
       </ul>
 
-      {contributors.length > 0 ? (
-        <details className="group mt-4">
-          <summary className="inline-flex cursor-pointer list-none items-center gap-1 text-xs font-medium text-muted hover:text-foreground [&::-webkit-details-marker]:hidden">
-            <span
-              aria-hidden="true"
-              className="transition-transform group-open:rotate-90"
-            >
-              ›
-            </span>
-            {t("pollOfPolls.showSurveys")}
-          </summary>
-          <ul className="mt-3 divide-y divide-border overflow-hidden rounded-xl border border-border bg-surface">
-            {contributors.map((c) => (
-              <li key={c.id}>
-                <Link
-                  href={`/archiv/${c.id}`}
-                  className="flex items-center justify-between gap-3 px-3 py-2 text-sm hover:bg-brand-soft"
-                >
-                  <span className="min-w-0 truncate font-medium">
-                    {c.institute}
-                  </span>
-                  <span className="flex shrink-0 items-center gap-3 text-muted">
-                    {c.surveyedPersons ? (
-                      <span className="hidden tabular-nums sm:inline">
-                        {t("pollOfPolls.sample", {
-                          count: c.surveyedPersons.toLocaleString("de-DE"),
-                        })}
-                      </span>
-                    ) : null}
-                    <span className="w-20 text-right tabular-nums">
-                      {formatDate(c.date)}
-                    </span>
-                    <span
-                      className="w-10 text-right font-mono tabular-nums text-foreground"
-                      title={t("pollOfPolls.weightLabel")}
-                    >
-                      {Math.round(c.share * 100)}%
-                    </span>
-                  </span>
-                </Link>
-              </li>
-            ))}
-          </ul>
-        </details>
-      ) : null}
+      <ContributingSurveys contributors={contributors} />
     </section>
   );
 }

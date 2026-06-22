@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import { ContributingSurveys } from "@/components/contributing-surveys";
 import { JsonLd } from "@/components/json-ld";
 import { PageHeader } from "@/components/page-header";
 import { PartySparkline } from "@/components/party-sparkline";
@@ -12,6 +13,7 @@ import {
   seatDistribution,
   surveysWithinDays,
   weightedAverage,
+  weightedAverageBreakdown,
 } from "@/lib/dawum";
 import { partyColorVar } from "@/lib/dawum/colors";
 import { formatDate } from "@/lib/format";
@@ -52,9 +54,16 @@ export default async function PartyPage({
   const series = partySeries(bundestag, matches);
 
   // Weighted poll-of-polls value for this party (last 30 days), else latest.
-  const weightedAll = weightedAverage(surveysWithinDays(bundestag, 30));
+  const within30 = surveysWithinDays(bundestag, 30);
+  const weightedAll = weightedAverage(within30);
   const weighted = weightedAll.find((p) => party.aliases.includes(p.shortcut));
   const current = weighted?.percent ?? series.latest?.percent;
+  // Provenance for the "Aktueller Schnitt": the windowed surveys that actually
+  // reported this party, each with its relative weight — the same breakdown the
+  // dashboard's poll of polls shows, scoped to this party.
+  const contributors = weightedAverageBreakdown(
+    within30.filter((s) => s.results.some((r) => matches(r.shortcut))),
+  );
   // Projected Bundestag seats from the same weighted poll of polls.
   const seats = seatDistribution(weightedAll);
   const partySeats = seats.entries.find((e) =>
@@ -136,6 +145,15 @@ export default async function PartyPage({
               ) : null}
             </Stat>
           </dl>
+
+          {contributors.length > 0 ? (
+            <section className="mb-10">
+              <p className="mb-2 text-xs text-muted">
+                {t("partyPage.contributorsHint")}
+              </p>
+              <ContributingSurveys contributors={contributors} className="" />
+            </section>
+          ) : null}
 
           <section className="mb-10">
             <h2 className="eyebrow mb-3">{t("partyPage.trendTitle")}</h2>

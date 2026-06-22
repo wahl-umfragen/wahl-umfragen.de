@@ -199,6 +199,7 @@
   "partyPage": {
     "current": "Aktueller Schnitt",
     "currentHint": "Gewichteter Poll-of-Polls-Wert (letzte 30 Tage)",
+    "contributorsHint": "Grundlage des aktuellen Schnitts – gewichtet nach Aktualität und Stichprobengröße:",
     "seats": "Sitze",
     "seatsHint": "Projektion (Hare/Niemeyer, 5-%-Hürde)",
     "latest": "Letzte Umfrage",
