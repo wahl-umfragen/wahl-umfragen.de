@@ -1,28 +1,22 @@
 import deDE from "./de-DE.json";
-import enUS from "./en-US.json";
 
 /**
  * Lightweight, dependency-free i18n. `t()` is a pure function over the bundled
  * message catalog and works in both server and client components.
  *
- * The default locale is de-DE; an en-US catalog ships alongside it. `t()` takes
- * an optional `locale` argument so callers can render English once the
- * user-facing locale routing (e.g. an /en subpath + a language switcher) is
- * wired up — the catalogs and key-parity test are the groundwork for that.
- * Until then every call uses the default and the UI stays German.
+ * The app is currently German-only (de-DE). `t()` still accepts an optional
+ * `locale` argument so a second catalog can be added later without touching
+ * call sites, but de-DE is the only locale that ships today.
  */
 
 export const DEFAULT_LOCALE = "de-DE" as const;
 
 export const CATALOGS = {
   "de-DE": deDE,
-  "en-US": enUS,
 } as const;
 
 export type Locale = keyof typeof CATALOGS;
 
-// de-DE is the source of truth for the key shape; en-US must mirror it (enforced
-// by the key-parity unit test).
 type Messages = typeof deDE;
 
 // Dot-paths into the catalog, e.g. "home.title" — gives autocomplete and
