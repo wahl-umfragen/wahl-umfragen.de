@@ -39,7 +39,7 @@ jobs:
     env:
       DATABASE_URL: postgresql://wahlumfragen:wahlumfragen@localhost:5432/wahlumfragen
     steps:
-      - uses: actions/checkout@v6
+      - uses: actions/checkout@v7
 
       - uses: actions/setup-node@v6
         with:
