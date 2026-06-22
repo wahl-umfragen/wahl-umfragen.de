@@ -68,7 +68,7 @@ jobs:
       # it once every budget passes again, so a green PR carries no stale warning.
       - name: Comment Lighthouse budget warnings on PR
         if: ${{ !cancelled() && github.event_name == 'pull_request' }}
-        uses: actions/github-script@v7
+        uses: actions/github-script@v9
         env:
           ASSERTIONS: ${{ steps.lighthouse.outputs.assertionResults }}
           LINKS: ${{ steps.lighthouse.outputs.links }}
