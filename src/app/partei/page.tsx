@@ -1,10 +1,16 @@
 import type { Metadata } from "next";
 import Link from "next/link";
+import { ContributingSurveys } from "@/components/contributing-surveys";
 import { PageHeader } from "@/components/page-header";
 import { SeoSection } from "@/components/seo-section";
 import { t } from "@/i18n";
 import { loadBundestagData } from "@/lib/data";
-import { partySeries, surveysWithinDays, weightedAverage } from "@/lib/dawum";
+import {
+  partySeries,
+  surveysWithinDays,
+  weightedAverage,
+  weightedAverageBreakdown,
+} from "@/lib/dawum";
 import { partyColorVar } from "@/lib/dawum/colors";
 import { PARTIES } from "@/lib/parties";
 import { buildMetadata, PAGE_META } from "@/lib/seo";
@@ -16,7 +22,10 @@ export const metadata: Metadata = buildMetadata({
 
 export default async function PartiesOverviewPage() {
   const { bundestag } = await loadBundestagData();
-  const weighted = weightedAverage(surveysWithinDays(bundestag, 30));
+  const within30 = surveysWithinDays(bundestag, 30);
+  const weighted = weightedAverage(within30);
+  // The surveys feeding every card's average (provenance for the whole set).
+  const contributors = weightedAverageBreakdown(within30);
 
   // One card per party: current weighted value, with latest as fallback.
   const cards = PARTIES.map((party) => {
@@ -58,6 +67,15 @@ export default async function PartiesOverviewPage() {
           </li>
         ))}
       </ul>
+
+      {contributors.length > 0 ? (
+        <div className="mt-6">
+          <p className="mb-2 text-xs text-muted">
+            {t("partyPage.overviewContributorsHint")}
+          </p>
+          <ContributingSurveys contributors={contributors} className="" />
+        </div>
+      ) : null}
 
       <SeoSection title="Umfragewerte je Partei">
         <p>

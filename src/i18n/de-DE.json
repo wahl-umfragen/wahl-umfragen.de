@@ -214,6 +214,7 @@
     "noData": "Für diese Partei liegen noch keine Umfragen vor.",
     "overviewTitle": "Parteien",
     "overviewSubtitle": "Sonntagsfrage je Partei: aktueller Schnitt, Verlauf und Höchst-/Tiefstwerte.",
+    "overviewContributorsHint": "Grundlage der angezeigten Schnitte – die berücksichtigten Umfragen der letzten 30 Tage, gewichtet nach Aktualität und Stichprobengröße:",
     "tableInstitute": "Institut",
     "tableDate": "Datum",
     "tableValue": "Wert"
