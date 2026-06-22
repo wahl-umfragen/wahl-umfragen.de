@@ -47,6 +47,6 @@ describe("POST /api/revalidate", () => {
     expect(res.status).toBe(200);
     const body = await res.json();
     expect(body).toEqual({ revalidated: true, tag: SURVEYS_TAG });
-    expect(revalidateTag).toHaveBeenCalledWith(SURVEYS_TAG, "max");
+    expect(revalidateTag).toHaveBeenCalledWith(SURVEYS_TAG, { expire: 0 });
   });
 });

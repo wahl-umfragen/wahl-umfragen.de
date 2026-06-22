@@ -20,9 +20,12 @@ export async function POST(req: NextRequest) {
     return Response.json({ error: "unauthorized" }, { status: 401 });
   }
 
-  // "max" = stale-while-revalidate: next visit serves cached content and
-  // refreshes in the background. Fine for hourly-updated poll data and avoids
-  // a blocking regeneration under load.
-  revalidateTag(SURVEYS_TAG, "max");
+  // Expire immediately so the *next* visit to any tagged page is a blocking
+  // cache miss that serves fresh data. The "max" stale-while-revalidate profile
+  // instead serves stale content for one more visit — fine for the high-traffic
+  // archive/home, but it left rarely-visited per-id routes (e.g. /institut/[id])
+  // lagging a full ingest behind. `{ expire: 0 }` is the documented form for
+  // external callers (our ingest worker) that need immediate expiration.
+  revalidateTag(SURVEYS_TAG, { expire: 0 });
   return Response.json({ revalidated: true, tag: SURVEYS_TAG });
 }
