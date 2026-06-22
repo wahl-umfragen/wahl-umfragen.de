@@ -33,18 +33,18 @@ export default function ImpressumPage() {
             Angaben gemäß § 5 DDG
           </h3>
           <p className="mt-2 whitespace-pre-line">
-            {`[PLATZHALTER: Vor- und Nachname / Firma]
-[PLATZHALTER: Straße und Hausnummer]
-[PLATZHALTER: PLZ und Ort]
-[PLATZHALTER: Land]`}
+            {`Mike Grab
+c/o Block Services
+Stuttgarter Str. 106
+70736 Fellbach
+Deutschland`}
           </p>
         </section>
 
         <section>
           <h3 className="text-base font-semibold text-foreground">Kontakt</h3>
           <p className="mt-2 whitespace-pre-line">
-            {`E-Mail: [PLATZHALTER: E-Mail-Adresse]
-Telefon: [PLATZHALTER: optional]`}
+            {`E-Mail: kontakt@wahl-umfragen.de`}
           </p>
         </section>
 
@@ -53,9 +53,10 @@ Telefon: [PLATZHALTER: optional]`}
             Verantwortlich für den Inhalt nach § 18 Abs. 2 MStV
           </h3>
           <p className="mt-2 whitespace-pre-line">
-            {`[PLATZHALTER: Vor- und Nachname]
-[PLATZHALTER: Straße und Hausnummer]
-[PLATZHALTER: PLZ und Ort]`}
+            {`Mike Grab
+c/o Block Services
+Stuttgarter Str. 106
+70736 Fellbach`}
           </p>
         </section>
 
