@@ -206,6 +206,11 @@ export const FAQ: FaqItem[] = [
     answer:
       "Nein. Durchschnittswerte, Trends, Sitzverteilungen und Koalitionsrechnungen sind eigene, vereinfachte Auswertungen öffentlich verfügbarer Umfragen und stellen keine Wahlprognose und keine wissenschaftliche Aussage dar.",
   },
+  {
+    question: "Ist die Seite überparteilich?",
+    answer:
+      "Ja. Wahlumfragen ist ein unabhängiges, überparteiliches Projekt. Wir tragen die veröffentlichten Umfragen aller etablierten Institute gleichermaßen zusammen, bevorzugen keine Partei und geben keine Wahlempfehlung ab. Alle Auswertungen (Durchschnitt, Trend, Sitzverteilung) folgen für jede Partei denselben, offengelegten Regeln.",
+  },
 ];
 
 /* --------------------------------------------------------------------------

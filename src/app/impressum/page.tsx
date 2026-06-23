@@ -123,9 +123,10 @@ Stuttgarter Str. 106
             (amtliche Daten, Verwendung mit Quellenangabe).
           </p>
           <p className="mt-2">
-            Diese Website dient ausschließlich der aggregierten Darstellung und
-            Auswertung öffentlich verfügbarer Umfragedaten zu
-            Informationszwecken. Alle Angaben erfolgen ohne Gewähr auf
+            Wahlumfragen ist ein unabhängiges, überparteiliches
+            Informationsangebot und bevorzugt keine Partei. Diese Website dient
+            ausschließlich der aggregierten Darstellung und Auswertung öffentlich
+            verfügbarer Umfragedaten zu Informationszwecken. Alle Angaben erfolgen ohne Gewähr auf
             Richtigkeit, Vollständigkeit und Aktualität. Berechnungen wie
             Durchschnittswerte, Trends, Sitzverteilungen oder
             Koalitionsrechnungen sind eigene, vereinfachte Auswertungen und
