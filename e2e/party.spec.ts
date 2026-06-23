@@ -45,7 +45,7 @@ test.describe("datenstand page", () => {
       page.getByRole("heading", { name: "Datenstand", level: 1 }),
     ).toBeVisible();
     await expect(
-      page.getByText("Letzter Abgleich", { exact: true }),
+      page.getByText("Letzte Datenänderung", { exact: true }),
     ).toBeVisible();
   });
 });
