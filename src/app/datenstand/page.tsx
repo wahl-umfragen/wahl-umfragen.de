@@ -63,6 +63,8 @@ export default async function DatenstandPage() {
         </Stat>
       </dl>
 
+      <p className="mt-3 text-xs text-muted">{t("statusPage.runHint")}</p>
+
       <section className="mt-12">
         <h2 className="eyebrow mb-1">{t("statusPage.coverageTitle")}</h2>
         <p className="mb-4 text-xs text-muted">
