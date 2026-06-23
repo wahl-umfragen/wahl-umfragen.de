@@ -125,14 +125,15 @@ Stuttgarter Str. 106
           <p className="mt-2">
             Wahlumfragen ist ein unabhängiges, überparteiliches
             Informationsangebot und bevorzugt keine Partei. Diese Website dient
-            ausschließlich der aggregierten Darstellung und Auswertung öffentlich
-            verfügbarer Umfragedaten zu Informationszwecken. Alle Angaben erfolgen ohne Gewähr auf
-            Richtigkeit, Vollständigkeit und Aktualität. Berechnungen wie
-            Durchschnittswerte, Trends, Sitzverteilungen oder
-            Koalitionsrechnungen sind eigene, vereinfachte Auswertungen und
-            stellen keine Wahlprognose und keine wissenschaftliche Aussage dar.
-            Eine Haftung für Entscheidungen, die auf Grundlage dieser Daten oder
-            Auswertungen getroffen werden, ist ausgeschlossen.
+            ausschließlich der aggregierten Darstellung und Auswertung
+            öffentlich verfügbarer Umfragedaten zu Informationszwecken. Alle
+            Angaben erfolgen ohne Gewähr auf Richtigkeit, Vollständigkeit und
+            Aktualität. Berechnungen wie Durchschnittswerte, Trends,
+            Sitzverteilungen oder Koalitionsrechnungen sind eigene, vereinfachte
+            Auswertungen und stellen keine Wahlprognose und keine
+            wissenschaftliche Aussage dar. Eine Haftung für Entscheidungen, die
+            auf Grundlage dieser Daten oder Auswertungen getroffen werden, ist
+            ausgeschlossen.
           </p>
         </section>
 
