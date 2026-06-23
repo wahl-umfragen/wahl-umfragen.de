@@ -1,12 +1,11 @@
 name: Deploy
 
-# Deploys to the self-hosted server over SSH. Fires when a CalVer release tag
-# (vYYYY.MM.DD[.N], cut by the local `/bump-version` skill) is pushed, and can
-# also be run manually for a chosen ref. Nothing deploys on a plain push to main.
+# Deploys to the self-hosted server over SSH. Fires when a GitHub Release is
+# published (CalVer YYYY.MM.PATCH, cut by the local `/bump-version` skill) and
+# can also be run manually for a chosen ref. Nothing deploys on a push to main.
 on:
-  push:
-    tags:
-      - "v[0-9]*"
+  release:
+    types: [published]
   workflow_dispatch:
     inputs:
       ref:
@@ -35,7 +34,7 @@ jobs:
       - name: Resolve ref
         id: ref
         run: |
-          REF="${{ github.event.inputs.ref || github.ref_name }}"
+          REF="${{ github.event.inputs.ref || github.event.release.tag_name }}"
           echo "value=$REF" >> "$GITHUB_OUTPUT"
           echo "Deploying ref: $REF"
 
