@@ -88,8 +88,8 @@ Deploying the worker on a Linux server: see [`deploy/README.md`](deploy/README.m
 
 This project is **dual licensed** — code and data separately:
 
-- **Code:** [MIT](LICENSE) © 2026 mike96841. Free to use/fork; the copyright
-  notice must be retained.
+- **Code:** [MIT](LICENSE) © 2026 Mike Grab (wahl-umfragen). Free to use/fork;
+  the copyright notice must be retained.
 - **Data:** The polling data comes from [dawum.de](https://dawum.de/) and is
   licensed under the [Open Database License (ODbL) v1.0](https://opendatacommons.org/licenses/odbl/1-0/).
   The MIT license does **not** apply to the data. Anyone reusing the data
