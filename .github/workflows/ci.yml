@@ -10,6 +10,16 @@ on:
     # changes (dawum payload shifts, dep drift) without a code push. 04:17 UTC
     # avoids the top-of-hour runner contention.
     - cron: "17 4 * * *"
+  # Callable as a gate from deploy.yml so a release only ships if the exact ref
+  # being deployed passes the full suite. `ref` lets the caller pin a tag/sha
+  # that differs from the triggering ref (manual deploy of an arbitrary ref);
+  # on push/PR/schedule `inputs` is null, so checkout falls back to its default.
+  workflow_call:
+    inputs:
+      ref:
+        type: string
+        required: false
+        default: ""
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -22,6 +32,8 @@ jobs:
     timeout-minutes: 15
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref }}
 
       - uses: actions/setup-node@v6
         with:
@@ -69,6 +81,8 @@ jobs:
       DATABASE_URL: postgresql://wahlumfragen:wahlumfragen@localhost:5432/wahlumfragen
     steps:
       - uses: actions/checkout@v7
+        with:
+          ref: ${{ inputs.ref }}
 
       - uses: actions/setup-node@v6
         with:

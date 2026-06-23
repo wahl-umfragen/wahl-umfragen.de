@@ -22,8 +22,18 @@ permissions:
   contents: read
 
 jobs:
+  # Gate: run the full CI suite (format, lint, typecheck, unit + Playwright e2e)
+  # against the exact ref being deployed. The SSH deploy `needs:` this, so a
+  # release that fails any check never reaches the server.
+  ci:
+    name: Pre-deploy checks
+    uses: ./.github/workflows/ci.yml
+    with:
+      ref: ${{ github.event.inputs.ref || github.event.release.tag_name }}
+
   deploy:
     name: SSH deploy
+    needs: ci
     runs-on: ubuntu-latest
     timeout-minutes: 20
     # Gate behind a GitHub Environment so deploys can require approval and the
