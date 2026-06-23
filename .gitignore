@@ -61,3 +61,6 @@ backups/
 
 # local-only bump-version skill (CalVer release tags) — not pushed
 /.claude/skills/bump-version/
+
+# rendered org avatar (manual upload artifact, not part of the repo)
+org-avatar.png
