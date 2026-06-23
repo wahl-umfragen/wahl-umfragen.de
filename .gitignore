@@ -58,3 +58,6 @@ next-env.d.ts
 backups/
 *.dump
 *.dump.gz
+
+# local-only bump-version skill (CalVer release tags) — not pushed
+/.claude/skills/bump-version/
