@@ -179,7 +179,10 @@
     "smoothingNote": "Geglätteter Verlauf (gleitender Durchschnitt mehrerer Umfragen) – dämpft Ausreißer, Einzelwerte im Archiv.",
     "electionMarker": "○ Amtliches Wahlergebnis",
     "electionSourcePrefix": "Quelle: ",
-    "electionDetails": "Werte in der Tabelle"
+    "electionDetails": "Werte in der Tabelle",
+    "barAria": "Aktueller Stand der Sonntagsfrage als Balkendiagramm",
+    "seatsAria": "Sitzverteilung im Bundestag als Halbkreisdiagramm (Hochrechnung)",
+    "trendAria": "Wahltrend: geglätteter Umfrageverlauf je Partei als Liniendiagramm"
   },
   "coalition": {
     "basis": "Grundlage: {label}",
@@ -243,5 +246,24 @@
     "captchaRequired": "Bitte die Bot-Schutz-Prüfung abschließen.",
     "success": "Danke! Deine Meldung ist bei uns eingegangen.",
     "error": "Senden fehlgeschlagen. Bitte später erneut versuchen."
+  },
+  "errorPage": {
+    "title": "Etwas ist schiefgelaufen",
+    "body": "Die Daten konnten gerade nicht geladen werden. Bitte versuche es erneut – bleibt das Problem bestehen, schau später noch einmal vorbei.",
+    "retry": "Erneut versuchen",
+    "home": "Zur Startseite",
+    "reference": "Referenz: {digest}"
+  },
+  "notFoundPage": {
+    "metaTitle": "Seite nicht gefunden",
+    "title": "Seite nicht gefunden",
+    "body": "Diese Seite gibt es nicht (mehr). Vielleicht hilft einer dieser Links:",
+    "linkHome": "Sonntagsfrage",
+    "linkTrend": "Wahltrend",
+    "linkArchive": "Archiv"
+  },
+  "instituteTable": {
+    "changeUnchanged": "unverändert ggü. vorheriger Umfrage des Instituts",
+    "changeDelta": "{delta} ggü. vorheriger Umfrage des Instituts"
   }
 }

@@ -1,8 +1,9 @@
 import Link from "next/link";
 import type { Metadata } from "next";
+import { t } from "@/i18n";
 
 export const metadata: Metadata = {
-  title: "Seite nicht gefunden",
+  title: t("notFoundPage.metaTitle"),
   robots: { index: false, follow: true },
 };
 
@@ -21,29 +22,29 @@ export default function NotFound() {
         404
       </p>
       <h1 className="mt-3 font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
-        Seite nicht gefunden
+        {t("notFoundPage.title")}
       </h1>
       <p className="mx-auto mt-3 max-w-md text-muted">
-        Diese Seite gibt es nicht (mehr). Vielleicht hilft einer dieser Links:
+        {t("notFoundPage.body")}
       </p>
       <nav className="mt-6 flex flex-wrap justify-center gap-3 text-sm font-semibold">
         <Link
           href="/"
           className="rounded-md bg-brand px-4 py-2 text-brand-foreground transition-colors hover:bg-brand-hover"
         >
-          Sonntagsfrage
+          {t("notFoundPage.linkHome")}
         </Link>
         <Link
           href="/trend"
           className="rounded-md border border-border-strong px-4 py-2 transition-colors hover:bg-surface-2"
         >
-          Wahltrend
+          {t("notFoundPage.linkTrend")}
         </Link>
         <Link
           href="/archiv"
           className="rounded-md border border-border-strong px-4 py-2 transition-colors hover:bg-surface-2"
         >
-          Archiv
+          {t("notFoundPage.linkArchive")}
         </Link>
       </nav>
     </div>

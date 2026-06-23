@@ -160,6 +160,20 @@ export const PAGE_INTRO: Record<string, string> = {
     "Diese Übersicht zeigt die amtlichen Endergebnisse der Bundestagswahl (Zweitstimmenanteile je Partei), festgestellt von Die Bundeswahlleiterin. Anders als die Sonntagsfrage sind das keine Umfragen, sondern das tatsächliche Wahlergebnis – die Bezugsgröße, an der sich die Umfragen messen lassen. Im Wahltrend sind dieselben Werte zusätzlich als Markierung am Wahltag eingezeichnet.",
 };
 
+/**
+ * Heading for the on-page SeoSection, paired with the PAGE_INTRO body above.
+ * Kept here (not in the i18n catalog) so each section title lives next to its
+ * prose — see the note at the top of this file.
+ */
+export const SEO_SECTION_TITLES: Record<string, string> = {
+  home: "Aktuelle Umfragen zur Bundestagswahl",
+  trend: "Über den Wahltrend",
+  koalition: "Über den Koalitionsrechner",
+  archiv: "Über das Umfrage-Archiv",
+  wahlen: "Über die Wahlergebnisse",
+  parteien: "Umfragewerte je Partei",
+};
+
 export interface FaqItem {
   question: string;
   answer: string;

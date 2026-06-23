@@ -155,7 +155,7 @@ export function TrendChart({
       <div
         className="min-h-0 flex-1 cursor-pointer"
         role="img"
-        aria-label="Wahltrend: geglätteter Umfrageverlauf je Partei als Liniendiagramm"
+        aria-label={t("charts.trendAria")}
       >
         <ResponsiveContainer
           width="100%"

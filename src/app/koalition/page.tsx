@@ -14,7 +14,13 @@ import {
 } from "@/lib/dawum";
 import { formatDate, formatDateTime } from "@/lib/format";
 import { SeoSection } from "@/components/seo-section";
-import { breadcrumbLd, buildMetadata, PAGE_INTRO, PAGE_META } from "@/lib/seo";
+import {
+  breadcrumbLd,
+  buildMetadata,
+  PAGE_INTRO,
+  PAGE_META,
+  SEO_SECTION_TITLES,
+} from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
   ...PAGE_META.koalition,
@@ -38,7 +44,7 @@ export default function KoalitionPage() {
         <Koalition />
       </Suspense>
 
-      <SeoSection title="Über den Koalitionsrechner">
+      <SeoSection title={SEO_SECTION_TITLES.koalition}>
         <p>{PAGE_INTRO.koalition}</p>
       </SeoSection>
     </div>

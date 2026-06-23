@@ -43,7 +43,7 @@ export function CurrentStandingChart({ data }: { data: PartyAverage[] }) {
     >
       <div
         role="img"
-        aria-label="Aktueller Stand der Sonntagsfrage als Balkendiagramm"
+        aria-label={t("charts.barAria")}
         className="h-full w-full"
       >
         <ResponsiveContainer
@@ -142,7 +142,7 @@ export function SeatDistributionChart({ data }: { data: SeatDistribution }) {
     <div data-testid="seat-chart" className={CARD}>
       <div
         role="img"
-        aria-label="Sitzverteilung im Bundestag als Halbkreisdiagramm (Hochrechnung)"
+        aria-label={t("charts.seatsAria")}
         className="h-64 w-full"
       >
         <ResponsiveContainer

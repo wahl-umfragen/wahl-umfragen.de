@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import { t } from "@/i18n";
 
 /**
  * Route-level error boundary. Catches render/data errors (e.g. the DB being
@@ -22,30 +23,27 @@ export default function Error({
         className="mx-auto mb-4 h-1 w-12 rounded-full bg-accent"
       />
       <h1 className="font-display text-3xl font-extrabold tracking-tight sm:text-4xl">
-        Etwas ist schiefgelaufen
+        {t("errorPage.title")}
       </h1>
-      <p className="mx-auto mt-3 max-w-md text-muted">
-        Die Daten konnten gerade nicht geladen werden. Bitte versuche es erneut
-        – bleibt das Problem bestehen, schau später noch einmal vorbei.
-      </p>
+      <p className="mx-auto mt-3 max-w-md text-muted">{t("errorPage.body")}</p>
       <div className="mt-6 flex flex-wrap justify-center gap-3">
         <button
           type="button"
           onClick={reset}
           className="rounded-md bg-brand px-4 py-2 text-sm font-semibold text-brand-foreground transition-colors hover:bg-brand-hover"
         >
-          Erneut versuchen
+          {t("errorPage.retry")}
         </button>
         <Link
           href="/"
           className="rounded-md border border-border-strong px-4 py-2 text-sm font-semibold transition-colors hover:bg-surface-2"
         >
-          Zur Startseite
+          {t("errorPage.home")}
         </Link>
       </div>
       {error.digest ? (
         <p className="mt-6 font-mono text-xs text-muted">
-          Referenz: {error.digest}
+          {t("errorPage.reference", { digest: error.digest })}
         </p>
       ) : null}
     </div>

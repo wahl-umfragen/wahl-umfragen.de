@@ -13,6 +13,7 @@ import {
   datasetLd,
   PAGE_INTRO,
   PAGE_META,
+  SEO_SECTION_TITLES,
 } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
@@ -37,7 +38,7 @@ export default function ArchivPage() {
         <Archive />
       </Suspense>
 
-      <SeoSection title="Über das Umfrage-Archiv">
+      <SeoSection title={SEO_SECTION_TITLES.archiv}>
         <p>{PAGE_INTRO.archiv}</p>
       </SeoSection>
     </div>

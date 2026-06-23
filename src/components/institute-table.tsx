@@ -36,8 +36,10 @@ function DeltaBadge({ value }: { value: number | undefined }) {
         : "text-muted";
   const label =
     value === 0
-      ? "unverändert ggü. vorheriger Umfrage des Instituts"
-      : `${value > 0 ? "+" : ""}${value.toFixed(1)} ggü. vorheriger Umfrage des Instituts`;
+      ? t("instituteTable.changeUnchanged")
+      : t("instituteTable.changeDelta", {
+          delta: `${value > 0 ? "+" : ""}${value.toFixed(1)}`,
+        });
 
   return (
     <Tooltip

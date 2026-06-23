@@ -7,7 +7,13 @@ import { partyColorVar } from "@/lib/dawum/colors";
 import { BUNDESTAG_ELECTIONS } from "@/lib/elections/results";
 import { buildElectionTable } from "@/lib/elections/table";
 import { formatDate } from "@/lib/format";
-import { breadcrumbLd, buildMetadata, PAGE_INTRO, PAGE_META } from "@/lib/seo";
+import {
+  breadcrumbLd,
+  buildMetadata,
+  PAGE_INTRO,
+  PAGE_META,
+  SEO_SECTION_TITLES,
+} from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
   ...PAGE_META.wahlen,
@@ -134,7 +140,7 @@ export default function WahlenPage() {
         </p>
       ) : null}
 
-      <SeoSection title="Über die Wahlergebnisse">
+      <SeoSection title={SEO_SECTION_TITLES.wahlen}>
         <p>{PAGE_INTRO.wahlen}</p>
       </SeoSection>
     </div>

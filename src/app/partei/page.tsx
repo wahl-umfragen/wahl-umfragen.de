@@ -13,7 +13,7 @@ import {
 } from "@/lib/dawum";
 import { partyColorVar } from "@/lib/dawum/colors";
 import { PARTIES } from "@/lib/parties";
-import { buildMetadata, PAGE_META } from "@/lib/seo";
+import { buildMetadata, PAGE_META, SEO_SECTION_TITLES } from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
   ...PAGE_META.parteien,
@@ -77,7 +77,7 @@ export default async function PartiesOverviewPage() {
         </div>
       ) : null}
 
-      <SeoSection title="Umfragewerte je Partei">
+      <SeoSection title={SEO_SECTION_TITLES.parteien}>
         <p>
           Diese Übersicht zeigt für jede im Bundestag relevante Partei den
           aktuellen gewichteten Schnitt der Sonntagsfrage. Über die einzelnen

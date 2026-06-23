@@ -15,7 +15,7 @@ import {
   weightedAverageBreakdown,
 } from "@/lib/dawum";
 import { formatDateTime } from "@/lib/format";
-import { PAGE_INTRO, websiteLd } from "@/lib/seo";
+import { PAGE_INTRO, SEO_SECTION_TITLES, websiteLd } from "@/lib/seo";
 
 /** Institutes whose latest poll is older than this are treated as inactive and
  * hidden from the current-standing table. */
@@ -29,7 +29,7 @@ export default function Page() {
         <Surveys />
       </Suspense>
 
-      <SeoSection title="Aktuelle Umfragen zur Bundestagswahl">
+      <SeoSection title={SEO_SECTION_TITLES.home}>
         <p>{PAGE_INTRO.home}</p>
       </SeoSection>
       <FaqSection />

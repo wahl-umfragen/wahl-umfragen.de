@@ -23,13 +23,12 @@ prune them once they are resolved or absorbed into `AGENTS.md`.
 
 ## Open threads
 
-- **Untranslated-text cleanup (in progress).** Several hardcoded user-facing
-  strings still bypass `t()` / `seo.ts`: `app/error.tsx` and `app/not-found.tsx`
-  (don't even import `t`), the inline `SeoSection title="…"` props across the
-  page routes, chart `aria-label`/screen-reader captions in
-  `components/poll-charts.tsx` and `components/trend-chart.tsx`, and the change
-  tooltips in `components/institute-table.tsx`. The 8× `"Startseite"` are inside
-  `breadcrumbLd(...)` (JSON-LD, not visible UI) — lowest priority.
-- **Ingest worker emits an error despite completing** — the run lands data but
-  returns/logs an error; under investigation. Likely a post-commit best-effort
-  step (revalidate POST / heartbeat / SMTP alert) rather than the upsert itself.
+- _(none open.)_ Resolved:
+  - **Untranslated-text cleanup — done.** `error.tsx`/`not-found.tsx`, the
+    `SeoSection` titles (now `SEO_SECTION_TITLES` in `seo.ts`), chart
+    `aria-label`s and the institute-table change tooltips all route through
+    `t()` / `seo.ts`. The only hardcoded German left is the `breadcrumbLd(...)`
+    `"Startseite"` JSON-LD label — intentional (non-visible structured data).
+  - **Ingest worker "error" — explained.** It was the best-effort
+    `/api/revalidate` POST failing while the app was unreachable; harmless and
+    gone now that the app is deployed and reachable.

@@ -9,7 +9,13 @@ import { seatDistribution } from "@/lib/dawum";
 import { buildDashboardData } from "@/lib/dashboard";
 import { formatDateTime } from "@/lib/format";
 import { SeoSection } from "@/components/seo-section";
-import { breadcrumbLd, buildMetadata, PAGE_INTRO, PAGE_META } from "@/lib/seo";
+import {
+  breadcrumbLd,
+  buildMetadata,
+  PAGE_INTRO,
+  PAGE_META,
+  SEO_SECTION_TITLES,
+} from "@/lib/seo";
 
 export const metadata: Metadata = buildMetadata({
   ...PAGE_META.trend,
@@ -33,7 +39,7 @@ export default function TrendPage() {
         <Dashboard />
       </Suspense>
 
-      <SeoSection title="Über den Wahltrend">
+      <SeoSection title={SEO_SECTION_TITLES.trend}>
         <p>{PAGE_INTRO.trend}</p>
       </SeoSection>
     </div>
