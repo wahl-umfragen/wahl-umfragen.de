@@ -6,8 +6,10 @@ description: 'Run or debug the dawum.de → Postgres ingest. Use when asked to r
 # ingest
 
 The ingest worker pulls dawum's full database, upserts dimensions + surveys +
-results into Postgres in one chunked transaction, and accumulates historical
-snapshots (so data survives dawum's ~90-day window). Entry point:
+results into Postgres in one chunked transaction, and mirrors dawum's full
+dataset (all polls since 2017) so the frontend reads from our own DB instead of
+dawum's live API — decoupling + ISR caching, not retention (dawum drops
+nothing). Entry point:
 `scripts/ingest.ts` → `runIngest()` in `src/lib/ingest/run.ts`. The transform
 (`src/lib/ingest/transform.ts`) is pure; side effects live in `run.ts`.
 

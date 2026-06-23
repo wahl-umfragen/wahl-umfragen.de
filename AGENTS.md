@@ -13,9 +13,15 @@ Aggregator for Bundestag polling data from dawum.de (ODbL).
 1. **Ingest path (writes)** — `scripts/ingest.ts` → `src/lib/ingest/run.ts`
    fetches dawum via `src/lib/dawum/client.ts`, transforms the JSON into row
    shapes (`src/lib/ingest/transform.ts`), and upserts into Postgres. This
-   accumulates **historical snapshots** so we keep data after dawum's ~90-day
-   window. Runs hourly via the systemd timer in `deploy/`, guarded by dawum's
-   `last_update` (see the `ingest_runs` note below).
+   maintains **our own copy of dawum's full dataset** (dawum serves all polls
+   back to 2017, so this is a mirror, not a retention archive). The point is to
+   **decouple the frontend from dawum's live API** — the site reads from
+   Postgres for resilience (works even if dawum is slow/down/changes) and cheap
+   ISR caching, instead of fetching dawum on every render. Runs hourly via the
+   systemd timer in `deploy/`, guarded by dawum's `last_update` (see the
+   `ingest_runs` note below). Note the upsert is `onConflictDoUpdate`, so the DB
+   reflects dawum's *current* values — it does not keep a per-survey revision
+   history.
 
 2. **DB read path (frontend)** — every page route loads via
    `loadBundestagData()` in `src/lib/data/load.ts`, which reads accumulated

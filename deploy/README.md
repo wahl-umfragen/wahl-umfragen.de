@@ -1,9 +1,11 @@
 # Deploying the ingest service (Linux)
 
-The ingest accumulates dawum's polling data into Postgres so we keep history
-beyond dawum's ~90-day API window. dawum never returns surveys older than that,
-so the ingest must run **regularly on an always-on host** — once a gap is longer
-than the window, surveys published and dropped within it are lost for good.
+The ingest mirrors dawum's polling data into Postgres so the frontend reads from
+our own DB instead of dawum's live API — decoupling the site from the upstream
+(it keeps working if dawum is slow/down/changes) and enabling cheap ISR caching.
+dawum serves the full back-catalogue since 2017, so this is **not** a retention
+archive; it runs **regularly on an always-on host** mainly so new surveys show
+up promptly.
 
 This sets it up as a **systemd timer** on the same Linux server that runs the
 Postgres container and (later) the Next app. Everything is self-hosted — no
@@ -109,10 +111,12 @@ npm run build:ingest    # rebuild dist/ingest.cjs
 
 ## Database backups
 
-The DB accumulates polling history **beyond dawum's ~90-day window**, so it is
-not reproducible — a lost `pgdata` volume loses data for good. `backup-db.sh`
-dumps Postgres (custom format, gzipped) and prunes old dumps; a systemd timer
-runs it daily.
+The poll data itself is reproducible — a lost `pgdata` volume can be rebuilt by
+re-ingesting from dawum (it serves everything since 2017). The backup mainly
+saves a full re-ingest and preserves the DB-only operational state (the
+`ingest_runs` audit log, `last_seen_at` timestamps). `backup-db.sh` dumps
+Postgres (custom format, gzipped) and prunes old dumps; a systemd timer runs it
+daily.
 
 ```bash
 # Install (alongside the ingest units)

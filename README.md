@@ -48,10 +48,12 @@ Data Cache rejects entries over 2 MB and the accumulated history has grown past
 that; it is decompressed exactly once per request via React `cache()`.
 
 The DB is populated by the **ingest worker** (`scripts/ingest.ts` →
-`runIngest()`), which runs hourly (systemd timer in `deploy/`) and accumulates
-snapshots so data is retained beyond dawum's ~90-day window.
-`src/lib/dawum/client.ts` (the live dawum fetch) is now used only by the ingest
-path.
+`runIngest()`), which runs hourly (systemd timer in `deploy/`) and mirrors
+dawum's full dataset (all polls since 2017) into Postgres. The point is to
+decouple the frontend from dawum's live API — the site reads from our own DB for
+resilience and cheap ISR caching, not to retain data dawum would otherwise drop
+(it drops nothing). `src/lib/dawum/client.ts` (the live dawum fetch) is now used
+only by the ingest path.
 
 `runIngest()`:
 

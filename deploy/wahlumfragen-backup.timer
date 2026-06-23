@@ -1,10 +1,11 @@
 # Schedules the Postgres backup. Enable THIS unit (not the .service):
 #   sudo systemctl enable --now wahlumfragen-backup.timer
 #
-# Fires daily in the early morning. The dump is cheap relative to the value of
-# the data (irreplaceable polling history beyond dawum's 90-day window), so a
-# daily cadence with 14-day retention is a sane default — bump BACKUP_KEEP_DAYS
-# in .env for a longer tail, and copy the backups off-box for real durability.
+# Fires daily in the early morning. The poll data is reproducible by re-ingesting
+# from dawum, so the backup mainly saves a full re-ingest and preserves DB-only
+# state (the ingest_runs audit log); a daily cadence with 14-day retention is a
+# sane default — bump BACKUP_KEEP_DAYS in .env for a longer tail, and copy the
+# backups off-box for real durability.
 
 [Unit]
 Description=Run wahlumfragen Postgres backup daily

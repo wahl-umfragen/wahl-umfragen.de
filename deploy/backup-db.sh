@@ -1,8 +1,9 @@
 #!/usr/bin/env bash
 #
-# Postgres backup for wahlumfragen. The DB accumulates polling history BEYOND
-# dawum's ~90-day API window (see ../AGENTS.md), so a lost `pgdata` volume means
-# unrecoverable data — this is the most important ops job on the box.
+# Postgres backup for wahlumfragen. The poll data is reproducible by re-ingesting
+# from dawum (it serves everything since 2017, see ../AGENTS.md), so this backup
+# mainly saves a full re-ingest and preserves DB-only state (the ingest_runs
+# audit log).
 #
 # Dumps the database (custom format, compressed) via the running postgres
 # container, then prunes dumps older than the retention window. Designed to be
