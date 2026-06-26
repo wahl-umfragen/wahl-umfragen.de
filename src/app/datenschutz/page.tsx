@@ -14,7 +14,7 @@ export const metadata: Metadata = buildMetadata({
  * legal prose lives inline rather than in the i18n catalog.
  *
  * This text describes the *current* data practices: our own cookieless,
- * self-hosted countless analytics (no consent gate, no third party), server
+ * self-hosted analytics (no consent gate, no third party), server
  * logfiles, and the dawum.de data source. If the analytics setup or hosting
  * changes, update this page accordingly.
  * [PLATZHALTER] markers must be filled before going live.
@@ -100,21 +100,22 @@ export default function DatenschutzPage() {
 
         <section>
           <h3 className="text-base font-semibold text-foreground">
-            5. Reichweitenmessung (countless)
+            5. Reichweitenmessung
           </h3>
           <p className="mt-2">
-            Zur statistischen Auswertung der Besuche nutzen wir{" "}
-            <strong className="font-medium text-foreground">countless</strong>,
-            eine von uns selbst betriebene, cookielose Analyselösung. Die
-            Auswertung erfolgt ausschließlich auf unserer eigenen Infrastruktur
-            – es ist{" "}
+            Zur statistischen Auswertung der Besuche nutzen wir eine{" "}
+            <strong className="font-medium text-foreground">
+              von uns selbst betriebene, cookielose Analyselösung
+            </strong>
+            . Die Auswertung erfolgt ausschließlich auf unserer eigenen
+            Infrastruktur – es ist{" "}
             <strong className="font-medium text-foreground">
               kein externer Analyse-Dienstleister
             </strong>{" "}
             eingebunden und es werden keine Daten an Dritte weitergegeben.
           </p>
           <p className="mt-2">
-            countless arbeitet{" "}
+            Die Analyselösung arbeitet{" "}
             <strong className="font-medium text-foreground">
               cookielos und ohne personenbezogene Daten
             </strong>
