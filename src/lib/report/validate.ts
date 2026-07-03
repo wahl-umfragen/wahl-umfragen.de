@@ -22,8 +22,7 @@ export interface ValidReport {
 }
 
 export type ValidationResult =
-  | { ok: true; value: ValidReport }
-  | { ok: false; error: string };
+  { ok: true; value: ValidReport } | { ok: false; error: string };
 
 /** Pragmatic email shape check — not RFC-perfect, just enough to reject junk. */
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
